@@ -8,6 +8,8 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Inja/Inja.csproj", "Inja/"]
+COPY ["InjaData/InjaData.csproj", "InjaData/"]
+
 RUN dotnet restore "Inja/Inja.csproj"
 COPY . .
 WORKDIR "/src/Inja"
