@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inja", "Inja\Inja.csproj", "{24F81C1A-3882-43C1-817A-64625E4240E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InjaData", "InjaData\InjaData.csproj", "{C01CC468-2A1D-4B48-817B-6EA47C483ACB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24F81C1A-3882-43C1-817A-64625E4240E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24F81C1A-3882-43C1-817A-64625E4240E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24F81C1A-3882-43C1-817A-64625E4240E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24F81C1A-3882-43C1-817A-64625E4240E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C01CC468-2A1D-4B48-817B-6EA47C483ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C01CC468-2A1D-4B48-817B-6EA47C483ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C01CC468-2A1D-4B48-817B-6EA47C483ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C01CC468-2A1D-4B48-817B-6EA47C483ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38C3D1A6-90DB-40E4-956E-D3BBACF89A88}
+	EndGlobalSection
+EndGlobal
