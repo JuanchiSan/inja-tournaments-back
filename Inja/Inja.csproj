@@ -28,4 +28,8 @@
     <ProjectReference Include="..\InjaData\InjaData.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\" />
+  </ItemGroup>
+
 </Project>
