@@ -23,7 +23,7 @@ namespace InjaData.Models
 		{
 			if (!optionsBuilder.IsConfigured)
 			{
-				optionsBuilder.UseNpgsql(Helper.CS);
+				optionsBuilder.UseNpgsql("Host=10.10.12.11; Database=postgres; Username=postgres; Password=Qwert.789");
 			}
 		}
 

@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<InjaData.Models.dbContext>(options =>
-	options.UseNpgsql(InjaData.Helper.CS));
+	options.UseNpgsql("Host=10.10.12.11; Database=postgres; Username=postgres; Password=Qwert.789"));
 
 var app = builder.Build();
 
