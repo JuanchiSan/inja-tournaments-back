@@ -1,16 +1,19 @@
-﻿namespace InjaData.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace InjaData.Models;
 
 public partial class City
 {
-	public City()
-	{
-		Personaddresses = new HashSet<Personaddress>();
-	}
+    public int Id { get; set; }
 
-	public int Idcity { get; set; }
-	public short Idcountry { get; set; }
-	public string Cityname { get; set; } = null!;
+    public int Countryid { get; set; }
 
-	public virtual Country IdcountryNavigation { get; set; } = null!;
-	public virtual ICollection<Personaddress> Personaddresses { get; set; }
+    public string Name { get; set; } = null!;
+
+    public bool? Active { get; set; }
+
+    public virtual Country Country { get; set; } = null!;
+
+    public virtual ICollection<Ninjauser> Ninjausers { get; set; } = new List<Ninjauser>();
 }

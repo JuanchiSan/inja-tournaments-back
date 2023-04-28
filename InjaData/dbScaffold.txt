@@ -1,1 +1,1 @@
-﻿Scaffold-DbContext "Host=10.10.12.11; Database=postgres; Username=postgres; Password=Qwert.789" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models
+﻿Scaffold-DbContext "Host=10.99.98.11; Database=Naily; Username=postgres; Password=Qwert.789" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -context dbContext -force

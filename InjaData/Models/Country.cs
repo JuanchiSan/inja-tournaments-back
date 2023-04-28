@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace InjaData.Models
+namespace InjaData.Models;
+
+public partial class Country
 {
-    public partial class Country
-    {
-        public Country()
-        {
-            Cities = new HashSet<City>();
-        }
+    public int Id { get; set; }
 
-        public short Id { get; set; }
-        public string Countryname { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-        public virtual ICollection<City> Cities { get; set; }
-    }
+    public bool? Active { get; set; }
+
+    public virtual ICollection<Channelpaid> Channelpaids { get; set; } = new List<Channelpaid>();
+
+    public virtual ICollection<City> Cities { get; set; } = new List<City>();
 }
