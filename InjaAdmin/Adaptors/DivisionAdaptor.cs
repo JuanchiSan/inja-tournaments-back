@@ -4,15 +4,15 @@ using Syncfusion.Blazor;
 
 namespace InjaAdmin.Adaptors;
 
-public class JugmentCriteriaAdaptor : DataAdaptor
+public class DivisionAdaptor : DataAdaptor
 {
 	dbContext _db = new dbContext();
 	/// <summary>
 	/// Method for read data from database
 	/// </summary>
-	public override object Read(DataManagerRequest dm, string? key = null)
+	public override object Read(DataManagerRequest dm, string key = null)
 	{
-		IEnumerable<Judgmentcriterion> DataSource = _db.Judgmentcriteria.ToList();
+		IEnumerable<Division> DataSource = _db.Divisions.ToList();
 		if (dm.Search != null && dm.Search.Count > 0)
 		{
 			// Searching
@@ -28,7 +28,7 @@ public class JugmentCriteriaAdaptor : DataAdaptor
 			// Filtering
 			DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
 		}
-		int count = DataSource.Cast<Judgmentcriterion>().Count();
+		int count = DataSource.Cast<Division>().Count();
 		if (dm.Skip != 0)
 		{
 			//Paging
@@ -45,9 +45,7 @@ public class JugmentCriteriaAdaptor : DataAdaptor
 	/// </summary>
 	public override object Insert(DataManager dataManager, object value, string key)
 	{
-		var objItem = value as Judgmentcriterion;
-		if (objItem == null) { return objItem!; }
-		_db.Judgmentcriteria.Add(objItem);
+		_db.Divisions.Add(value as Division);
 		_db.SaveChanges();
 		return value;
 	}
@@ -56,13 +54,10 @@ public class JugmentCriteriaAdaptor : DataAdaptor
 	/// </summary>
 	public override object Update(DataManager dataManager, object value, string keyField, string key)
 	{
-		var ModelValue = (value as Judgmentcriterion);
-		var data = _db.Judgmentcriteria.Where(x => x.Id == ModelValue.Id).SingleOrDefault();
+		var ModelValue = (value as Division);
+		var data = _db.Divisions.Where(x => x.Id == ModelValue.Id).SingleOrDefault();
 		data.Name = ModelValue.Name;
-		data.Namees = ModelValue.Namees;
-		data.Namefr = ModelValue.Namefr;
-		data.Namepr = ModelValue.Namepr;
-		data.Nameit = ModelValue.Nameit;
+		data.Active = ModelValue.Active;
 		_db.SaveChanges();
 		return value;
 	}
@@ -71,8 +66,8 @@ public class JugmentCriteriaAdaptor : DataAdaptor
 	/// </summary>
 	public override object Remove(DataManager dataManager, object value, string keyField, string key)
 	{
-		Judgmentcriterion ord = _db.Judgmentcriteria.Find((int)value);
-		_db.Judgmentcriteria.Remove(ord);
+		Division ord = _db.Divisions.Find((int)value);
+		_db.Divisions.Remove(ord);
 		_db.SaveChanges();
 		return value;
 	}

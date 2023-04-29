@@ -10,7 +10,7 @@ public class EventAdaptor : DataAdaptor
     /// <summary>
     /// Method for read data from database
     /// </summary>
-    public override object Read(DataManagerRequest dm, string key = null)
+    public override object Read(DataManagerRequest dm, string? key = null)
     {
         IEnumerable<Event> DataSource = _db.Events.ToList();
         if (dm.Search != null && dm.Search.Count > 0)

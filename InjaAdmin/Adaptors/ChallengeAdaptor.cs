@@ -10,7 +10,7 @@ public class ChallengeAdaptor : DataAdaptor
   /// <summary>
   /// Method for read data from database
   /// </summary>
-  public override object Read(DataManagerRequest dm, string key = null)
+  public override object Read(DataManagerRequest dm, string? key = null)
   {
     IEnumerable<Challenge> DataSource = _db.Challenges.ToList();
     if (dm.Search != null && dm.Search.Count > 0)

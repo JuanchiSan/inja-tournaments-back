@@ -15,15 +15,15 @@
 		<SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
 		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Event"/>
 		<GridColumns>
-			<GridColumn Field=@nameof(Event.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
-			<GridColumn Field=@nameof(Event.Name) HeaderText="Name" Width="150"/>
-			<GridColumn Field=@nameof(Event.Creatoruserid) HeaderText="Creatoruserid" Width="150"/>
-			<GridColumn Field=@nameof(Event.Startdate) HeaderText="Startdate" Width="150"/>
-			<GridColumn Field=@nameof(Event.Comment) HeaderText="Comment" Width="150"/>
-			<GridColumn Field=@nameof(Event.Enddate) HeaderText="Enddate" Width="150"/>
-			<GridColumn Field=@nameof(Event.Startinscription) HeaderText="Startinscription" Width="150"/>
-			<GridColumn Field=@nameof(Event.Endinscription) HeaderText="Endinscription" Width="150"/>
-			<GridColumn Field=@nameof(Event.Active) HeaderText="Active" Width="150"/>
+			<GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+			<GridColumn Field="@nameof(Event.Name)" HeaderText="Name" Width="150"/>
+			<GridColumn Field="@nameof(Event.Creatoruserid)" HeaderText="Creatoruserid" Width="150"/>
+			<GridColumn Field="@nameof(Event.Startdate)" HeaderText="Startdate" EditType="EditType.DateTimePickerEdit" Width="150"/>
+			<GridColumn Field="@nameof(Event.Enddate)" HeaderText="Enddate" EditType="EditType.DateTimePickerEdit" Width="150"/>
+			<GridColumn Field="@nameof(Event.Startinscription)" HeaderText="Startinscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
+			<GridColumn Field="@nameof(Event.Endinscription)" HeaderText="Endinscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
+			<GridColumn Field="@nameof(Event.Comment)" HeaderText="Comment" Width="150" />
+			<GridColumn Field="@nameof(Event.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
 		</GridColumns>
 	</SfGrid>
 </div>
