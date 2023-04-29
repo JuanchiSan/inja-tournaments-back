@@ -1,5 +1,4 @@
 ﻿@page "/CompetitionType"
-@using InjaAdmin.Adaptors;
 
 <h3>CompetitionType</h3>
 <div>
@@ -12,7 +11,7 @@
 			<GridPageSettings PageSizes="true"></GridPageSettings>
 			<SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
 			<GridSelectionSettings Type="SelectionType.Multiple"></GridSelectionSettings>
-			<GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected"></GridEvents>
+			<GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected" />
 			<GridColumns>
 				<GridColumn Field="@nameof(Competitiontype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
 				<GridColumn Field="@nameof(Competitiontype.Name)" HeaderText="Name" Width="150"></GridColumn>
