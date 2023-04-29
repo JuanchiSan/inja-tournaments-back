@@ -1,0 +1,51 @@
+﻿@page "/Events"
+@using Syncfusion.Blazor;
+@using Syncfusion.Blazor.Data;
+@using Syncfusion.Blazor.Grids;
+@using InjaData.Models;
+
+<div>
+    <SfGrid @ref="@DataGrid" TValue="Event" ID="Grid1" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
+        <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+        <SfDataManager AdaptorInstance="@typeof(GridCustomAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+        <GridEvents OnToolbarClick="@GridToolbarClick" TValue="Event"></GridEvents>
+        <GridColumns>
+        	<GridColumn Field=@nameof(Event.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Name) HeaderText="Name"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Creatoruserid) HeaderText="Creatoruserid"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Startdate) HeaderText="Startdate"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Comment) HeaderText="Comment"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Enddate) HeaderText="Enddate"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Startinscription) HeaderText="Startinscription"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Endinscription) HeaderText="Endinscription"  Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Event.Active) HeaderText="Active"  Width="150"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+
+@code {  
+    SfGrid<Event>? DataGrid { get; set; }
+    /// <summary>
+    /// Event for Toolbar click for Grid Exporting
+    /// </summary>
+    public void GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+    	if (args.Item.Id == "Grid1_excelexport")
+        {
+            this.DataGrid.ExportToExcelAsync();
+        }
+    	if (args.Item.Id == "Grid1_pdfexport")
+        {
+            this.DataGrid.ExportToPdfAsync();
+        }
+    	if (args.Item.Id == "Grid1_csvexport")
+        {
+            this.DataGrid.ExportToCsvAsync();
+        }
+    }
+      
+
+
+}

@@ -4,13 +4,20 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>3c7bfef2-aedc-4745-b7e7-0808cc9aac0a</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\Events.razor" />
+  </ItemGroup>
   
    <ItemGroup>
          <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
            <PrivateAssets>all</PrivateAssets>
            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
          </PackageReference>
+         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
          <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
          <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
          <PackageReference Include="Syncfusion.Blazor.Grid" Version="21.1.41" />
@@ -37,6 +44,22 @@
        <Generator>PublicResXFileCodeGenerator</Generator>
        <LastGenOutput>SfResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Events.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Events.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Events.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
