@@ -1,4 +1,4 @@
-﻿namespace InjaAdmin.Data
+namespace InjaApp.Data
 {
 	public class WeatherForecastService
 	{

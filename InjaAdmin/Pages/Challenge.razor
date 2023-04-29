@@ -1,0 +1,48 @@
+﻿@page "/Challenge"
+@using InjaAdmin.Adaptors;
+@using InjaData.Models;
+
+<h3>Challenge</h3>
+
+<div>
+	<SfGrid @ref="@DataGrid" TValue="Challenge" ID="DataGrid"
+					AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
+		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
+		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+		<GridPageSettings PageSizes="true"></GridPageSettings>
+		<SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Challenge"></GridEvents>
+		<GridColumns>
+			<GridColumn Field=@nameof(InjaData.Models.Challenge.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(InjaData.Models.Challenge.Name) HeaderText="Name" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(InjaData.Models.Challenge.Comment) HeaderText="Comment" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(InjaData.Models.Challenge.Active) HeaderText="Active" Width="150"></GridColumn>
+		</GridColumns>
+	</SfGrid>
+</div>
+
+
+@code {
+	SfGrid<Challenge>? DataGrid { get; set; }
+
+	/// <summary>
+	/// Event for Toolbar click for Grid Exporting
+	/// </summary>
+	public async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+	{
+		if (DataGrid == null) return;
+		if (args.Item.Id == $"{nameof(DataGrid)}_excelexport")
+		{
+			await DataGrid.ExportToExcelAsync();
+		}
+		if (args.Item.Id == $"{nameof(DataGrid)}_pdfexport")
+		{
+			await DataGrid.ExportToPdfAsync();
+		}
+		if (args.Item.Id == $"{nameof(DataGrid)}_csvexport")
+		{
+			await DataGrid.ExportToCsvAsync();
+		}
+	}
+}

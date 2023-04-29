@@ -1,0 +1,48 @@
+﻿@page "/JugmentCriteria"
+@using InjaAdmin.Adaptors;
+
+<h3>JugmentCriteria</h3>
+
+<div>
+	<SfGrid @ref="@DataGrid" TValue="Judgmentcriterion" ID="@nameof(DataGrid)"
+					AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
+		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
+		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+		<GridPageSettings PageSizes="true"></GridPageSettings>
+		<SfDataManager AdaptorInstance="@typeof(JugmentCriteriaAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Judgmentcriterion"></GridEvents>
+		<GridColumns>
+			<GridColumn Field=@nameof(Judgmentcriterion.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Judgmentcriterion.Name) HeaderText="Name" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Judgmentcriterion.Namees) HeaderText="Namees" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Judgmentcriterion.Namefr) HeaderText="Namefr" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Judgmentcriterion.Namepr) HeaderText="Namepr" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Judgmentcriterion.Nameit) HeaderText="Nameit" Width="150"></GridColumn>
+		</GridColumns>
+	</SfGrid>
+</div>
+
+
+@code {
+	SfGrid<Judgmentcriterion>? DataGrid { get; set; }
+	/// <summary>
+	/// Event for Toolbar click for Grid Exporting
+	/// </summary>
+	public async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+	{
+		if (DataGrid == null) return;
+		if (args.Item.Id == $"{nameof(DataGrid)}_excelexport")
+		{
+			await DataGrid.ExportToExcelAsync();
+		}
+		if (args.Item.Id == $"{nameof(DataGrid)}_pdfexport")
+		{
+			await DataGrid.ExportToPdfAsync();
+		}
+		if (args.Item.Id == $"{nameof(DataGrid)}_csvexport")
+		{
+			await DataGrid.ExportToCsvAsync();
+		}
+	}
+}
