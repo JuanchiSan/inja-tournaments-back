@@ -1,0 +1,89 @@
+﻿@page "/Types"
+
+<h3>Types</h3>
+
+<div>
+  <div>
+    <SfGrid @ref="@DocTypeGrid" TValue="Doctype" ID="DocTypeGrid"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridPageSettings PageSizes="true"/>
+      <SfDataManager AdaptorInstance="@typeof(DocTypeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+      <GridEvents OnToolbarClick="@DocTypeGridToolbarClick" TValue="Doctype"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(Doctype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+        <GridColumn Field="@nameof(Doctype.Name)" HeaderText="Name" Width="150"/>
+        <GridColumn Field="@nameof(Doctype.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
+  <div>
+    <SfGrid @ref="@UserTypeGrid" TValue="Usertype" ID="UserTypeGrid"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridPageSettings PageSizes="true"/>
+      <SfDataManager AdaptorInstance="@typeof(UserTypeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+      <GridEvents OnToolbarClick="@UserTypeGridToolbarClick" TValue="Usertype"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(Usertype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+        <GridColumn Field="@nameof(Usertype.Name)" HeaderText="Name" Width="150"/>
+        <GridColumn Field="@nameof(Usertype.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
+</div>
+
+@code {
+
+  SfGrid<Usertype>? UserTypeGrid { get; set; }
+
+  /// <summary>
+  /// Event for Toolbar click for Grid Exporting
+  /// </summary>
+  private async Task UserTypeGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (UserTypeGrid == null) return;
+
+    switch (args.Item.Id)
+    {
+      case $"{nameof(UserTypeGrid)}_excelexport":
+        await UserTypeGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(UserTypeGrid)}_pdfexport":
+        await UserTypeGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(UserTypeGrid)}_csvexport":
+        await UserTypeGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+
+  SfGrid<Doctype>? DocTypeGrid { get; set; }
+
+  /// <summary>
+  /// Event for Toolbar click for Grid Exporting
+  /// </summary>
+  private async Task DocTypeGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (DocTypeGrid == null) return;
+
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DocTypeGrid)}_excelexport":
+        await DocTypeGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DocTypeGrid)}_pdfexport":
+        await DocTypeGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DocTypeGrid)}_csvexport":
+        await DocTypeGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+}

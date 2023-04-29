@@ -286,3 +286,23 @@ System.ObjectDisposedException: Cannot access a disposed object.
 2023-04-29 13:47:40.300 -03:00 [INF] Application started. Press Ctrl+C to shut down.
 2023-04-29 13:47:40.302 -03:00 [INF] Hosting environment: Development
 2023-04-29 13:47:40.304 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 15:14:55.359 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 15:14:55.409 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 15:14:55.411 -03:00 [INF] Hosting environment: Development
+2023-04-29 15:14:55.412 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 15:17:07.357 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 15:17:07.404 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 15:17:07.406 -03:00 [INF] Hosting environment: Development
+2023-04-29 15:17:07.407 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 15:18:16.626 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 15:18:16.676 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 15:18:16.678 -03:00 [INF] Hosting environment: Development
+2023-04-29 15:18:16.679 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 15:29:17.812 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 15:29:17.863 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 15:29:17.866 -03:00 [INF] Hosting environment: Development
+2023-04-29 15:29:17.867 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 15:35:21.865 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 15:35:21.942 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 15:35:21.944 -03:00 [INF] Hosting environment: Development
+2023-04-29 15:35:21.946 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin

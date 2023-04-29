@@ -1,41 +1,40 @@
 ﻿@page "/Country"
-@using InjaData.Models;
-@using InjaAdmin.Adaptors;
 
 <h3>Country</h3>
 
 <div>
 	<div>
-		<SfGrid @ref="@CountryGrid" TValue="Country" ID="CountryGrid" 
-			AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
-			Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-			<GridPageSettings PageSizes="true"></GridPageSettings>
-			<SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
-			<GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected"></GridEvents>
+		<SfGrid @ref="@CountryGrid" TValue="Country" ID="CountryGrid"
+						AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+						Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
+			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal" />
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+			<GridPageSettings PageSizes="true" />
+			<SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
+			<GridSelectionSettings Type="SelectionType.Multiple" />
+			<GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected" />
 			<GridColumns>
-				<GridColumn Field=@nameof(InjaData.Models.Country.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
-				<GridColumn Field=@nameof(InjaData.Models.Country.Name) HeaderText="Name" Width="150"></GridColumn>
-				<GridColumn Field=@nameof(InjaData.Models.Country.Active) HeaderText="Active" DisplayAsCheckBox="true" Width="150"></GridColumn>
+				<GridColumn Field="@nameof(Country.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />
+				<GridColumn Field="@nameof(Country.Name)" HeaderText="Name" Width="150" />
+				<GridColumn Field="@nameof(Country.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
 			</GridColumns>
 		</SfGrid>
 	</div>
 	<div>
-		<SfGrid @ref="@CityGrid" TValue="City" ID="CityGrid" 
-			AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
-			Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport", "Search"})">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-			<GridPageSettings PageSizes="true"></GridPageSettings>
-			<SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
-			<GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City"></GridEvents>
+		<SfGrid @ref="@CityGrid" TValue="City" ID="CityGrid"
+						AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+						Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport", "Search"})"
+						Query="@MakeQuery()">
+			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal" />
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+			<GridPageSettings PageSizes="true" />
+			<SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
+			<GridSelectionSettings Type="SelectionType.Multiple" />
+			<GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City" />
 			<GridColumns>
-				<GridColumn Field=@nameof(City.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
-				<GridColumn Field=@nameof(City.Name) HeaderText="Name" Width="150"></GridColumn>
-				<GridColumn Field=@nameof(City.Active) HeaderText="Active" DisplayAsCheckBox="true" Width="150"></GridColumn>
+				<GridColumn Field="@nameof(City.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />
+				<GridColumn Field="@nameof(City.Name)" HeaderText="Name" Width="150" />
+				<GridColumn Field="@nameof(City.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
 			</GridColumns>
 		</SfGrid>
 	</div>
@@ -45,6 +44,12 @@
 
 	#region City
 	SfGrid<City>? CityGrid { get; set; }
+
+	private Query MakeQuery()
+	{
+		return new Query().Where(nameof(City.Countryid), "equal", _currentCountry?.Id ?? 0);
+	}
+
 	/// <summary>
 	/// Event for Toolbar click for Grid Exporting
 	/// </summary>
@@ -69,7 +74,7 @@
 
 	#region Country
 	SfGrid<Country>? CountryGrid { get; set; }
-	InjaData.Models.Country? _currentCountry { get; set; }
+	Country? _currentCountry { get; set; }
 
 	/// <summary>
 	/// Event for Toolbar click for Grid Exporting
