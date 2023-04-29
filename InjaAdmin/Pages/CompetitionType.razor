@@ -25,7 +25,7 @@
 		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="DivisionGrid" 
 		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
 		        Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})"
-		        Query="@(_currentCompetition == null ? null : new Query().Where(nameof(Division.Competitiontypeid), "equal", _currentCompetition.Id))">
+		        Query="@(MakeQuery())">
 			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="true"></GridPageSettings>
@@ -44,7 +44,13 @@
 </div>
 @code {
 	#region Division
+	
 	SfGrid<Division>? DivisionGrid { get; set; }
+
+	private Query MakeQuery()
+	{
+		return new Query().Where(nameof(Division.Competitiontypeid), "equal", _currentCompetition?.Id ?? 0);
+	}
 	/// <summary>
 	/// Event for Toolbar click for Grid Exporting
 	/// </summary>
