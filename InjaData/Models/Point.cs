@@ -39,7 +39,7 @@ public partial class Point
 
     public virtual Challengejuzmentcriterion Challengejuzmentcriterion { get; set; } = null!;
 
-    public virtual Ninjauser Judge { get; set; } = null!;
+    public virtual Injauser Judge { get; set; } = null!;
 
-    public virtual Ninjauser User { get; set; } = null!;
+    public virtual Injauser User { get; set; } = null!;
 }

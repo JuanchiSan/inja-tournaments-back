@@ -15,5 +15,5 @@ public partial class City
 
     public virtual Country Country { get; set; } = null!;
 
-    public virtual ICollection<Ninjauser> Ninjausers { get; set; } = new List<Ninjauser>();
+    public virtual ICollection<Injauser> Injausers { get; set; } = new List<Injauser>();
 }

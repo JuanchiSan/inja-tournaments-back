@@ -306,3 +306,11 @@ System.ObjectDisposedException: Cannot access a disposed object.
 2023-04-29 15:35:21.942 -03:00 [INF] Application started. Press Ctrl+C to shut down.
 2023-04-29 15:35:21.944 -03:00 [INF] Hosting environment: Development
 2023-04-29 15:35:21.946 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 16:01:00.369 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 16:01:00.449 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 16:01:00.452 -03:00 [INF] Hosting environment: Development
+2023-04-29 16:01:00.453 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin
+2023-04-29 16:13:31.355 -03:00 [INF] Now listening on: http://localhost:5270
+2023-04-29 16:13:31.418 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2023-04-29 16:13:31.420 -03:00 [INF] Hosting environment: Development
+2023-04-29 16:13:31.422 -03:00 [INF] Content root path: C:\Users\guadcore\source\repos\Personal\Inja\InjaAdmin

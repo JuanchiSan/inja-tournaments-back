@@ -13,11 +13,11 @@ public partial class Division
 
     public bool? Active { get; set; }
 
-    public virtual ICollection<Challengedivision> Challengedivisions { get; set; } = new List<Challengedivision>();
-
     public virtual ICollection<Challengejuzmentcriterion> Challengejuzmentcriteria { get; set; } = new List<Challengejuzmentcriterion>();
 
     public virtual Competitiontype Competitiontype { get; set; } = null!;
 
-    public virtual ICollection<Eventdivision> Eventdivisions { get; set; } = new List<Eventdivision>();
+    public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
+
+    public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 }

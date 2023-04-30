@@ -25,5 +25,5 @@ public partial class Inscription
 
     public virtual Event Event { get; set; } = null!;
 
-    public virtual Ninjauser User { get; set; } = null!;
+    public virtual Injauser User { get; set; } = null!;
 }

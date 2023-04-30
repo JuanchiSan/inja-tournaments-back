@@ -8,9 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 InjaData.Helper.CS = builder.Configuration["ConnectionStrings:WebApiDatabase"];
 
-Log.Logger = new LoggerConfiguration()
-  .WriteTo.Console()
-  .CreateBootstrapLogger();
+// SetUp Serilog
+builder.Host.UseSerilog((ctx, lc) => lc
+	.WriteTo.Console()
+	.WriteTo.PostgreSQL(InjaData.Helper.CS, "Logs", needAutoCreateTable: true)
+	.ReadFrom.Configuration(ctx.Configuration));
+
 
 Log.Information($"Start Application {DateTime.Now}");
 

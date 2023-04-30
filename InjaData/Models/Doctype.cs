@@ -11,5 +11,5 @@ public partial class Doctype
 
     public bool? Active { get; set; }
 
-    public virtual ICollection<Ninjauser> Ninjausers { get; set; } = new List<Ninjauser>();
+    public virtual ICollection<Injauser> Injausers { get; set; } = new List<Injauser>();
 }

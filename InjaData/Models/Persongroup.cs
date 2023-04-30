@@ -13,7 +13,7 @@ public partial class Persongroup
 
     public int Enabled { get; set; }
 
-    public virtual Ninjagroup Group { get; set; } = null!;
+    public virtual Injagroup Group { get; set; } = null!;
 
-    public virtual Ninjauser User { get; set; } = null!;
+    public virtual Injauser User { get; set; } = null!;
 }

@@ -23,15 +23,17 @@ public partial class Event
 
     public bool? Active { get; set; }
 
-    public virtual ICollection<Challengedivision> Challengedivisions { get; set; } = new List<Challengedivision>();
+    public virtual Injauser? Creatoruser { get; set; }
 
-    public virtual Ninjauser? Creatoruser { get; set; }
+    public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
 
     public virtual ICollection<Eventchallenge> Eventchallenges { get; set; } = new List<Eventchallenge>();
 
-    public virtual Eventdivision? Eventdivision { get; set; }
+    public virtual ICollection<Injagroup> Injagroups { get; set; } = new List<Injagroup>();
 
     public virtual ICollection<Inscription> Inscriptions { get; set; } = new List<Inscription>();
 
-    public virtual ICollection<Ninjagroup> Ninjagroups { get; set; } = new List<Ninjagroup>();
+    public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
+
+    public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
 }

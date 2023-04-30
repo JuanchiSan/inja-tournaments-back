@@ -13,11 +13,13 @@ public partial class Challenge
 
     public bool? Active { get; set; }
 
-    public virtual ICollection<Challengedivision> Challengedivisions { get; set; } = new List<Challengedivision>();
-
     public virtual ICollection<Challengejuzmentcriterion> Challengejuzmentcriteria { get; set; } = new List<Challengejuzmentcriterion>();
 
+    public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
+
     public virtual ICollection<Eventchallenge> Eventchallenges { get; set; } = new List<Eventchallenge>();
+
+    public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
     public virtual ICollection<Challenge> Challengeiddependencies { get; set; } = new List<Challenge>();
 

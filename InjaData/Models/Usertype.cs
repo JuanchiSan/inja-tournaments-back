@@ -11,5 +11,5 @@ public partial class Usertype
 
     public bool? Active { get; set; }
 
-    public virtual ICollection<Ninjauser> Users { get; set; } = new List<Ninjauser>();
+    public virtual ICollection<Injauser> Users { get; set; } = new List<Injauser>();
 }

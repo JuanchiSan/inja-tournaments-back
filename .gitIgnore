@@ -14,8 +14,14 @@ x64/
 [Bb]in/
 [Oo]bj/
 .vs/
-MixHub/.vs/
-MixHub/.idea/
+InjaAdmin/.vs/
+InjaAdmin/.idea/
+InjaAdmin/Logs/
+InjaApi/.vs/
+InjaApi/.idea/
+InjaApi/Logs/
+InjaApi/Photos/
+
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -135,6 +141,8 @@ $RECYCLE.BIN/
 
 _NCrunch*
 .vs/VSWorkspaceState.json
+
+# Custom
 MixHub/.vs/MixHub/DesignTimeBuild/.dtbcache.v2
 MixHub/.vs/MixHub/FileContentIndex/2322c90e-17c3-415a-8ce2-d452b3ff52d7.vsidx
 MixHub/.vs/MixHub/FileContentIndex/385b34a5-6e70-4038-8e56-4b60a53d51fc.vsidx

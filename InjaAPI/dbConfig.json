@@ -1,4 +1,0 @@
-{
-	"DB": "Host=10.99.98.11; Database=maguari2; Username=postgres; Password=Qwert.789",
-	"DB1": "Host=10.70.85.209; Database=maguari-qa; Username=maguari-qa-app; Password=AOcm!7CMayh!;SslMode=Require;TrustServerCertificate=true"
-}

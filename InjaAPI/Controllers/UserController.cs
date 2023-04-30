@@ -26,7 +26,7 @@ public class UserController : ControllerBase
   {
     try
     {
-      return await _context.Ninjausers.ProjectTo<UserDTO>(_mapper.ConfigurationProvider).ToListAsync();
+      return await _context.Injausers.ProjectTo<UserDTO>(_mapper.ConfigurationProvider).ToListAsync();
     }
     catch (Exception e)
     {
@@ -39,7 +39,7 @@ public class UserController : ControllerBase
   public async Task<ActionResult<UserDTO>> GetPersonByEmail(string email)
   {
     var person =
-      await _context.Ninjausers.FirstOrDefaultAsync(x => x.Mail.ToLowerInvariant().Equals(email.ToLowerInvariant()));
+      await _context.Injausers.FirstOrDefaultAsync(x => x.Mail.ToLowerInvariant().Equals(email.ToLowerInvariant()));
 
     if (person == null)
     {
@@ -52,7 +52,7 @@ public class UserController : ControllerBase
    [HttpGet("{id}")]
   public async Task<ActionResult<UserDTO>> GetUser(int id)
   {
-    var dbItem = await _context.Ninjausers.FirstOrDefaultAsync(x => x.Id == id);
+    var dbItem = await _context.Injausers.FirstOrDefaultAsync(x => x.Id == id);
 
     if (dbItem == null)
     {
@@ -70,16 +70,16 @@ public class UserController : ControllerBase
       return BadRequest("Empty User received");
     }
 
-    var userdb = _mapper.Map<Ninjauser>(aUser);
+    var userdb = _mapper.Map<Injauser>(aUser);
 
-    _context.Ninjausers.Add(userdb);
+    _context.Injausers.Add(userdb);
     try
     {
       await _context.SaveChangesAsync();
     }
     catch (Exception e)
     {
-      Log.Error(e, "Error Adding User");
+      Serilog.Log.Error(e, "Error Adding User");
       return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
     }
     

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace InjaData.Models;
 
-public partial class Ninjagroup
+public partial class Injagroup
 {
     public int Id { get; set; }
 
