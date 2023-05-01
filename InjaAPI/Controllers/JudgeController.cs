@@ -4,10 +4,11 @@ using InjaData.Models;
 using InjaDTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class JugdeController : ControllerBase
 {
@@ -20,9 +21,9 @@ public class JugdeController : ControllerBase
 		_mapper = mapper;
 	}
 
-	[HttpGet]
-	public async Task<ActionResult<IEnumerable<CityDTO>>> GetCriteriaByJudge(CriteriaByJudgeDTO obj)
-	{
-		return await _context.Cities.ProjectTo<CityDTO>(_mapper.ConfigurationProvider).ToListAsync();
-	}
+	//[HttpGet]
+	//public async Task<ActionResult<IEnumerable<CityDTO>>> GetCriteriaByJudge(CriteriaByJudgeDTO obj)
+	//{
+	//	return await _context.Cities.ProjectTo<CityDTO>(_mapper.ConfigurationProvider).ToListAsync();
+	//}
 }

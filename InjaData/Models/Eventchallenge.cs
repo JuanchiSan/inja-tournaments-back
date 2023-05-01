@@ -13,7 +13,13 @@ public partial class Eventchallenge
 
     public DateTime Enddate { get; set; }
 
+    public int Id { get; set; }
+
+    public string Name { get; set; } = null!;
+
     public virtual Challenge Challenge { get; set; } = null!;
 
     public virtual Event Event { get; set; } = null!;
+
+    public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
 }

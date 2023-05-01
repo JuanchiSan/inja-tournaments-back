@@ -9,10 +9,11 @@ using InjaData.Models;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using InjaDTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class DoctypesController : ControllerBase
 {
@@ -46,81 +47,4 @@ public class DoctypesController : ControllerBase
 
 		return _mapper.Map<DoctypeDTO>(doctype);
 	}
-
-	// PUT: api/Doctypes/5
-	// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-	//[HttpPut("{id}")]
-	//public async Task<IActionResult> PutDoctype(short id, Doctype doctype)
-	//{
-	//    if (id != doctype.Docid)
-	//    {
-	//        return BadRequest();
-	//    }
-
-	//    _context.Entry(doctype).State = EntityState.Modified;
-
-	//    try
-	//    {
-	//        await _context.SaveChangesAsync();
-	//    }
-	//    catch (DbUpdateConcurrencyException)
-	//    {
-	//        if (!DoctypeExists(id))
-	//        {
-	//            return NotFound();
-	//        }
-	//        else
-	//        {
-	//            throw;
-	//        }
-	//    }
-
-	//    return NoContent();
-	//}
-
-	//// POST: api/Doctypes
-	//// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-	//[HttpPost]
-	//public async Task<ActionResult<Doctype>> PostDoctype(Doctype doctype)
-	//{
-	//    _context.Doctypes.Add(doctype);
-	//    try
-	//    {
-	//        await _context.SaveChangesAsync();
-	//    }
-	//    catch (DbUpdateException)
-	//    {
-	//        if (DoctypeExists(doctype.))
-	//        {
-	//            return Conflict();
-	//        }
-	//        else
-	//        {
-	//            throw;
-	//        }
-	//    }
-
-	//    return CreatedAtAction("GetDoctype", new { id = doctype.Docid }, doctype);
-	//}
-
-	// DELETE: api/Doctypes/5
-	//[HttpDelete("{id}")]
-	//public async Task<IActionResult> DeleteDoctype(short id)
-	//{
-	//    var doctype = await _context.Doctypes.FindAsync(id);
-	//    if (doctype == null)
-	//    {
-	//        return NotFound();
-	//    }
-
-	//    _context.Doctypes.Remove(doctype);
-	//    await _context.SaveChangesAsync();
-
-	//    return NoContent();
-	//}
-
-	//private bool DoctypeExists(short id)
-	//{
-	//    return _context.Doctypes.Any(e => e.Docid == id);
-	//}
 }

@@ -25,15 +25,17 @@ public partial class Event
 
     public virtual Injauser? Creatoruser { get; set; }
 
-    public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
-
     public virtual ICollection<Eventchallenge> Eventchallenges { get; set; } = new List<Eventchallenge>();
 
     public virtual ICollection<Injagroup> Injagroups { get; set; } = new List<Injagroup>();
 
+    public virtual ICollection<Injauserusertype> Injauserusertypes { get; set; } = new List<Injauserusertype>();
+
     public virtual ICollection<Inscription> Inscriptions { get; set; } = new List<Inscription>();
 
     public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
+
+    public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 
     public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
 }

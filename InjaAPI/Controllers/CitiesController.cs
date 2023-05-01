@@ -4,10 +4,11 @@ using InjaData.Models;
 using InjaDTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class CitiesController : ControllerBase
 {
@@ -27,7 +28,7 @@ public class CitiesController : ControllerBase
 		return await _context.Cities.ProjectTo<CityDTO>(_mapper.ConfigurationProvider).ToListAsync();
 	}
 
-	[HttpGet("/api/GetCitiesByName/{aCityName}")]
+	[HttpGet("/api/GetCitiesByName/{aCityName}"), Authorize]
 	public async Task<ActionResult<List<CityDTO>>> GetCitiesByName(string aCityName)
 	{
 		var lstCities = await _context.Cities.ToListAsync();

@@ -4,10 +4,11 @@ using InjaData.Models;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using InjaDTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class CountriesController : ControllerBase
 {

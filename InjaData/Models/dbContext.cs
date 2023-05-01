@@ -41,15 +41,23 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Injauser> Injausers { get; set; }
 
+    public virtual DbSet<Injauserusertype> Injauserusertypes { get; set; }
+
     public virtual DbSet<Inscription> Inscriptions { get; set; }
 
     public virtual DbSet<Judgmentcriterion> Judgmentcriteria { get; set; }
+
+    public virtual DbSet<Log> Logs { get; set; }
 
     public virtual DbSet<Persongroup> Persongroups { get; set; }
 
     public virtual DbSet<Photo> Photos { get; set; }
 
     public virtual DbSet<Point> Points { get; set; }
+
+    public virtual DbSet<Team> Teams { get; set; }
+
+    public virtual DbSet<Teaminscription> Teaminscriptions { get; set; }
 
     public virtual DbSet<Userinscription> Userinscriptions { get; set; }
 
@@ -74,45 +82,10 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Comment)
                 .HasMaxLength(200)
                 .HasColumnName("comment");
+            entity.Property(e => e.Isforteam).HasColumnName("isforteam");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-
-            entity.HasMany(d => d.Challengeiddependencies).WithMany(p => p.Challenges)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Challengedependancy",
-                    r => r.HasOne<Challenge>().WithMany()
-                        .HasForeignKey("Challengeiddependency")
-                        .HasConstraintName("fk_challengedependancy_challenge"),
-                    l => l.HasOne<Challenge>().WithMany()
-                        .HasForeignKey("Challengeid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_challengedependancy_challenge1"),
-                    j =>
-                    {
-                        j.HasKey("Challengeid", "Challengeiddependency").HasName("challengedependancy_pk");
-                        j.ToTable("challengedependancy");
-                        j.IndexerProperty<int>("Challengeid").HasColumnName("challengeid");
-                        j.IndexerProperty<int>("Challengeiddependency").HasColumnName("challengeiddependency");
-                    });
-
-            entity.HasMany(d => d.Challenges).WithMany(p => p.Challengeiddependencies)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Challengedependancy",
-                    r => r.HasOne<Challenge>().WithMany()
-                        .HasForeignKey("Challengeid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_challengedependancy_challenge1"),
-                    l => l.HasOne<Challenge>().WithMany()
-                        .HasForeignKey("Challengeiddependency")
-                        .HasConstraintName("fk_challengedependancy_challenge"),
-                    j =>
-                    {
-                        j.HasKey("Challengeid", "Challengeiddependency").HasName("challengedependancy_pk");
-                        j.ToTable("challengedependancy");
-                        j.IndexerProperty<int>("Challengeid").HasColumnName("challengeid");
-                        j.IndexerProperty<int>("Challengeiddependency").HasColumnName("challengeiddependency");
-                    });
         });
 
         modelBuilder.Entity<Challengejuzmentcriterion>(entity =>
@@ -318,15 +291,22 @@ public partial class dbContext : DbContext
 
         modelBuilder.Entity<Eventchallenge>(entity =>
         {
-            entity.HasKey(e => new { e.Eventid, e.Challengeid }).HasName("eventchallenge_pk");
+            entity.HasKey(e => e.Id).HasName("eventchallenge_pk");
 
             entity.ToTable("eventchallenge");
 
-            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.HasIndex(e => new { e.Eventid, e.Challengeid, e.Startdate }, "eventchallenge_ak").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Challengeid).HasColumnName("challengeid");
             entity.Property(e => e.Enddate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("enddate");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasDefaultValueSql("'default'::character varying")
+                .HasColumnName("name");
             entity.Property(e => e.Startdate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("startdate");
@@ -342,28 +322,25 @@ public partial class dbContext : DbContext
 
         modelBuilder.Entity<Eventchallengedivision>(entity =>
         {
-            entity.HasKey(e => new { e.Challengeid, e.Divisionid, e.Eventid }).HasName("eventchallengedivision_pk");
+            entity.HasKey(e => new { e.Eventchallengeid, e.Divisionid }).HasName("eventchallengedivision_pk");
 
             entity.ToTable("eventchallengedivision");
 
-            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
-            entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.Minimumcontnders)
                 .HasDefaultValueSql("4")
                 .HasColumnName("minimumcontnders");
 
-            entity.HasOne(d => d.Challenge).WithMany(p => p.Eventchallengedivisions)
-                .HasForeignKey(d => d.Challengeid)
-                .HasConstraintName("fk_challengedivision_challenge");
-
             entity.HasOne(d => d.Division).WithMany(p => p.Eventchallengedivisions)
                 .HasForeignKey(d => d.Divisionid)
-                .HasConstraintName("fk_challengedivision_division");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("eventchallengedivision_division_id_fk");
 
-            entity.HasOne(d => d.Event).WithMany(p => p.Eventchallengedivisions)
-                .HasForeignKey(d => d.Eventid)
-                .HasConstraintName("fk_challengedivision_event");
+            entity.HasOne(d => d.Eventchallenge).WithMany(p => p.Eventchallengedivisions)
+                .HasForeignKey(d => d.Eventchallengeid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("eventchallengedivision_eventchallenge_id_fk");
         });
 
         modelBuilder.Entity<Injagroup>(entity =>
@@ -376,13 +353,15 @@ public partial class dbContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Isstudent).HasColumnName("isstudent");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Injagroups)
                 .HasForeignKey(d => d.Eventid)
-                .HasConstraintName("fk_ninjagroup_event");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("injagroup_event");
         });
 
         modelBuilder.Entity<Injauser>(entity =>
@@ -398,9 +377,9 @@ public partial class dbContext : DbContext
                 .HasColumnName("active");
             entity.Property(e => e.Cityid).HasColumnName("cityid");
             entity.Property(e => e.Docid).HasColumnName("docid");
-            entity.Property(e => e.Docnnmber)
+            entity.Property(e => e.Docnumber)
                 .HasMaxLength(20)
-                .HasColumnName("docnnmber");
+                .HasColumnName("docnumber");
             entity.Property(e => e.Firstname)
                 .HasMaxLength(80)
                 .HasColumnName("firstname");
@@ -422,6 +401,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Street)
                 .HasMaxLength(100)
                 .HasColumnName("street");
+            entity.Property(e => e.Urlphoto)
+                .HasMaxLength(200)
+                .HasColumnName("urlphoto");
             entity.Property(e => e.Usertype)
                 .HasMaxLength(20)
                 .HasColumnName("usertype");
@@ -435,6 +417,30 @@ public partial class dbContext : DbContext
                 .HasForeignKey(d => d.Docid)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_person_doctype");
+        });
+
+        modelBuilder.Entity<Injauserusertype>(entity =>
+        {
+            entity.HasKey(e => new { e.Typeid, e.Userid, e.Eventid }).HasName("injauserusertype_pk");
+
+            entity.ToTable("injauserusertype");
+
+            entity.Property(e => e.Typeid).HasColumnName("typeid");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.Injauserusertypes)
+                .HasForeignKey(d => d.Eventid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_injausertype_event");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.Injauserusertypes)
+                .HasForeignKey(d => d.Typeid)
+                .HasConstraintName("fk_personaltype_usertype");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Injauserusertypes)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("fk_persontype_user");
         });
 
         modelBuilder.Entity<Inscription>(entity =>
@@ -495,6 +501,24 @@ public partial class dbContext : DbContext
                 .HasColumnName("namepr");
         });
 
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("logs");
+
+            entity.Property(e => e.Exception).HasColumnName("exception");
+            entity.Property(e => e.Level).HasColumnName("level");
+            entity.Property(e => e.LogEvent)
+                .HasColumnType("jsonb")
+                .HasColumnName("log_event");
+            entity.Property(e => e.Message).HasColumnName("message");
+            entity.Property(e => e.MessageTemplate).HasColumnName("message_template");
+            entity.Property(e => e.Timestamp)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("timestamp");
+        });
+
         modelBuilder.Entity<Persongroup>(entity =>
         {
             entity.HasKey(e => new { e.Userid, e.Groupid }).HasName("persongroup_pk");
@@ -541,7 +565,6 @@ public partial class dbContext : DbContext
 
             entity.HasOne(d => d.Challenge).WithMany(p => p.Photos)
                 .HasForeignKey(d => d.Challengeid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_photo_challenge");
 
             entity.HasOne(d => d.Contender).WithMany(p => p.PhotoContenders)
@@ -618,38 +641,88 @@ public partial class dbContext : DbContext
                 .HasConstraintName("fk_points_challengejuzmentcriteria");
         });
 
+        modelBuilder.Entity<Team>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("id");
+
+            entity.ToTable("team");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.Teams)
+                .HasForeignKey(d => d.Eventid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("team_event");
+
+            entity.HasMany(d => d.Injausers).WithMany(p => p.Teams)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Userteam",
+                    r => r.HasOne<Injauser>().WithMany()
+                        .HasForeignKey("Injauserid")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("userteam_injauser"),
+                    l => l.HasOne<Team>().WithMany()
+                        .HasForeignKey("Teamid")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("userteam_team"),
+                    j =>
+                    {
+                        j.HasKey("Teamid", "Injauserid").HasName("userteam_pk");
+                        j.ToTable("userteam");
+                        j.IndexerProperty<int>("Teamid").HasColumnName("teamid");
+                        j.IndexerProperty<int>("Injauserid").HasColumnName("injauserid");
+                    });
+        });
+
+        modelBuilder.Entity<Teaminscription>(entity =>
+        {
+            entity.HasKey(e => new { e.Eventchallengeid, e.Divisionid, e.Teamid }).HasName("teaminscription_pk");
+
+            entity.ToTable("teaminscription");
+
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Teamid).HasColumnName("teamid");
+            entity.Property(e => e.Inscriptiondate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("inscriptiondate");
+
+            entity.HasOne(d => d.Team).WithMany(p => p.Teaminscriptions)
+                .HasForeignKey(d => d.Teamid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("groupinscription_team");
+        });
+
         modelBuilder.Entity<Userinscription>(entity =>
         {
-            entity.HasKey(e => new { e.Userid, e.Challengeid, e.Divisionid, e.Eventid }).HasName("userinscription_pk");
+            entity.HasKey(e => new { e.Eventchallengeid, e.Divisionid, e.Utypeid, e.Uuserid, e.Ueventid }).HasName("userinscription_pk");
 
             entity.ToTable("userinscription");
 
-            entity.Property(e => e.Userid).HasColumnName("userid");
-            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
-            entity.Property(e => e.Eventid).HasColumnName("eventid");
-            entity.Property(e => e.Finalchallengeid).HasColumnName("finalchallengeid");
-            entity.Property(e => e.Finaldate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("finaldate");
-            entity.Property(e => e.Finaldivisionid).HasColumnName("finaldivisionid");
-            entity.Property(e => e.Finaleventid).HasColumnName("finaleventid");
+            entity.Property(e => e.Utypeid).HasColumnName("utypeid");
+            entity.Property(e => e.Uuserid).HasColumnName("uuserid");
+            entity.Property(e => e.Ueventid).HasColumnName("ueventid");
             entity.Property(e => e.Inscriptiondate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("inscriptiondate");
             entity.Property(e => e.Wonfirstplace).HasColumnName("wonfirstplace");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Userinscriptions)
-                .HasForeignKey(d => d.Userid)
-                .HasConstraintName("fk_inscriptionchallenge_user");
+            entity.HasOne(d => d.Eventchallengedivision).WithMany(p => p.Userinscriptions)
+                .HasForeignKey(d => new { d.Eventchallengeid, d.Divisionid })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_userincription_eventchallengedivision");
 
-            entity.HasOne(d => d.Eventchallengedivision).WithMany(p => p.UserinscriptionEventchallengedivisions)
-                .HasForeignKey(d => new { d.Challengeid, d.Divisionid, d.Eventid })
-                .HasConstraintName("fk_inscriptionchallenge_challengedivision");
-
-            entity.HasOne(d => d.Final).WithMany(p => p.UserinscriptionFinals)
-                .HasForeignKey(d => new { d.Finalchallengeid, d.Finaldivisionid, d.Finaleventid })
-                .HasConstraintName("fk_userinscription_eventchallengedivision");
+            entity.HasOne(d => d.U).WithMany(p => p.Userinscriptions)
+                .HasForeignKey(d => new { d.Utypeid, d.Uuserid, d.Ueventid })
+                .HasConstraintName("fk_userinscription_injausertype");
         });
 
         modelBuilder.Entity<Usertype>(entity =>
@@ -666,23 +739,6 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-
-            entity.HasMany(d => d.Users).WithMany(p => p.Types)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Injauserusertype",
-                    r => r.HasOne<Injauser>().WithMany()
-                        .HasForeignKey("Userid")
-                        .HasConstraintName("fk_persontype_user"),
-                    l => l.HasOne<Usertype>().WithMany()
-                        .HasForeignKey("Typeid")
-                        .HasConstraintName("fk_personaltype_usertype"),
-                    j =>
-                    {
-                        j.HasKey("Typeid", "Userid").HasName("injauserusertype_pk");
-                        j.ToTable("injauserusertype");
-                        j.IndexerProperty<int>("Typeid").HasColumnName("typeid");
-                        j.IndexerProperty<int>("Userid").HasColumnName("userid");
-                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

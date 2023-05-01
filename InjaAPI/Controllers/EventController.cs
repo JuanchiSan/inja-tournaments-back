@@ -4,10 +4,11 @@ using InjaData.Models;
 using InjaDTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class EventsController : ControllerBase
 {
@@ -21,24 +22,23 @@ public class EventsController : ControllerBase
 	}
 
 	// GET: api/Evetns
-	[HttpGet]
+	[HttpGet("GetEvents")]
 	public async Task<ActionResult<IEnumerable<EventDTO>>> GetEvents()
 	{
 		return await _context.Events.ProjectTo<EventDTO>(_mapper.ConfigurationProvider).ToListAsync();
 	}
 
-		// GET: api/Cities/5
 	[HttpGet("{id}")]
-	public async Task<ActionResult<EventDTO>> GetCity(int id)
+	public async Task<ActionResult<EventDTO>> GetEvent(int id)
 	{
-		var city = await _context.Cities.FindAsync(id);
+		var dbItem = await _context.Events.FindAsync(id);
 
-		if (city == null)
+		if (dbItem == null)
 		{
 			return NotFound();
 		}
 
-		return _mapper.Map<EventDTO>(city);
+		return _mapper.Map<EventDTO>(dbItem);
 	}
 
 }

@@ -5,29 +5,21 @@ namespace InjaData.Models;
 
 public partial class Userinscription
 {
-    public int Userid { get; set; }
-
-    public int Challengeid { get; set; }
+    public int Eventchallengeid { get; set; }
 
     public int Divisionid { get; set; }
-
-    public int Eventid { get; set; }
 
     public short Wonfirstplace { get; set; }
 
     public DateTime Inscriptiondate { get; set; }
 
-    public int? Finalchallengeid { get; set; }
+    public int Utypeid { get; set; }
 
-    public int? Finaldivisionid { get; set; }
+    public int Uuserid { get; set; }
 
-    public int? Finaleventid { get; set; }
-
-    public DateTime? Finaldate { get; set; }
+    public int Ueventid { get; set; }
 
     public virtual Eventchallengedivision Eventchallengedivision { get; set; } = null!;
 
-    public virtual Eventchallengedivision? Final { get; set; }
-
-    public virtual Injauser User { get; set; } = null!;
+    public virtual Injauserusertype U { get; set; } = null!;
 }

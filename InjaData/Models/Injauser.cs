@@ -15,7 +15,7 @@ public partial class Injauser
 
     public string Firstname { get; set; } = null!;
 
-    public string Docnnmber { get; set; } = null!;
+    public string Docnumber { get; set; } = null!;
 
     public short Docid { get; set; }
 
@@ -31,11 +31,15 @@ public partial class Injauser
 
     public bool? Active { get; set; }
 
+    public string? Urlphoto { get; set; }
+
     public virtual City? City { get; set; }
 
     public virtual Doctype Doc { get; set; } = null!;
 
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
+    public virtual ICollection<Injauserusertype> Injauserusertypes { get; set; } = new List<Injauserusertype>();
 
     public virtual ICollection<Inscription> Inscriptions { get; set; } = new List<Inscription>();
 
@@ -49,7 +53,5 @@ public partial class Injauser
 
     public virtual ICollection<Point> PointUsers { get; set; } = new List<Point>();
 
-    public virtual ICollection<Userinscription> Userinscriptions { get; set; } = new List<Userinscription>();
-
-    public virtual ICollection<Usertype> Types { get; set; } = new List<Usertype>();
+    public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 }

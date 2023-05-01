@@ -5,10 +5,11 @@ using Serilog;
 using AutoMapper;
 using InjaDTO;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inja.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -21,7 +22,7 @@ public class UserController : ControllerBase
     _mapper = mapper;
   }
 
-  [HttpGet("/api/GetUsers")]
+  [HttpGet("GetUsers")]
   public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
   {
     try
@@ -35,7 +36,7 @@ public class UserController : ControllerBase
   }
 
   // GET: api/UserByEmail/jperez@pepe
-  [HttpGet("/api/UserByEmail/{email}")]
+  [HttpGet("UserByEmail/{email}")]
   public async Task<ActionResult<UserDTO>> GetPersonByEmail(string email)
   {
     var person =
@@ -62,7 +63,7 @@ public class UserController : ControllerBase
     return _mapper.Map<UserDTO>(dbItem);
   }
 
-  [HttpPost]
+  [HttpPost("AddUser")]
   public async Task<ActionResult<UserDTO>> AddUser(UserDTO aUser)
   {
     if (aUser == null)
