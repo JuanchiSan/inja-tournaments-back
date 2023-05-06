@@ -12,33 +12,33 @@ namespace InjaAdmin.Adaptors
     /// </summary>
     public override object Read(DataManagerRequest dm, string key = null)
     {
-      IEnumerable<Usertype> DataSource = _db.Usertypes.ToList();
+      IEnumerable<Usertype> dataSource = _db.Usertypes.ToList();
       if (dm.Search != null && dm.Search.Count > 0)
       {
         // Searching
-        DataSource = DataOperations.PerformSearching(DataSource, dm.Search);
+        dataSource = DataOperations.PerformSearching(dataSource, dm.Search);
       }
       if (dm.Sorted != null && dm.Sorted.Count > 0)
       {
         // Sorting
-        DataSource = DataOperations.PerformSorting(DataSource, dm.Sorted);
+        dataSource = DataOperations.PerformSorting(dataSource, dm.Sorted);
       }
       if (dm.Where != null && dm.Where.Count > 0)
       {
         // Filtering
-        DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
+        dataSource = DataOperations.PerformFiltering(dataSource, dm.Where, dm.Where[0].Operator);
       }
-      int count = DataSource.Cast<Usertype>().Count();
+      var count = dataSource.Cast<Usertype>().Count();
       if (dm.Skip != 0)
       {
         //Paging
-        DataSource = DataOperations.PerformSkip(DataSource, dm.Skip);
+        dataSource = DataOperations.PerformSkip(dataSource, dm.Skip);
       }
       if (dm.Take != 0)
       {
-        DataSource = DataOperations.PerformTake(DataSource, dm.Take);
+        dataSource = DataOperations.PerformTake(dataSource, dm.Take);
       }
-      return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;
+      return dm.RequiresCounts ? new DataResult() { Result = dataSource, Count = count } : (object)dataSource;
     }
     /// <summary>
     /// Method for insert data to database

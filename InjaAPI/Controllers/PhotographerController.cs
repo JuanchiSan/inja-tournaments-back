@@ -4,6 +4,8 @@ using InjaDTO;
 using AutoMapper;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Inja.Controllers;
 
@@ -117,7 +119,7 @@ public class PhotographerController : ControllerBase
 			{
 				return BadRequest("Photographer Not Found");
 			}
-			if (_context.Challenges.Find(obj.ChallengeId) == null)
+			if (_context.Challengetypes.Find(obj.ChallengeId) == null)
 			{
 				return BadRequest("Challenge Not Found");
 			}

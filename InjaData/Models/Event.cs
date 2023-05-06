@@ -36,6 +36,4 @@ public partial class Event
     public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
-
-    public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
 }

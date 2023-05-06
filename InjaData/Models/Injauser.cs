@@ -37,6 +37,8 @@ public partial class Injauser
 
     public virtual Doctype Doc { get; set; } = null!;
 
+    public virtual ICollection<Eventjudgechallengedivision> Eventjudgechallengedivisions { get; set; } = new List<Eventjudgechallengedivision>();
+
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
     public virtual ICollection<Injauserusertype> Injauserusertypes { get; set; } = new List<Injauserusertype>();
@@ -49,9 +51,7 @@ public partial class Injauser
 
     public virtual ICollection<Photo> PhotoPhotographers { get; set; } = new List<Photo>();
 
-    public virtual ICollection<Point> PointJudges { get; set; } = new List<Point>();
-
-    public virtual ICollection<Point> PointUsers { get; set; } = new List<Point>();
+    public virtual ICollection<Point> Points { get; set; } = new List<Point>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 }

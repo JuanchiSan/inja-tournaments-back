@@ -2,15 +2,17 @@
 
 public partial class PointDTO
 {
-    public int Userid { get; set; }
+    public int? eventJudgeChallengeDivisionId { get; set; }
 
-    public int Judgeid { get; set; }
+    public int? contenderId { get; set; }
 
-    public int Challengeid { get; set; }
+    //public int? judgeId { get; set; }
 
-    public int Criteriaid { get; set; }
+    //public int? challengeId { get; set; }
 
-    public int Divisionid { get; set; }
+    //public int? criteriaId { get; set; }
+
+    //public int? divisionId { get; set; }
 
     public decimal? Slot1 { get; set; }
 
@@ -33,10 +35,4 @@ public partial class PointDTO
     public decimal? Slot10 { get; set; }
 
     public string? Comment { get; set; }
-
-    public virtual ChallengejuzmentcriterionDTO Challengejuzmentcriterion { get; set; } = null!;
-
-    public virtual UserDTO Judge { get; set; } = null!;
-
-    public virtual UserDTO User { get; set; } = null!;
 }

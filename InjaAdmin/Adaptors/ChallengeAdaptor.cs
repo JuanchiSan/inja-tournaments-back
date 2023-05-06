@@ -12,7 +12,7 @@ public class ChallengeAdaptor : DataAdaptor
   /// </summary>
   public override object Read(DataManagerRequest dm, string? key = null)
   {
-    IEnumerable<Challenge> DataSource = _db.Challenges.ToList();
+    IEnumerable<Challengetype> DataSource = _db.Challengetypes.ToList();
     if (dm.Search != null && dm.Search.Count > 0)
     {
       // Searching
@@ -28,7 +28,7 @@ public class ChallengeAdaptor : DataAdaptor
       // Filtering
       DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
     }
-    int count = DataSource.Cast<Challenge>().Count();
+    int count = DataSource.Cast<Challengetype>().Count();
     if (dm.Skip != 0)
     {
       //Paging
@@ -45,7 +45,7 @@ public class ChallengeAdaptor : DataAdaptor
   /// </summary>
   public override object Insert(DataManager dataManager, object value, string key)
   {
-    _db.Challenges.Add(value as Challenge);
+    _db.Challengetypes.Add(value as Challengetype);
     _db.SaveChanges();
     return value;
   }
@@ -54,8 +54,8 @@ public class ChallengeAdaptor : DataAdaptor
   /// </summary>
   public override object Update(DataManager dataManager, object value, string keyField, string key)
   {
-    var ModelValue = (value as Challenge);
-    var data = _db.Challenges.Where(x => x.Id == ModelValue.Id).SingleOrDefault();
+    var ModelValue = (value as Challengetype);
+    var data = _db.Challengetypes.Where(x => x.Id == ModelValue.Id).SingleOrDefault();
     data.Name = ModelValue.Name;
     data.Comment = ModelValue.Comment;
     data.Active = ModelValue.Active;
@@ -67,8 +67,8 @@ public class ChallengeAdaptor : DataAdaptor
   /// </summary>
   public override object Remove(DataManager dataManager, object value, string keyField, string key)
   {
-    Challenge ord = _db.Challenges.Find((int)value);
-    _db.Challenges.Remove(ord);
+    Challengetype ord = _db.Challengetypes.Find((int)value);
+    _db.Challengetypes.Remove(ord);
     _db.SaveChanges();
     return value;
   }

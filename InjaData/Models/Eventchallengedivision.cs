@@ -15,5 +15,7 @@ public partial class Eventchallengedivision
 
     public virtual Eventchallenge Eventchallenge { get; set; } = null!;
 
+    public virtual ICollection<Eventjudgechallengedivision> Eventjudgechallengedivisions { get; set; } = new List<Eventjudgechallengedivision>();
+
     public virtual ICollection<Userinscription> Userinscriptions { get; set; } = new List<Userinscription>();
 }

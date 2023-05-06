@@ -7,14 +7,6 @@ public partial class Point
 {
     public int Userid { get; set; }
 
-    public int Judgeid { get; set; }
-
-    public int Challengeid { get; set; }
-
-    public int Criteriaid { get; set; }
-
-    public int Divisionid { get; set; }
-
     public decimal? Slot1 { get; set; }
 
     public decimal? Slot2 { get; set; }
@@ -37,9 +29,9 @@ public partial class Point
 
     public string? Comment { get; set; }
 
-    public virtual Challengejuzmentcriterion Challengejuzmentcriterion { get; set; } = null!;
+    public int Eventjudgechallengeid { get; set; }
 
-    public virtual Injauser Judge { get; set; } = null!;
+    public virtual Eventjudgechallengedivision Eventjudgechallenge { get; set; } = null!;
 
     public virtual Injauser User { get; set; } = null!;
 }

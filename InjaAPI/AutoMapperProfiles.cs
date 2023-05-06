@@ -10,7 +10,7 @@ public class AutoMapperProfiles : Profile
 		CreateMap<InjaData.Models.City, InjaDTO.CityDTO>();
 		CreateMap<InjaData.Models.Doctype, InjaDTO.DoctypeDTO>();
 		CreateMap<InjaData.Models.Country, InjaDTO.CountryDTO>();
-		CreateMap<InjaData.Models.Challenge, InjaDTO.ChallengeDTO>();
+		CreateMap<InjaData.Models.Challengetype, InjaDTO.ChallengeDTO>();
 		CreateMap<InjaData.Models.Challengejuzmentcriterion, InjaDTO.ChallengejuzmentcriterionDTO>();
 		CreateMap<InjaData.Models.Competitiontype, InjaDTO.CompetitionDTO>();
 		CreateMap<InjaData.Models.Division, InjaDTO.DivisionDTO>();
@@ -18,8 +18,14 @@ public class AutoMapperProfiles : Profile
 		CreateMap<InjaData.Models.Injagroup, InjaDTO.GroupDTO>();
 		CreateMap<InjaData.Models.Inscription, InjaDTO.InscriptionDTO>();
 		CreateMap<InjaData.Models.Judgmentcriterion, InjaDTO.JudgmentcriterionDTO>();
-		CreateMap<InjaData.Models.Point, InjaDTO.PointDTO>();
+		CreateMap<InjaData.Models.Point, InjaDTO.PointDTO>()
+			.ForMember(x => x.eventJudgeChallengeDivisionId, y => y.MapFrom(z => z.Eventjudgechallengeid))
+			.ForMember(x => x.contenderId, y => y.MapFrom(z => z.Userid))
+			.ReverseMap();
 		CreateMap<InjaData.Models.Usertype, InjaDTO.UsertypeDTO>();
 		CreateMap<InjaData.Models.Persongroup, InjaDTO.UserGroupDTO>();
+		CreateMap<InjaData.Models.VUserschallengecriterion, InjaDTO.UsersChallengeCriteriaDTO>()
+			.ForMember(x => x.contenderId, y => y.MapFrom(z => z.Contenderid))
+			.ReverseMap();
 	}
 }

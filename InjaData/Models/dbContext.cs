@@ -15,9 +15,9 @@ public partial class dbContext : DbContext
     {
     }
 
-    public virtual DbSet<Challenge> Challenges { get; set; }
-
     public virtual DbSet<Challengejuzmentcriterion> Challengejuzmentcriteria { get; set; }
+
+    public virtual DbSet<Challengetype> Challengetypes { get; set; }
 
     public virtual DbSet<Channelpaid> Channelpaids { get; set; }
 
@@ -36,6 +36,8 @@ public partial class dbContext : DbContext
     public virtual DbSet<Eventchallenge> Eventchallenges { get; set; }
 
     public virtual DbSet<Eventchallengedivision> Eventchallengedivisions { get; set; }
+
+    public virtual DbSet<Eventjudgechallengedivision> Eventjudgechallengedivisions { get; set; }
 
     public virtual DbSet<Injagroup> Injagroups { get; set; }
 
@@ -63,37 +65,20 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Usertype> Usertypes { get; set; }
 
+    public virtual DbSet<VUserschallengecriterion> VUserschallengecriteria { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql(Helper.CS);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Challenge>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("challenge_pk");
-
-            entity.ToTable("challenge");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasDefaultValueSql("true")
-                .HasColumnName("active");
-            entity.Property(e => e.Comment)
-                .HasMaxLength(200)
-                .HasColumnName("comment");
-            entity.Property(e => e.Isforteam).HasColumnName("isforteam");
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasColumnName("name");
-        });
-
         modelBuilder.Entity<Challengejuzmentcriterion>(entity =>
         {
-            entity.HasKey(e => new { e.Challengeid, e.Criteriaid, e.Divisionid }).HasName("challengejuzmentcriteria_pk");
+            entity.HasKey(e => e.Id).HasName("challengejuzmentcriteria_pk");
 
             entity.ToTable("challengejuzmentcriteria");
 
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Challengeid).HasColumnName("challengeid");
             entity.Property(e => e.Criteriaid).HasColumnName("criteriaid");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
@@ -101,6 +86,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Maxscore)
                 .HasPrecision(12, 2)
                 .HasColumnName("maxscore");
+            entity.Property(e => e.Rounds)
+                .HasDefaultValueSql("1")
+                .HasColumnName("rounds");
             entity.Property(e => e.Scorebydivision)
                 .HasColumnType("json")
                 .HasColumnName("scorebydivision");
@@ -119,7 +107,30 @@ public partial class dbContext : DbContext
 
             entity.HasOne(d => d.Division).WithMany(p => p.Challengejuzmentcriteria)
                 .HasForeignKey(d => d.Divisionid)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_challengejuzmentcriteria_division");
+        });
+
+        modelBuilder.Entity<Challengetype>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("challenge_pk");
+
+            entity.ToTable("challengetype");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("nextval('challenge_id_seq'::regclass)")
+                .HasColumnName("id");
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasDefaultValueSql("true")
+                .HasColumnName("active");
+            entity.Property(e => e.Comment)
+                .HasMaxLength(200)
+                .HasColumnName("comment");
+            entity.Property(e => e.Isforteam).HasColumnName("isforteam");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<Channelpaid>(entity =>
@@ -270,23 +281,6 @@ public partial class dbContext : DbContext
                 .HasForeignKey(d => d.Creatoruserid)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_event_ninjauser");
-
-            entity.HasMany(d => d.Divisions).WithMany(p => p.Events)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Eventdivision",
-                    r => r.HasOne<Division>().WithMany()
-                        .HasForeignKey("Divisionid")
-                        .HasConstraintName("fk_eventdivision_division"),
-                    l => l.HasOne<Event>().WithMany()
-                        .HasForeignKey("Eventid")
-                        .HasConstraintName("fk_eventdivision_event"),
-                    j =>
-                    {
-                        j.HasKey("Eventid", "Divisionid").HasName("eventdivision_pk");
-                        j.ToTable("eventdivision");
-                        j.IndexerProperty<int>("Eventid").HasColumnName("eventid");
-                        j.IndexerProperty<int>("Divisionid").HasColumnName("divisionid");
-                    });
         });
 
         modelBuilder.Entity<Eventchallenge>(entity =>
@@ -341,6 +335,45 @@ public partial class dbContext : DbContext
                 .HasForeignKey(d => d.Eventchallengeid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("eventchallengedivision_eventchallenge_id_fk");
+        });
+
+        modelBuilder.Entity<Eventjudgechallengedivision>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_eventjudgechallengedivision");
+
+            entity.ToTable("eventjudgechallengedivision");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasDefaultValueSql("true")
+                .HasColumnName("active");
+            entity.Property(e => e.Challengejuzmentcriteria).HasColumnName("challengejuzmentcriteria");
+            entity.Property(e => e.Comment)
+                .HasMaxLength(1024)
+                .HasColumnName("comment");
+            entity.Property(e => e.Creationdate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creationdate");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
+            entity.Property(e => e.Judgeid).HasColumnName("judgeid");
+            entity.Property(e => e.Updateddate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updateddate");
+
+            entity.HasOne(d => d.ChallengejuzmentcriteriaNavigation).WithMany(p => p.Eventjudgechallengedivisions)
+                .HasForeignKey(d => d.Challengejuzmentcriteria)
+                .HasConstraintName("fk_ejcd_cjc");
+
+            entity.HasOne(d => d.Judge).WithMany(p => p.Eventjudgechallengedivisions)
+                .HasForeignKey(d => d.Judgeid)
+                .HasConstraintName("fk_ejcd_user");
+
+            entity.HasOne(d => d.Eventchallengedivision).WithMany(p => p.Eventjudgechallengedivisions)
+                .HasForeignKey(d => new { d.Eventchallengeid, d.Divisionid })
+                .HasConstraintName("fk_ejcd_ecd");
         });
 
         modelBuilder.Entity<Injagroup>(entity =>
@@ -585,15 +618,12 @@ public partial class dbContext : DbContext
 
         modelBuilder.Entity<Point>(entity =>
         {
-            entity.HasKey(e => new { e.Userid, e.Judgeid, e.Challengeid, e.Criteriaid, e.Divisionid }).HasName("point_pk");
+            entity.HasKey(e => new { e.Eventjudgechallengeid, e.Userid }).HasName("point_pk");
 
             entity.ToTable("point");
 
+            entity.Property(e => e.Eventjudgechallengeid).HasColumnName("eventjudgechallengeid");
             entity.Property(e => e.Userid).HasColumnName("userid");
-            entity.Property(e => e.Judgeid).HasColumnName("judgeid");
-            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
-            entity.Property(e => e.Criteriaid).HasColumnName("criteriaid");
-            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Comment)
                 .HasMaxLength(200)
                 .HasColumnName("comment");
@@ -628,17 +658,13 @@ public partial class dbContext : DbContext
                 .HasPrecision(5, 2)
                 .HasColumnName("slot9");
 
-            entity.HasOne(d => d.Judge).WithMany(p => p.PointJudges)
-                .HasForeignKey(d => d.Judgeid)
-                .HasConstraintName("fk_points_judge");
+            entity.HasOne(d => d.Eventjudgechallenge).WithMany(p => p.Points)
+                .HasForeignKey(d => d.Eventjudgechallengeid)
+                .HasConstraintName("fk_Point_eventjudgechallengedivision");
 
-            entity.HasOne(d => d.User).WithMany(p => p.PointUsers)
+            entity.HasOne(d => d.User).WithMany(p => p.Points)
                 .HasForeignKey(d => d.Userid)
                 .HasConstraintName("fk_points_user");
-
-            entity.HasOne(d => d.Challengejuzmentcriterion).WithMany(p => p.Points)
-                .HasForeignKey(d => new { d.Challengeid, d.Criteriaid, d.Divisionid })
-                .HasConstraintName("fk_points_challengejuzmentcriteria");
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -739,6 +765,69 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<VUserschallengecriterion>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_userschallengecriteria");
+
+            entity.Property(e => e.ChallengeEnddate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("challenge_enddate");
+            entity.Property(e => e.ChallengeMinimumcontenders).HasColumnName("challenge_minimumcontenders");
+            entity.Property(e => e.ChallengeName)
+                .HasMaxLength(100)
+                .HasColumnName("challenge_name");
+            entity.Property(e => e.ChallengeStardate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("challenge_stardate");
+            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.ContenderFirstname)
+                .HasMaxLength(80)
+                .HasColumnName("contender_firstname");
+            entity.Property(e => e.ContenderLastname)
+                .HasMaxLength(80)
+                .HasColumnName("contender_lastname");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Criteriaid).HasColumnName("criteriaid");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.EventjudgechallengedivisionComment)
+                .HasMaxLength(1024)
+                .HasColumnName("eventjudgechallengedivision_comment");
+            entity.Property(e => e.EventjudgechallengedivisionCreationdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventjudgechallengedivision_creationdate");
+            entity.Property(e => e.EventjudgechallengedivisionUpdatedate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventjudgechallengedivision_updatedate");
+            entity.Property(e => e.Eventjudgechallengedivisionid).HasColumnName("eventjudgechallengedivisionid");
+            entity.Property(e => e.Hands).HasColumnName("hands");
+            entity.Property(e => e.JudgeFirstname)
+                .HasMaxLength(80)
+                .HasColumnName("judge_firstname");
+            entity.Property(e => e.JudgeLastname)
+                .HasMaxLength(80)
+                .HasColumnName("judge_lastname");
+            entity.Property(e => e.Judgeid).HasColumnName("judgeid");
+            entity.Property(e => e.Judgementcriterianame)
+                .HasMaxLength(200)
+                .HasColumnName("judgementcriterianame");
+            entity.Property(e => e.Maxscore)
+                .HasPrecision(12, 2)
+                .HasColumnName("maxscore");
+            entity.Property(e => e.Rounds).HasColumnName("rounds");
+            entity.Property(e => e.Scorebydivision)
+                .HasColumnType("json")
+                .HasColumnName("scorebydivision");
+            entity.Property(e => e.Slotcant).HasColumnName("slotcant");
+            entity.Property(e => e.Slotstep)
+                .HasPrecision(4, 2)
+                .HasColumnName("slotstep");
+            entity.Property(e => e.Ueventid).HasColumnName("ueventid");
+            entity.Property(e => e.Utypeid).HasColumnName("utypeid");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -18,6 +18,4 @@ public partial class Division
     public virtual Competitiontype Competitiontype { get; set; } = null!;
 
     public virtual ICollection<Eventchallengedivision> Eventchallengedivisions { get; set; } = new List<Eventchallengedivision>();
-
-    public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 }

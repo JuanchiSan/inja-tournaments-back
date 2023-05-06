@@ -5,26 +5,26 @@
 <h3>Challenge</h3>
 
 <div>
-	<SfGrid @ref="@DataGrid" TValue="Challenge" ID="DataGrid"
+	<SfGrid @ref="@DataGrid" TValue="Challengetype" ID="DataGrid"
 					AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
 					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
 		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 		<GridPageSettings PageSizes="true"></GridPageSettings>
 		<SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Challenge"></GridEvents>
+		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Challengetype"></GridEvents>
 		<GridColumns>
-			<GridColumn Field=@nameof(InjaData.Models.Challenge.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
-			<GridColumn Field=@nameof(InjaData.Models.Challenge.Name) HeaderText="Name" Width="150"></GridColumn>
-			<GridColumn Field=@nameof(InjaData.Models.Challenge.Comment) HeaderText="Comment" Width="150"></GridColumn>
-			<GridColumn Field=@nameof(InjaData.Models.Challenge.Active) HeaderText="Active" DisplayAsCheckBox="true"  Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Challengetype.Id) HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Challengetype.Name) HeaderText="Name" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Challengetype.Comment) HeaderText="Comment" Width="150"></GridColumn>
+			<GridColumn Field=@nameof(Challengetype.Active) HeaderText="Active" DisplayAsCheckBox="true" Width="150"></GridColumn>
 		</GridColumns>
 	</SfGrid>
 </div>
 
 
 @code {
-	SfGrid<Challenge>? DataGrid { get; set; }
+	SfGrid<Challengetype>? DataGrid { get; set; }
 
 	/// <summary>
 	/// Event for Toolbar click for Grid Exporting

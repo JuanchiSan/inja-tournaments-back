@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace InjaData.Models;
 
-public partial class Challenge
+public partial class Challengetype
 {
     public int Id { get; set; }
 

@@ -19,7 +19,7 @@ public partial class Photo
 
     public string? Filename { get; set; }
 
-    public virtual Challenge Challenge { get; set; } = null!;
+    public virtual Challengetype Challenge { get; set; } = null!;
 
     public virtual Injauser Contender { get; set; } = null!;
 

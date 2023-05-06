@@ -9,7 +9,7 @@ public partial class Challengejuzmentcriterion
 
     public int Criteriaid { get; set; }
 
-    public int Divisionid { get; set; }
+    public int? Divisionid { get; set; }
 
     public decimal Maxscore { get; set; }
 
@@ -21,11 +21,15 @@ public partial class Challengejuzmentcriterion
 
     public int Hands { get; set; }
 
-    public virtual Challenge Challenge { get; set; } = null!;
+    public int Id { get; set; }
+
+    public short? Rounds { get; set; }
+
+    public virtual Challengetype Challenge { get; set; } = null!;
 
     public virtual Judgmentcriterion Criteria { get; set; } = null!;
 
-    public virtual Division Division { get; set; } = null!;
+    public virtual Division? Division { get; set; }
 
-    public virtual ICollection<Point> Points { get; set; } = new List<Point>();
+    public virtual ICollection<Eventjudgechallengedivision> Eventjudgechallengedivisions { get; set; } = new List<Eventjudgechallengedivision>();
 }
