@@ -1,0 +1,83 @@
+﻿@page "/EventConfig"
+
+@using InjaData.Models;
+@using InjaAdmin.Adaptors;
+
+<h3>Event Config</h3>
+
+<div>
+	<div>
+		<table>
+			<tr>
+				<td>
+					Cosa
+				</td>
+				<td width="500">
+					<SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="InjaData.Models.Event"
+											Width="550" PopupWidth="500"
+											DataSource="@(_lstEvents)">
+						<ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)" />
+						<ComboBoxEvents TValue="int?" TItem="InjaData.Models.Event" ValueChange="@OnEventValueChange" />
+					</SfComboBox>
+				</td>
+				<td>
+					Desde: @_eventDesde
+				</td>
+				<td>
+					Hasta: @_eventHasta
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div>
+	
+	</div>
+
+</div>
+
+@code {
+	string? _eventDesde { get; set; }
+	string? _eventHasta { get; set; }
+
+	SfComboBox<int?, InjaData.Models.Event>? sfComboEvent { get; set; }
+	int? _eventId { get; set; }
+	List<InjaData.Models.Event> _lstEvents = new List<InjaData.Models.Event>();
+
+	protected override Task OnInitializedAsync()
+	{
+		_lstEvents = InjaAdmin.Helper.DB.Events.OrderBy(x => x.Name).ToList();
+		if (_lstEvents.Any())
+			SetEventInternalValues(_lstEvents.First());
+
+		return base.OnInitializedAsync();
+	}
+
+	private void SetEventInternalValues(InjaData.Models.Event? aEvent)
+	{
+		if (aEvent != null)
+		{
+			_eventId = aEvent.Id;
+			_eventDesde = aEvent.Startdate.ToString("dd/MM/yyyy HH:mm");
+			_eventHasta = aEvent.Enddate.ToString("dd/MM/yyyy HH:mm");
+		}
+		else
+		{
+			_eventId = null;
+			_eventDesde = null;
+			_eventHasta = null;
+		}
+	}
+
+	private void OnEventValueChange(ChangeEventArgs<int?, InjaData.Models.Event> args)
+	{
+		Event? dbEvent = null;
+		if (args.Value != null)
+		{
+			dbEvent = Helper.DB.Events.Find(args.Value);
+		}
+		SetEventInternalValues(dbEvent);
+		StateHasChanged();
+	}
+
+
+}
