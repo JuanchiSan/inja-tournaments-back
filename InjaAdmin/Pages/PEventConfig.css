@@ -1,0 +1,109 @@
+﻿.control-section {
+    padding-left: 10px;
+}
+
+.fluent #target .e-dialog,
+.fluent-dark #target .e-dialog {
+    height: inherit;
+}
+
+.fluent.e-bigger #target .e-dialog,
+.fluent-dark.e-bigger #target .e-dialog {
+    height: 700px;
+}
+
+#target {
+    height: 100%;
+    min-height: 545px;
+}
+
+#target .e-dialog {
+    height: 400px;
+}
+
+@media screen and (min-width: 150px) and (max-width: 480px) {
+    .control-section {
+        margin-bottom: 30px;
+    }
+
+    .control-wrapper {
+        margin-bottom: 0px;
+    }
+}
+
+#defaultDialog {
+    top: 0% !important;
+}
+
+.e-btn-hide {
+    display: none;
+}
+
+.form-title {
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.70);
+}
+
+.tailwind-dark .form-title,
+.bootstrap5-dark .form-title,
+.tailwind-dark .form-title,
+.bootrap-dark .form-title,
+.fabric-dark .form-title {
+    color: rgb(249 249 249);
+}
+
+.bootstrap5-dark #formId,
+.tailwind-dark #formId,
+.bootrap-dark #formId,
+.fabric-dark #formId {
+    background-color: #000;
+
+.e-error,
+.e-float-text {
+    font-weight: 500;
+}
+
+.e-custom-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: 20px;
+}
+
+#formId {
+    padding-top: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.36);
+    border-radius: 5px;
+    background: #f9f9f9;
+    height: 267px;
+    overflow-y: scroll;
+}
+
+.highcontrast form,
+.highcontrast .header {
+    color: #fff;
+    background: #000000;
+}
+
+.header {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+table,
+td,
+th {
+    padding: 3px;
+}
+
+.form-horizontal .form-group {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 5px;
+}
+
+.e-dialog .e-dlg-content {
+    padding: 14px;
+}

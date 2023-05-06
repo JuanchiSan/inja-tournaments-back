@@ -1,0 +1,227 @@
+﻿@page "/PointView"
+@using Microsoft.EntityFrameworkCore
+<h3>PointView</h3>
+
+<div>
+	<div>
+		<table>
+			<tr>
+				<td>Event</td>
+				<td>
+					<SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+											Width="550" PopupWidth="500"
+											DataSource="@(_lstEvents)">
+						<ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)" />
+						<ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange" />
+					</SfComboBox>
+				</td>
+				<td>Challenge</td>
+				<td>
+					<SfComboBox href="@sfComboChallenge" @bind-Value="@(_challengeId)" TValue="int?" TItem="EventChallengeInternal"
+											Width="550" PopupWidth="500"
+											DataSource="@(_lstChallenges)">
+						<ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)" />
+						<ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="@OnChallengeValueChange" />
+					</SfComboBox>
+				</td>
+				<td>Competition</td>
+				<td>
+					<SfComboBox href="@sfComboDivision" @bind-Value="@(_divisionId)" TValue="int?" TItem="EventChallengeDivisionInternal"
+											Width="550" PopupWidth="500"
+											DataSource="@(_lstDivision)">
+						<ComboBoxFieldSettings Text="@nameof(EventChallengeDivisionInternal.DivisionCompetition)" Value="@nameof(EventChallengeDivisionInternal.DivisionId)" />
+						<ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" ValueChange="@OnDivisionValueChange" />
+					</SfComboBox>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<SfGrid @ref="@DataGrid" TValue="VPoint" ID="Grid1" 
+			AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" 
+			Toolbar="@(new List<string>() {"ExcelExport","PdfExport","CsvExport", "Search"})"
+				DataSource="@_lstPoints">
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+			<GridEvents OnToolbarClick="@GridToolbarClick" TValue="VPoint"></GridEvents>
+			<GridColumns>
+				<GridColumn Field=@nameof(VPoint.Eventid) HeaderText="Eventid" Width="150" Visible="false"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Divisionid) HeaderText="Divisionid" Width="150" Visible="false"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Challengeid) HeaderText="Challengeid" Width="150" Visible="false"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Name) HeaderText="Name" IsPrimaryKey="true" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Judgelastname) HeaderText="Judgelastname" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Judgefirstname) HeaderText="Judgefirstname" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Userid) HeaderText="Userid" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot1) HeaderText="Slot1" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot2) HeaderText="Slot2" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot3) HeaderText="Slot3" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot4) HeaderText="Slot4" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot5) HeaderText="Slot5" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot6) HeaderText="Slot6" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot9) HeaderText="Slot9" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot7) HeaderText="Slot7" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot8) HeaderText="Slot8" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Slot10) HeaderText="Slot10" Width="150"></GridColumn>
+				<GridColumn Field=@nameof(VPoint.Comment) HeaderText="Comment" Width="150"></GridColumn>
+			</GridColumns>
+		</SfGrid>
+	</div>
+</div>
+
+@code {
+	List<VPoint>? _lstPoints = new();
+
+	SfGrid<VPoint> DataGrid { get; set; }
+	/// <summary>
+	/// Event for Toolbar click for Grid Exporting
+	/// </summary>
+	public void GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+	{
+		if (args.Item.Id == "Grid1_excelexport")
+		{
+			this.DataGrid.ExportToExcelAsync();
+		}
+		if (args.Item.Id == "Grid1_pdfexport")
+		{
+			this.DataGrid.ExportToPdfAsync();
+		}
+		if (args.Item.Id == "Grid1_csvexport")
+		{
+			this.DataGrid.ExportToCsvAsync();
+		}
+	}
+
+	public class EventChallengeInternal
+	{
+		public int? EventChallengeId { get; set; }
+		public string? EventChallengeName { get; set; }
+	}
+
+	public class EventChallengeDivisionInternal
+	{
+		public int? DivisionId { get; set; }
+		public string? DivisionCompetition { get; set; }
+	}
+
+	#region general
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		_lstEvents = Helper.DB.Events.OrderBy(x => x.Name).ToList();
+		if (_lstEvents.Any())
+		{
+			_eventId = _lstEvents.First().Id;
+			FillLstChallenges();
+		}
+	}
+
+	#endregion
+
+	private void FillLstChallenges()
+	{
+		_challengeId = null;
+		_lstChallenges.Clear();
+
+		if (_eventId != null)
+		{
+			_lstChallenges = Helper.DB.Eventchallenges
+				.Where(x => x.Eventid == _eventId)
+				.Include(x => x.Challenge)
+				.OrderBy(z => z.Name)
+				.Select(y => new EventChallengeInternal { EventChallengeId = y.Id, EventChallengeName = y.Name })
+				.ToList();
+			if (_lstChallenges.Any())
+			{
+				_challengeId = _lstChallenges.First().EventChallengeId;
+			}
+		}
+		FillLstDivisions();
+	}
+
+	private void FillLstDivisions()
+	{
+		_divisionId = null;
+		_lstDivision.Clear();
+
+		if (_challengeId == null || _eventId == null) return;
+
+		_lstDivision = Helper.DB.Eventchallengedivisions
+			.Include(x => x.Division)
+			.ThenInclude(y => y.Competitiontype)
+			.Where(x => x.Eventchallengeid == _challengeId)
+			.Select(q => new EventChallengeDivisionInternal
+				{
+					DivisionId = q.Divisionid,
+					DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}"
+				})
+			.ToList();
+
+		if (_lstDivision.Any())
+		{
+			_divisionId = _lstDivision.First().DivisionId;
+		}
+	}
+
+	#region Event
+	SfComboBox<int?, Event>? sfComboEvent { get; set; }
+	int? _eventId;
+	List<Event> _lstEvents = new();
+
+	private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+	{
+		_eventId = null;
+
+		if (args.Value != null)
+		{
+			_eventId = args.Value;
+		}
+
+		FillLstChallenges();
+		//InvokeAsync(() => sfComboChallenge.RefreshDataAsync());
+		StateHasChanged();
+	}
+	#endregion
+
+	#region Challenges
+	SfComboBox<int?, EventChallengeInternal>? sfComboChallenge { get; set; }
+	int? _challengeId;
+	List<EventChallengeInternal> _lstChallenges = new();
+
+	private void OnChallengeValueChange(ChangeEventArgs<int?, EventChallengeInternal> args)
+	{
+		_divisionId = null;
+		_lstDivision.Clear();
+
+		if (args.Value == null) return;
+		_challengeId = args.Value;
+
+		FillLstDivisions();
+		StateHasChanged();
+	}
+
+	#endregion
+
+	#region Division
+	SfComboBox<int?, EventChallengeDivisionInternal>? sfComboDivision { get; set; }
+	int? _divisionId;
+	List<EventChallengeDivisionInternal> _lstDivision = new();
+
+	private void OnDivisionValueChange(ChangeEventArgs<int?, EventChallengeDivisionInternal> args)
+	{
+		_lstPoints.Clear();
+		_divisionId = null;
+		if (args.Value == null) return;
+
+		_lstPoints = Helper.DB.VPoints.ToList();
+		//Event? dbEvent = null;
+		//if (args.Value != null)
+		//{
+		//  dbEvent = Helper.DB.Events.Find(args.Value);
+		//}
+
+		StateHasChanged();
+	}
+
+	#endregion
+
+}

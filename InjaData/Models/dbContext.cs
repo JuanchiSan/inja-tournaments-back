@@ -65,6 +65,10 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Usertype> Usertypes { get; set; }
 
+    public virtual DbSet<VEventchallengedivision> VEventchallengedivisions { get; set; }
+
+    public virtual DbSet<VPoint> VPoints { get; set; }
+
     public virtual DbSet<VUserschallengecriterion> VUserschallengecriteria { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -592,6 +596,12 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Filename)
                 .HasMaxLength(100)
                 .HasColumnName("filename");
+            entity.Property(e => e.PhotoUrl)
+                .HasMaxLength(512)
+                .HasColumnName("photoUrl");
+            entity.Property(e => e.StoredFileName)
+                .HasMaxLength(250)
+                .HasColumnName("storedFileName");
             entity.Property(e => e.Updated)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updated");
@@ -765,6 +775,103 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<VEventchallengedivision>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_eventchallengedivision");
+
+            entity.Property(e => e.Active).HasColumnName("active");
+            entity.Property(e => e.Challengetypeactive).HasColumnName("challengetypeactive");
+            entity.Property(e => e.Challengetypecomment)
+                .HasMaxLength(200)
+                .HasColumnName("challengetypecomment");
+            entity.Property(e => e.Challengetypeisforteams).HasColumnName("challengetypeisforteams");
+            entity.Property(e => e.Challengetypename)
+                .HasMaxLength(50)
+                .HasColumnName("challengetypename");
+            entity.Property(e => e.Competitionactive).HasColumnName("competitionactive");
+            entity.Property(e => e.Competitionname)
+                .HasMaxLength(50)
+                .HasColumnName("competitionname");
+            entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Ecdkey).HasColumnName("ecdkey");
+            entity.Property(e => e.Eventchallengeenddate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventchallengeenddate");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
+            entity.Property(e => e.Eventchallengename)
+                .HasMaxLength(100)
+                .HasColumnName("eventchallengename");
+            entity.Property(e => e.Eventchallengestartdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventchallengestartdate");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
+            entity.Property(e => e.Minimumcontnders).HasColumnName("minimumcontnders");
+        });
+
+        modelBuilder.Entity<VPoint>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_points");
+
+            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Comment)
+                .HasMaxLength(200)
+                .HasColumnName("comment");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventjudgechallengeid).HasColumnName("eventjudgechallengeid");
+            entity.Property(e => e.Judgefirstname)
+                .HasMaxLength(80)
+                .HasColumnName("judgefirstname");
+            entity.Property(e => e.Judgelastname)
+                .HasMaxLength(80)
+                .HasColumnName("judgelastname");
+            entity.Property(e => e.Name)
+                .HasMaxLength(200)
+                .HasColumnName("name");
+            entity.Property(e => e.Slot1)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot1");
+            entity.Property(e => e.Slot10)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot10");
+            entity.Property(e => e.Slot2)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot2");
+            entity.Property(e => e.Slot3)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot3");
+            entity.Property(e => e.Slot4)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot4");
+            entity.Property(e => e.Slot5)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot5");
+            entity.Property(e => e.Slot6)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot6");
+            entity.Property(e => e.Slot7)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot7");
+            entity.Property(e => e.Slot8)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot8");
+            entity.Property(e => e.Slot9)
+                .HasPrecision(5, 2)
+                .HasColumnName("slot9");
+            entity.Property(e => e.Userid).HasColumnName("userid");
         });
 
         modelBuilder.Entity<VUserschallengecriterion>(entity =>

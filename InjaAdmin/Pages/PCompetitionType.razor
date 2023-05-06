@@ -4,13 +4,13 @@
 <div>
 	<div>
 		<SfGrid @ref="@CompetitionGrid" TValue="Competitiontype" ID="CompetitionGrid"
-						AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-						Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
+		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+		        Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
 			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="true"></GridPageSettings>
 			<SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="SelectionType.Multiple"></GridSelectionSettings>
+			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 			<GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected" />
 			<GridColumns>
 				<GridColumn Field="@nameof(Competitiontype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
@@ -23,25 +23,28 @@
 	<div>
 		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="DivisionGrid" 
 		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
-		        Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})"
+		        Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})"
 		        Query="@(MakeQuery())">
 			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="true"></GridPageSettings>
 			<SfDataManager AdaptorInstance="@typeof(DivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="SelectionType.Multiple"></GridSelectionSettings>
+			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
 			<GridEvents OnToolbarClick="@DivisionGridToolbarClick" TValue="Division"></GridEvents>
 			<GridColumns>
-				<GridColumn Field="@nameof(Division.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Division.Active)" HeaderText="Active" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Division.Competitiontypeid)" HeaderText="Competitiontypeid" AllowEditing="false" Width="150"></GridColumn>
+				<GridColumn Field="@nameof(Division.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+				<GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>
+				<GridColumn Field="@nameof(Division.Active)" HeaderText="Active" Width="150"/>
+				<GridColumn Field="@nameof(Division.Competitiontypeid)" HeaderText="Competitiontypeid" AllowEditing="false" Width="150"/>
 			</GridColumns>
 		</SfGrid>
 
 	</div>
 </div>
+
+
 @code {
+	
 	#region Division
 	
 	SfGrid<Division>? DivisionGrid { get; set; }
@@ -50,9 +53,7 @@
 	{
 		return new Query().Where(nameof(Division.Competitiontypeid), "equal", _currentCompetition?.Id ?? 0);
 	}
-	/// <summary>
-	/// Event for Toolbar click for Grid Exporting
-	/// </summary>
+
 	private async Task DivisionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
 	{
 		if (DivisionGrid == null) return;
@@ -77,9 +78,7 @@
 	Competitiontype? _currentCompetition { get; set; }
 	
 	SfGrid<Competitiontype>? CompetitionGrid { get; set; }
-	/// <summary>
-	/// Event for Toolbar click for Grid Exporting
-	/// </summary>
+
 	private async Task CompetitionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
 	{
 		if (CompetitionGrid == null) return;

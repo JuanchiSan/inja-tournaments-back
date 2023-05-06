@@ -6,8 +6,9 @@ using AutoMapper;
 using InjaDTO;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Common;
 
-namespace Inja.Controllers;
+namespace InjaAPI.Controllers;
 
 [Route("api/[controller]"), Authorize]
 [ApiController]
@@ -15,11 +16,13 @@ public class UserController : ControllerBase
 {
   private readonly dbContext _context;
   private readonly IMapper _mapper;
+  private readonly TokenService _tokenService;
 
-  public UserController(dbContext context, IMapper mapper)
+  public UserController(dbContext context, IMapper mapper, TokenService tokenService)
   {
     _context = context;
     _mapper = mapper;
+    _tokenService = tokenService;
   }
 
   [HttpGet("GetUsers")]
@@ -62,6 +65,13 @@ public class UserController : ControllerBase
 
     return _mapper.Map<UserDTO>(dbItem);
   }
+
+  // [AllowAnonymous]
+  // [HttpPost("RecoverUser")]
+  // public async Task<ActionResult> RecoverUser(string anEmail)
+  // {
+  //   return Ok();
+  // }
 
   [HttpPost("AddUser")]
   public async Task<ActionResult<UserDTO>> AddUser(UserDTO aUser)

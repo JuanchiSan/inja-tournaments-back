@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Cors;
 using InjaDTO;
 
-namespace Inja.Controllers;
+namespace InjaAPI.Controllers;
 
 [Route("api/[controller]"), Authorize]
 [ApiController]
@@ -28,26 +28,92 @@ public class JudgeController : ControllerBase
 		_tokenService = tokenService;
 	}
 
-	
+	// [AllowAnonymous]
+	// [HttpGet]
+	// public async Task<ActionResult<List<UserChallengeCriteriaDTO>>> GetCriteriaByJudge(int eventId, int challengeId, int judgeId, int contenderId)
+	// {
+	// 	try
+	// 	{
+	// 		var dbResult = await _context.VUserschallengecriteria
+	// 			.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Judgeid == judgeId && x.Contenderid == contenderId)
+	// 			.ToListAsync();
+	// 		
+	// 		if (!dbResult.Any()) return Ok(new List<UserChallengeCriteriaDTO>()); // No hay elementos
+	//
+	// 		var cosa = _context.Eventchallenges
+	// 			.Include(x=>x.Challenge)
+	// 			.Include(ecd=>ecd.Eventchallengedivisions)
+	// 				.ThenInclude(ejcd=>ejcd.Eventjudgechallengedivisions)
+	// 					.ThenInclude(cjc=>cjc.Challengejuzmentcriteria).ToList();
+	// 		
+	// 		var dbPoints = _context.Points.Where(x=>x.Userid == contenderId && x.Eventjudgechallengeid)
+	// 		
+	// 		var cosa2 = from e1 in cosa
+	// 		            join e2 in 
+	// 		
+	// 		var dbPhoto = await _context.Photos
+	// 			.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Contenderid == contenderId)
+	// 			.OrderByDescending(y => y.Created)
+	// 			.FirstOrDefaultAsync();
+	//
+	// 		var topItem = new UserChallengeCriteriaDTO
+	// 		{
+	// 			contenderId = contenderId,
+	// 			challengeId = challengeId,
+	// 			judgeId = judgeId,
+	// 			eventId = eventId,
+	// 			challengeEnddate = dbResult.First().ChallengeEnddate,
+	// 			challengeStardate = dbResult.First().ChallengeEnddate,
+	// 			contenderFirstname = dbResult.First().ContenderFirstname,
+	// 			contenderLastname = dbResult.First().ContenderLastname,
+	// 			judgeFirstname = dbResult.First().JudgeFirstname,
+	// 			judgeLastname = dbResult.First().JudgeLastname,
+	// 			photoURL = dbPhoto != null ? $"http://inja-api.guadcore.ar/laphoto" : null
+	// 		};
+	//
+	// 		return Ok(topItem);
+	// 		// var dbPoint = await _context.Points
+	// 		// 	.Include(z=>z.Eventjudgechallenge)
+	// 		// 	.Where(x => x.Userid == contenderId && x.Eventjudgechallenge. Eventjudgechallengeid == dto.eventJudgeChallengeDivisionId);
+	//
+	// 	}
+	// 	catch (Exception e)
+	// 	{
+	// 		Serilog.Log.Error("Internal Error Getting CriteriaByJudge", e);
+	// 		return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+	// 	}
+	// }
+
 	[AllowAnonymous]
 	[HttpGet]
-	public async Task<ActionResult<List<UsersChallengeCriteriaDTO>>> GetCriteriaByJudge(int eventId, int challengeId, int judgeId, int contenderId)
+	public async Task<ActionResult<PhotoUserChallengeCriteriaDTO>> GetCriteriaByJudge(int eventId, int challengeId, int judgeId, int contenderId)
 	{
 		try
 		{
 			var dbResult = await _context.VUserschallengecriteria.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Judgeid == judgeId && x.Contenderid == contenderId).ToListAsync();
 
-			var dtoResult = _mapper.Map<List<UsersChallengeCriteriaDTO>>(dbResult);
+			if (!dbResult.Any()) return NotFound("No Data with those parameters");
+			
+			var dtoResult = _mapper.Map<List<UserChallengeCriteriaDTO>>(dbResult);
 
 			foreach (var dto in dtoResult) {
-				var dbPoint = _context.Points.FirstOrDefault(x => x.Userid == contenderId && x.Eventjudgechallengeid == dto.eventJudgeChallengeDivisionId);
-				if (dbPoint != null)
-				{
-					dto.Point = _mapper.Map<PointDTO>(dbPoint);
-				}
+			 	var dbPoint = _context.Points.FirstOrDefault(x => x.Userid == contenderId && x.Eventjudgechallengeid == dto.eventJudgeChallengeDivisionId);
+			 	if (dbPoint != null)
+			 	{
+			 		dto.Point = _mapper.Map<PointDTO>(dbPoint);
+			 	}
 			}
-
-			return Ok(dtoResult);
+			
+			var dbPhoto = await _context.Photos
+			 			.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Contenderid == contenderId)
+			 			.OrderByDescending(y => y.Created)
+			 			.FirstOrDefaultAsync();  
+			
+			return Ok(new PhotoUserChallengeCriteriaDTO
+			{
+				PhotoURL = dbPhoto == null || string.IsNullOrEmpty(dbPhoto.PhotoUrl) ? null : dbPhoto.PhotoUrl,
+				UserChallengeCriteria = dtoResult.ToList()
+			});
 		}
 		catch (Exception e)
 		{
@@ -73,7 +139,9 @@ public class JudgeController : ControllerBase
 			if (dbPoint == null)
 			{
 				dbPoint = _mapper.Map<Point>(aPoint);
+#pragma warning disable CS8625
 				dbPoint.Eventjudgechallenge = null;
+#pragma warning restore CS8625
 				_context.Points.Add(dbPoint);
 			}
 			else

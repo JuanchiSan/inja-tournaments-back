@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace InjaAPI.Controllers
-{
+namespace InjaAPI.Controllers;
+
 	[Route("api")]
 	[ApiController]
 	public class LoginController : ControllerBase
@@ -38,7 +38,7 @@ namespace InjaAPI.Controllers
 				return BadRequest("Bad credentials");
 			}
 			
-			var isPasswordValid = managedUser != null && managedUser.Pass == request.Password;
+			var isPasswordValid = managedUser.Pass == request.Password;
 			if (!isPasswordValid)
 			{
 				return Unauthorized();
@@ -74,4 +74,3 @@ namespace InjaAPI.Controllers
 			return Ok($"Sos vos {jwtUserName.Value}?");
 		}
 	}
-}

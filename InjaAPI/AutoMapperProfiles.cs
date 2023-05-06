@@ -24,7 +24,7 @@ public class AutoMapperProfiles : Profile
 			.ReverseMap();
 		CreateMap<InjaData.Models.Usertype, InjaDTO.UsertypeDTO>();
 		CreateMap<InjaData.Models.Persongroup, InjaDTO.UserGroupDTO>();
-		CreateMap<InjaData.Models.VUserschallengecriterion, InjaDTO.UsersChallengeCriteriaDTO>()
+		CreateMap<InjaData.Models.VUserschallengecriterion, InjaDTO.UserChallengeCriteriaDTO>()
 			.ForMember(x => x.contenderId, y => y.MapFrom(z => z.Contenderid))
 			.ReverseMap();
 	}

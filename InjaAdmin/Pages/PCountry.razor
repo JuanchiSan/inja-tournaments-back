@@ -11,7 +11,7 @@
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 			<GridPageSettings PageSizes="true" />
 			<SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
-			<GridSelectionSettings Type="SelectionType.Multiple" />
+			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" />
 			<GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected" />
 			<GridColumns>
 				<GridColumn Field="@nameof(Country.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />
@@ -29,7 +29,7 @@
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 			<GridPageSettings PageSizes="true" />
 			<SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
-			<GridSelectionSettings Type="SelectionType.Multiple" />
+			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" />
 			<GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City" />
 			<GridColumns>
 				<GridColumn Field="@nameof(City.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />

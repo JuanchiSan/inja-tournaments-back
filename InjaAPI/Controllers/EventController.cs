@@ -6,7 +6,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Inja.Controllers;
+namespace InjaAPI.Controllers;
 
 [Route("api/[controller]"), Authorize]
 [ApiController]
@@ -21,7 +21,7 @@ public class EventsController : ControllerBase
 		_mapper = mapper;
 	}
 
-	// GET: api/Evetns
+	[AllowAnonymous]
 	[HttpGet("GetEvents")]
 	public async Task<ActionResult<IEnumerable<EventDTO>>> GetEvents()
 	{

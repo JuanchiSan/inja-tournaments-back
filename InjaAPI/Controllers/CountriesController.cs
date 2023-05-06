@@ -6,7 +6,7 @@ using AutoMapper.QueryableExtensions;
 using InjaDTO;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Inja.Controllers;
+namespace InjaAPI.Controllers;
 
 [Route("api/[controller]"), Authorize]
 [ApiController]

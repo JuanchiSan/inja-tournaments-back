@@ -28,13 +28,13 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
+	</ItemGroup>
+	
   <ItemGroup>
     <ProjectReference Include="..\InjaData\InjaData.csproj" />
     <ProjectReference Include="..\InjaDTO\InjaDTO.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

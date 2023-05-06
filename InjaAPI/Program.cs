@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -8,7 +9,9 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-InjaData.Helper.CS = builder.Configuration["ConnectionStrings:WebApiDatabase"];
+var cs = builder.Configuration["ConnectionStrings:WebApiDatabase"]!;
+
+InjaData.Helper.CS = cs;
 
 // SetUp Serilog
 builder.Host.UseSerilog((ctx, lc) => lc

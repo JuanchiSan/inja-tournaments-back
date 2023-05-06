@@ -1,83 +1,272 @@
 ﻿@page "/EventConfig"
-
-@using InjaData.Models;
-@using InjaAdmin.Adaptors;
+@using System.ComponentModel.DataAnnotations
 
 <h3>Event Config</h3>
 
 <div>
-	<div>
-		<table>
-			<tr>
-				<td>
-					Cosa
-				</td>
-				<td width="500">
-					<SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="InjaData.Models.Event"
-											Width="550" PopupWidth="500"
-											DataSource="@(_lstEvents)">
-						<ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)" />
-						<ComboBoxEvents TValue="int?" TItem="InjaData.Models.Event" ValueChange="@OnEventValueChange" />
-					</SfComboBox>
-				</td>
-				<td>
-					Desde: @_eventDesde
-				</td>
-				<td>
-					Hasta: @_eventHasta
-				</td>
-			</tr>
-		</table>
-	</div>
-	<div>
-	
-	</div>
+  <div>
+    <table>
+      <tr>
+        <td>
+          Evento
+        </td>
+        <td width="500">
+          <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                      Width="550" PopupWidth="500"
+                      DataSource="@(_lstEvents)">
+            <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+          </SfComboBox>
+        </td>
+        <td>
+          Desde: @_eventDesde
+        </td>
+        <td>
+          Hasta: @_eventHasta
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div>
+    <SfButton Content="Add Challenge" @onclick="OnAddChallengeClick"/>
+  </div>
+  <div>
+    <SfGrid @ref="@EventChallengeDivisionGrid" TValue="VEventchallengedivision" ID="@nameof(EventChallengeDivisionGrid)"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+            Query="@GetChallengeDivisionQuery()">
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridGroupSettings ShowDropArea="false" Columns="@(new []{"Competitionname", "Challengetypename" })"/>
+      <GridPageSettings PageSizes="true"/>
+      <SfDataManager AdaptorInstance="@typeof(EventChallengeDivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridEvents OnToolbarClick="@OnGridEventChallengeToolBarClick" OnRecordDoubleClick="Callback" TValue="VEventchallengedivision"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(VEventchallengedivision.Ecdkey)" Width="150" Visible="false" IsPrimaryKey="true"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Challengetypename)" HeaderText="Challenge Type" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Challengetypeisforteams)" HeaderText="Teams" DisplayAsCheckBox="true" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Minimumcontnders)" HeaderText="Contenders" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Divisionname)" HeaderText="Division" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Competitionname)" HeaderText="Competition" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
 
 </div>
 
+<SfDialog Width="700px" Target="#target" ShowCloseIcon="true" @bind-Visible="@dialogVisible" IsModal="true">
+  <Header>
+    Event Challenge Editor
+  </Header>
+  <Content>
+    <div id="formId" class="form-horizontal">
+      <EditForm Model="@Model"  >
+        <DataAnnotationsValidator/>
+        <span>Challenge</span>
+        <div class="form-group">
+          
+        </div>
+        <div class="form-group">
+          <SfTextBox Placeholder="Challenge Name" FloatLabelType="FloatLabelType.Auto" @bind-Value="@Model.ChallengeDivisionName"/>
+          <ValidationMessage For="@(() => Model.ChallengeDivisionName)"/>
+        </div>
+        <div class="form-group">
+          <div class="e-float-input">
+            <SfDatePicker TValue="DateTime?" Placeholder="Date of Birth" @bind-Value="@Model.StartDate"/>
+            <ValidationMessage For="@(() => Model.StartDate)"/>
+          </div>
+          <div class="e-float-input">
+            <SfDatePicker TValue="DateTime?" Placeholder="Date of Birth" @bind-Value="@Model.EndDate"/>
+            <ValidationMessage For="@(() => Model.EndDate)"/>
+          </div>
+        </div>
+        <br/>
+        <span>Competitions</span>
+        @{
+          foreach (var dbItem in Helper.DB.Competitiontypes)
+          {
+            <SfRadioButton Name="ctype" TChecked="string" Value="@($"id_{dbItem.Id}")" Label="@dbItem.Name" ValueChange="OnRadioButtonValueChange"/>
+          }
+        }
+        <br/>
+        <span>Divisions</span>
+        <div class="form-group">
+          <div class="e-float-input">
+            <SfGrid @ref="@DataGrid" TValue="Division" ID="Grid1" 
+                    AllowResizing="true" AllowSelection="true" AllowSorting="true"
+                    DataSource="@_lstDivisions" Query="@_divisionQuery">
+              <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
+              <GridColumns>
+                <GridColumn Type="ColumnType.CheckBox" Width="50"/>
+                <GridColumn Field="@nameof(Division.Id)" Visible="false" IsPrimaryKey="true" Width="150"/>
+                <GridColumn Field="@nameof(Division.Competitiontypeid)" Visible="false" Width="150"/>
+                <GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>
+              </GridColumns>
+            </SfGrid>
+          </div>
+        </div>
+
+        <div class="e-row">
+          <div style="width: 220px;margin:0px auto;height: 100px;padding-top: 25px;">
+            <div style="display: inline-block;">
+              <button class="samplebtn e-control e-btn" type="submit" data-ripple="true">Save Changes</button>
+            </div>
+            <div style="float: right;">
+              <button class="samplebtn e-control e-btn" type="reset" data-ripple="true">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </EditForm>
+    </div>
+
+  </Content>
+</SfDialog>
+
 @code {
-	string? _eventDesde { get; set; }
-	string? _eventHasta { get; set; }
+  SfGrid<Division> DataGrid { get; set; }
+ 
+  public class MyEventChallenge
+  {
+    public int? Id { get; set; }
+    public string? ChallengeDivisionName { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public List<MyEventChallengeDivision> Divisions { get; set; } = new List<MyEventChallengeDivision>();
+  }
 
-	SfComboBox<int?, InjaData.Models.Event>? sfComboEvent { get; set; }
-	int? _eventId { get; set; }
-	List<InjaData.Models.Event> _lstEvents = new List<InjaData.Models.Event>();
+  public class MyEventChallengeDivision
+  {
+    public MyEventChallenge Challenge { get; set; }
+    public int DivisionId { get; set; }
+  }
 
-	protected override Task OnInitializedAsync()
-	{
-		_lstEvents = InjaAdmin.Helper.DB.Events.OrderBy(x => x.Name).ToList();
-		if (_lstEvents.Any())
-			SetEventInternalValues(_lstEvents.First());
+  #region Generales
 
-		return base.OnInitializedAsync();
-	}
+  protected override void OnInitialized()
+  {
+    _divisionQuery = new Query().Where("competitionTypeId", "equals", Convert.ToInt32(-1));
 
-	private void SetEventInternalValues(InjaData.Models.Event? aEvent)
-	{
-		if (aEvent != null)
-		{
-			_eventId = aEvent.Id;
-			_eventDesde = aEvent.Startdate.ToString("dd/MM/yyyy HH:mm");
-			_eventHasta = aEvent.Enddate.ToString("dd/MM/yyyy HH:mm");
-		}
-		else
-		{
-			_eventId = null;
-			_eventDesde = null;
-			_eventHasta = null;
-		}
-	}
+    base.OnInitialized();
+  }
 
-	private void OnEventValueChange(ChangeEventArgs<int?, InjaData.Models.Event> args)
-	{
-		Event? dbEvent = null;
-		if (args.Value != null)
-		{
-			dbEvent = Helper.DB.Events.Find(args.Value);
-		}
-		SetEventInternalValues(dbEvent);
-		StateHasChanged();
-	}
+  #endregion
+  
+  #region Dialog
 
+  bool dialogVisible { get; set; }
+  MyEventChallenge Model = new MyEventChallenge();
+
+  List<Division> _lstDivisions { get; set; } = Helper.DB.Divisions.ToList();
+
+  Query _divisionQuery = new Query();
+  
+  private void OnRadioButtonValueChange(ChangeArgs<string> obj)
+  {
+    if (string.IsNullOrEmpty(obj.Value)) return;
+    _divisionQuery = new Query().Where("competitionTypeId", "equals", Convert.ToInt32(obj.Value.Split("_")[1]));
+
+  }
+
+  private void OnSubmit(EditContext obj)
+  {
+    
+  }
+
+  private void OnValidSubmit(EditContext obj)
+  {
+    dialogVisible = false;
+  }
+
+  #endregion
+
+  #region MyRegion
+
+  private void OnAddChallengeClick(MouseEventArgs obj)
+  {
+    dialogVisible = true;
+  }
+
+  #endregion
+
+  #region Grid
+
+  SfGrid<VEventchallengedivision>? EventChallengeDivisionGrid { get; set; }
+
+  private void Callback(RecordDoubleClickEventArgs<VEventchallengedivision> obj)
+  {
+    throw new NotImplementedException();
+  }
+
+  private async Task OnGridEventChallengeToolBarClick(ClickEventArgs args)
+  {
+    if (EventChallengeDivisionGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(EventChallengeDivisionGrid)}_excelexport":
+        await EventChallengeDivisionGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(EventChallengeDivisionGrid)}_pdfexport":
+        await EventChallengeDivisionGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(EventChallengeDivisionGrid)}_csvexport":
+        await EventChallengeDivisionGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private Query GetChallengeDivisionQuery()
+  {
+    return new Query().Where(nameof(VEventchallengedivision.Eventid), "equal", _eventId ?? 0);
+  }
+
+  #endregion
+
+  #region Combo Evento
+
+  string? _eventDesde { get; set; }
+  string? _eventHasta { get; set; }
+
+  SfComboBox<int?, Event>? sfComboEvent { get; set; }
+  int? _eventId { get; set; }
+  List<Event> _lstEvents = new();
+
+  protected override Task OnInitializedAsync()
+  {
+    _lstEvents = Helper.DB.Events.OrderBy(x => x.Name).ToList();
+    if (_lstEvents.Any())
+      SetEventInternalValues(_lstEvents.First());
+
+    return base.OnInitializedAsync();
+  }
+
+  private void SetEventInternalValues(Event? aEvent)
+  {
+    if (aEvent != null)
+    {
+      _eventId = aEvent.Id;
+      _eventDesde = aEvent.Startdate.ToString("dd/MM/yyyy HH:mm");
+      _eventHasta = aEvent.Enddate.ToString("dd/MM/yyyy HH:mm");
+    }
+    else
+    {
+      _eventId = null;
+      _eventDesde = null;
+      _eventHasta = null;
+    }
+    EventChallengeDivisionGrid?.Refresh();
+  }
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    Event? dbEvent = null;
+    if (args.Value != null)
+    {
+      dbEvent = Helper.DB.Events.Find(args.Value);
+    }
+    SetEventInternalValues(dbEvent);
+    StateHasChanged();
+  }
+
+  #endregion
 
 }

@@ -19,6 +19,10 @@ public partial class Photo
 
     public string? Filename { get; set; }
 
+    public string StoredFileName { get; set; } = null!;
+
+    public string? PhotoUrl { get; set; }
+
     public virtual Challengetype Challenge { get; set; } = null!;
 
     public virtual Injauser Contender { get; set; } = null!;
