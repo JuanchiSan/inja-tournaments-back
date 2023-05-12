@@ -1,64 +1,51 @@
-﻿using InjaData.Models;
-using Syncfusion.Blazor.Data;
+﻿using System.Reflection;
+using InjaData.Models;
 using Syncfusion.Blazor;
 
 namespace InjaAdmin.Adaptors;
 
 public class CityAdaptor : DataAdaptor
 {
-  dbContext _db = new dbContext();
-  /// <summary>
-  /// Method for read data from database
-  /// </summary>
-  public override object Read(DataManagerRequest dm, string key = null)
+  private readonly dbContext _db = new();
+  
+  public override object Read(DataManagerRequest dm, string? key = null)
   {
-    IEnumerable<City> DataSource = _db.Cities.ToList();
-    if (dm.Search != null && dm.Search.Count > 0)
-    {
-      // Searching
-      DataSource = DataOperations.PerformSearching(DataSource, dm.Search);
-    }
-    if (dm.Sorted != null && dm.Sorted.Count > 0)
-    {
-      // Sorting
-      DataSource = DataOperations.PerformSorting(DataSource, dm.Sorted);
-    }
-    if (dm.Where != null && dm.Where.Count > 0)
-    {
-      // Filtering
-      DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
-    }
-    int count = DataSource.Cast<City>().Count();
-    if (dm.Skip != 0)
-    {
-      //Paging
-      DataSource = DataOperations.PerformSkip(DataSource, dm.Skip);
-    }
-    if (dm.Take != 0)
-    {
-      DataSource = DataOperations.PerformTake(DataSource, dm.Take);
-    }
-    return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;
+    return Helper.ReadDM<City>(_db.Cities.ToList(), dm, key);
   }
-  /// <summary>
-  /// Method for insert data to database
-  /// </summary>
+
   public override object Insert(DataManager dataManager, object value, string key)
   {
-    _db.Cities.Add(value as City);
-    _db.SaveChanges();
+    if (value is not City item) return value;
+    _db.Cities.Add(item);
+    try
+    {
+      _db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      var m = MethodBase.GetCurrentMethod();
+      Serilog.Log.Error(e, "Error on {MName}", m != null ? m.Name : string.Empty);
+    }
     return value;
   }
-  /// <summary>
-  /// Method for update data to database
-  /// </summary>
   public override object Update(DataManager dataManager, object value, string keyField, string key)
   {
-    var ModelValue = (value as City);
-    var data = _db.Cities.Where(x => x.Id == ModelValue.Id).SingleOrDefault();
-    data.Name = ModelValue.Name;
-    data.Active = ModelValue.Active;
-    _db.SaveChanges();
+    if (value is not City item) return value;
+    
+    var data = _db.Cities.SingleOrDefault(x => x.Id == item.Id);
+    if (data == null) return value;
+    
+    data.Name = item.Name;
+    data.Active = item.Active;
+    try
+    {
+      _db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      var m = MethodBase.GetCurrentMethod();
+      Serilog.Log.Error(e, "Error on {MName}", m != null ? m.Name : string.Empty);
+    }
     return value;
   }
   /// <summary>
@@ -66,9 +53,18 @@ public class CityAdaptor : DataAdaptor
   /// </summary>
   public override object Remove(DataManager dataManager, object value, string keyField, string key)
   {
-    City ord = _db.Cities.Find((int)value);
+    var ord = _db.Cities.Find((int)value);
+    if (ord == null) return value;
     _db.Cities.Remove(ord);
-    _db.SaveChanges();
+    try
+    {
+      _db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      var m = MethodBase.GetCurrentMethod();
+      Serilog.Log.Error(e, "Error on {MName}", m != null ? m.Name : string.Empty);
+    }
     return value;
   }
 }

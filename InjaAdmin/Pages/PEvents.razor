@@ -32,20 +32,20 @@
 @code {
 	SfGrid<Event>? DataGrid { get; set; }
 
-	public async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+	private async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
 	{
 		if (DataGrid == null) return;
-		if (args.Item.Id == $"{nameof(DataGrid)}_excelexport")
+		switch (args.Item.Id)
 		{
-			await DataGrid.ExportToExcelAsync();
-		}
-		if (args.Item.Id == $"{nameof(DataGrid)}_pdfexport")
-		{
-			await this.DataGrid.ExportToPdfAsync();
-		}
-		if (args.Item.Id == $"{nameof(DataGrid)}_csvexport")
-		{
-			await this.DataGrid.ExportToCsvAsync();
+			case $"{nameof(DataGrid)}_excelexport":
+				await DataGrid.ExportToExcelAsync();
+				break;
+			case $"{nameof(DataGrid)}_pdfexport":
+				await this.DataGrid.ExportToPdfAsync();
+				break;
+			case $"{nameof(DataGrid)}_csvexport":
+				await this.DataGrid.ExportToCsvAsync();
+				break;
 		}
 	}
 

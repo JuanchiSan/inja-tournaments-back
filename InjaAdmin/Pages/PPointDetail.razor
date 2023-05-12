@@ -1,0 +1,93 @@
+﻿@page "/PointDetail"
+@using Microsoft.EntityFrameworkCore
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+
+<h3>@contenderName Details</h3>
+<div>
+  <div>
+    <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>
+  </div>
+  <div>
+     <SfGrid @ref="@GridPoints" TValue="VUserpoint" ID="@nameof(GridPoints)"
+             AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"  
+             AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+                Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+                DataSource="@_lstPoints" >
+          <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+          <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
+          <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+          <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
+          <GridColumns>
+            <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderText="Judge" Width="200"/>
+            <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderText="Criteria" Width="200"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" Format="N2"  Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" Format="N2" Width="100"/>
+            <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" Format="N2" Width="100"/>
+          </GridColumns>
+        </SfGrid>
+  </div>
+</div>
+
+
+@code {
+  SfGrid<VUserpoint>? GridPoints { get; set; }
+  private int? contenderId { get; set; }
+  private int? eventId { get; set; }
+  private int? eventchallengeId { get; set; }
+  private int? divisionId { get; set; }
+  private string? contenderName { get; set; }
+  private List<VUserpoint> _lstPoints = new();
+  
+  private void OnGoBackClick(MouseEventArgs obj)
+  {
+    navManager.NavigateTo("/PointView");    
+  }
+
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (GridPoints == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GridPoints)}_excelexport":
+        await GridPoints.ExportToExcelAsync();
+        break;
+      case $"{nameof(GridPoints)}_pdfexport":
+        await GridPoints.ExportToPdfAsync();
+        break;
+      case $"{nameof(GridPoints)}_csvexport":
+        await GridPoints.ExportToCsvAsync();
+        break;
+    }
+  }  
+  
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var tuple = await sessionStorage.GetItemAsync<Tuple<int, string, int, int, int>>(Helper.paramDetailPointView);
+      contenderId = tuple.Item1;
+      contenderName = tuple.Item2;
+      eventId = tuple.Item3;
+      eventchallengeId = tuple.Item4;
+      divisionId = tuple.Item5;
+      _lstPoints = await Helper.DB.VUserpoints
+        .Where(x => x.Contenderid == contenderId && x.Eventchallengeid == eventchallengeId && x.Eventid == eventId && x.Divisionid == divisionId)
+        .ToListAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error on OnInitializedAsync");
+      navManager.NavigateTo("/PointView");
+    }
+  }
+}

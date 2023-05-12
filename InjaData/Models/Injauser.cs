@@ -33,6 +33,8 @@ public partial class Injauser
 
     public string? Urlphoto { get; set; }
 
+    public string? Name { get; set; }
+
     public virtual City? City { get; set; }
 
     public virtual Doctype Doc { get; set; } = null!;

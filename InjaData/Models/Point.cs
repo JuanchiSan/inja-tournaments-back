@@ -31,6 +31,8 @@ public partial class Point
 
     public int Eventjudgechallengeid { get; set; }
 
+    public decimal? Totalpoints { get; set; }
+
     public virtual Eventjudgechallengedivision Eventjudgechallenge { get; set; } = null!;
 
     public virtual Injauser User { get; set; } = null!;

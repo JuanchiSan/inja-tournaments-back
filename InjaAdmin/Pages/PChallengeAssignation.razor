@@ -1,0 +1,89 @@
+﻿@page "/PChallengeAssignation"
+@using Microsoft.EntityFrameworkCore
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+
+<h3>Judge Challenge Assignation</h3>
+<div>
+  <div>
+    <h2>Challenge @_challengeName</h2>
+    </div>
+  <div>
+    <div>Criterias</div>
+    <div>
+       <SfGrid @ref="@GridCriterias" TValue="VCriteriasJudge" ID="@nameof(GridCriterias)"
+                   AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"  
+                   AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+                   Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+                   DataSource="@_lstCriterias">
+                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+                <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
+                <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+                <GridEvents OnToolbarClick="@GridToolbarClick" OnRecordDoubleClick="OnGridDoubleClick" TValue="VCriteriasJudge"/>
+                <GridColumns>
+                  <GridColumn Field="@nameof(VCriteriasJudge.Criterianame)" HeaderText="Criterias" Width="200"/>
+                  <GridColumn Field="@nameof(VCriteriasJudge.Rounds)" HeaderText="Rounds" Width="200"/>
+                  <GridColumn Field="@nameof(VCriteriasJudge.Divisionsjudges)" HeaderText="Divisions and Judges" Width="350"/>
+                </GridColumns>
+              </SfGrid>      
+    </div>
+  </div>
+</div>
+
+@code {
+  #region general
+  string? _challengeName { get; set; }
+  int? _eventchallengeId { get; set; }
+  List<VCriteriasJudge> _lstCriterias = new();
+
+  private async Task FillDataSources()
+  {
+    _lstCriterias.Clear();
+    _lstCriterias.AddRange(await Helper.DB.VCriteriasJudges.Where(x => x.Eventchallengeid == _eventchallengeId).ToListAsync());
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var cosa = await sessionStorage.GetItemAsync<Tuple<int, string>>(Helper.paramChellengeName);
+      _challengeName = cosa.Item2;
+      _eventchallengeId = cosa.Item1;
+      await FillDataSources();
+    }
+    catch (Exception a)
+    {
+      Serilog.Log.Error(a, "Error Opening ChallengeAssignement");
+      navManager.NavigateTo("/EventConfig");
+    }
+  }
+
+  #endregion
+  
+  #region Grid
+  SfGrid<VCriteriasJudge>? GridCriterias { get; set; }
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (GridCriterias == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GridCriterias)}_excelexport":
+        await GridCriterias.ExportToExcelAsync();
+        break;
+      case $"{nameof(GridCriterias)}_pdfexport":
+        await GridCriterias.ExportToPdfAsync();
+        break;
+      case $"{nameof(GridCriterias)}_csvexport":
+        await GridCriterias.ExportToCsvAsync();
+        break;
+    }
+  }  
+  
+  private void OnGridDoubleClick(RecordDoubleClickEventArgs<VCriteriasJudge> obj)
+  {
+    
+  }
+  
+  #endregion
+}

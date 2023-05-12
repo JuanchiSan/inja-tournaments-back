@@ -1,0 +1,127 @@
+﻿<h3>CEventChallengeConfig</h3>
+
+<SfDialog Width="700px" Target="#target" ShowCloseIcon="true" @bind-Visible="@dialogVisible" IsModal="true">
+  <Header>
+    Event Challenge Editor
+  </Header>
+  <Content>
+    <div id="formId" class="form-horizontal">
+      <EditForm Model="@Model"  >
+        <DataAnnotationsValidator/>
+        <span>Challenge</span>
+        <div class="form-group">
+          
+        </div>
+        <div class="form-group">
+          <SfTextBox Placeholder="Challenge Name" FloatLabelType="FloatLabelType.Auto" @bind-Value="@Model.ChallengeDivisionName"/>
+          <ValidationMessage For="@(() => Model.ChallengeDivisionName)"/>
+        </div>
+        <div class="form-group">
+          <div class="e-float-input">
+            <SfDatePicker TValue="DateTime?" Placeholder="Date of Birth" @bind-Value="@Model.StartDate"/>
+            <ValidationMessage For="@(() => Model.StartDate)"/>
+          </div>
+          <div class="e-float-input">
+            <SfDatePicker TValue="DateTime?" Placeholder="Date of Birth" @bind-Value="@Model.EndDate"/>
+            <ValidationMessage For="@(() => Model.EndDate)"/>
+          </div>
+        </div>
+        <br/>
+        <span>Competitions</span>
+        @{
+          foreach (var dbItem in Helper.DB.Competitiontypes)
+          {
+            <SfRadioButton Name="ctype" TChecked="string" Value="@($"id_{dbItem.Id}")" Label="@dbItem.Name" ValueChange="OnRadioButtonValueChange"/>
+          }
+        }
+        <br/>
+        <span>Divisions</span>
+        <div class="form-group">
+          <div class="e-float-input">
+            <SfGrid @ref="@DataGrid" TValue="Division" ID="Grid1" 
+                    AllowResizing="true" AllowSelection="true" AllowSorting="true"
+                    DataSource="@_lstDivisions" Query="@_divisionQuery">
+              <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
+              <GridColumns>
+                <GridColumn Type="ColumnType.CheckBox" Width="50"/>
+                <GridColumn Field="@nameof(Division.Id)" Visible="false" IsPrimaryKey="true" Width="150"/>
+                <GridColumn Field="@nameof(Division.Competitiontypeid)" Visible="false" Width="150"/>
+                <GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>
+              </GridColumns>
+            </SfGrid>
+          </div>
+        </div>
+
+        <div class="e-row">
+          <div style="width: 220px;margin:0px auto;height: 100px;padding-top: 25px;">
+            <div style="display: inline-block;">
+              <button class="samplebtn e-control e-btn" type="submit" data-ripple="true" @onclick="Callback">Save Changes</button>
+            </div>
+            <div style="float: right;">
+              <button class="samplebtn e-control e-btn" type="reset" data-ripple="true" @onclick="Callback">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </EditForm>
+    </div>
+
+  </Content>
+</SfDialog>
+
+@code {
+  SfGrid<Division>? DataGrid { get; set; }
+  
+  #region Dialog
+
+  bool dialogVisible { get; set; }
+  MyEventChallenge Model = new MyEventChallenge();
+
+  List<Division> _lstDivisions { get; set; } = new();
+
+  Query _divisionQuery = new Query();
+  
+  private void OnRadioButtonValueChange(ChangeArgs<string> obj)
+  {
+    if (string.IsNullOrEmpty(obj.Value)) return;
+    _divisionQuery = new Query().Where("competitionTypeId", "equals", Convert.ToInt32(obj.Value.Split("_")[1]));
+
+  }
+
+  private void OnSubmit(EditContext obj)
+  {
+    dialogVisible = false;
+  }
+
+  private void OnValidSubmit(EditContext obj)
+  {
+    dialogVisible = false;
+  }
+
+  private void Callback(MouseEventArgs obj)
+  {
+    dialogVisible = false;
+  }
+
+  
+  #endregion
+  
+}
+
+@code {
+
+  public class MyEventChallenge
+  {
+    public int? Id { get; set; }
+    public string? ChallengeDivisionName { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public List<MyEventChallengeDivision> Divisions { get; set; } = new List<MyEventChallengeDivision>();
+  }
+
+  public class MyEventChallengeDivision
+  {
+    public MyEventChallenge? Challenge { get; set; }
+    public int DivisionId { get; set; }
+  }
+
+}

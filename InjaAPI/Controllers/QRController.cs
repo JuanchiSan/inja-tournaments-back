@@ -33,9 +33,11 @@ public class QRController : ControllerBase
       var qrCode = new QRCode(qrCodeData);
       var qrCodeImage = qrCode.GetGraphic(20);
 
+#pragma warning disable CA1416
 #pragma warning disable CS8600
       var result = (byte[])new ImageConverter().ConvertTo(qrCodeImage, typeof(byte[]));
 #pragma warning restore CS8600
+#pragma warning restore CA1416
 
 #pragma warning disable CS8604
       return File(result, "image/png");
