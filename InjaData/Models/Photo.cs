@@ -23,6 +23,8 @@ public partial class Photo
 
     public string? PhotoUrl { get; set; }
 
+    public int Divisionid { get; set; }
+
     public virtual Challengetype Challenge { get; set; } = null!;
 
     public virtual Injauser Contender { get; set; } = null!;

@@ -1,0 +1,185 @@
+﻿@page "/ChallengeCriteriaJudgeConfig"
+@using Microsoft.EntityFrameworkCore
+@using System.Data.SqlTypes
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+
+<h3>Judge Challenge Assignement</h3>
+<div>
+  <div>
+    <h2>Challenge @_challengeName</h2>
+  </div>
+  <div>
+    <div>Criterias</div>
+    <div>
+      @if (_lstCriterias != null)
+      {
+        <SfGrid @ref="@GridCriterias" TValue="InjaCriteria" ID="@nameof(GridCriterias)"
+                AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+                AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+                Toolbar="@(new List<string> { "Edit", "Cancel", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+                DataSource="@_lstCriterias">
+          <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>          
+          <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+          <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
+          <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+          <GridEvents OnToolbarClick="@GridToolbarClick" OnBeginEdit="@OnGridBeginEdit" OnRecordDoubleClick="OnGridDoubleClick" TValue="InjaCriteria"/>
+          <GridColumns>
+            <GridColumn Field="@nameof(InjaCriteria.CriteriaName)" HeaderText="Criterias" Width="200" AllowEditing="false"/>
+            <GridColumn Field="@nameof(InjaCriteria.Round)" HeaderText="Rounds" Width="200" AllowEditing="false"/>
+            @foreach (var d in _lstDivisions.OrderBy(x => x.Item2))
+            {
+              var col = $"div_{d.Item1}";
+              <GridColumn HeaderText="@d.Item2" Width="200" AllowEditing="true">
+                <Template>
+                  @{
+                    var item = context as InjaCriteria;
+                    @item[col]
+                  }
+                </Template>
+                <EditTemplate>
+                  <SfComboBox TValue="string" TItem="Injauser" DataSource="_lstJudges" AllowCustom="false" Placeholder="Select a Judge">
+                    <ComboBoxFieldSettings Value="@nameof(Injauser.Name)" Text="@nameof(Injauser.Name)"/>
+                    <ComboBoxEvents TItem="Injauser" TValue="string" OnValueSelect="Callback"></ComboBoxEvents>
+                  </SfComboBox>
+                </EditTemplate>
+              </GridColumn>
+            }
+          </GridColumns>
+        </SfGrid>
+      }
+      else
+      {
+        <h2>Loading</h2>
+      }
+
+    </div>
+  </div>
+</div>
+
+@code {
+  public class InjaDivisionJudge
+  {
+    public int DivisionId { get; set; }
+    public string? DivisionProp { get; init; }
+    public string? DivisionName { get; set; }
+    public int? JudgeId { get; set; }
+    public string? Judge { get; set; }
+  }
+  
+  public class InjaCriteria
+  {
+    public List<InjaDivisionJudge> LstDivisiones = new ();
+    
+    public string? CriteriaName { get; set; }
+    public int? Round { get; set; }
+
+    public string? this[string division]
+    {
+      get { return LstDivisiones.FirstOrDefault(x => x.DivisionProp == division)?.Judge; }
+    }
+  }
+
+  #region general
+  List<Tuple<int?,string?>> _lstDivisions = new ();
+  string? _challengeName { get; set; }
+  int? _eventchallengeId { get; set; }
+  List<InjaCriteria>? _lstCriterias;
+  List<Injauser>? _lstJudges;
+  
+  private async Task FillDataSources()
+  {
+    // Fill Judges
+    _lstJudges = await Helper.DB.Injausers
+      .Where(x => x.Usertype == 3.ToString())
+      .ToListAsync();
+    var lstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
+      .Where(x => x.Eventchallengeid == _eventchallengeId)
+      .ToListAsync();
+
+    var dcriterias = lstAllCriteriasJudges
+      .Select(x => Tuple.Create(x.Rounds, x.Criterianame))
+      .Distinct()
+      .ToList();
+    _lstDivisions = lstAllCriteriasJudges
+      .Select(x => Tuple.Create(x.Divisionid, x.Divisionname))
+      .Distinct()
+      .ToList(); 
+
+    _lstCriterias = new List<InjaCriteria>();
+    foreach (var tc in dcriterias)
+    {
+      _lstCriterias.Add(new InjaCriteria
+      {
+        CriteriaName = tc.Item2,
+        Round = tc.Item1,
+        LstDivisiones = _lstDivisions
+          .Select(x => new InjaDivisionJudge
+          {
+            DivisionId = Convert.ToInt32(x.Item1),
+            DivisionProp = $"div_{Convert.ToInt32(x.Item1)}",
+            DivisionName = x.Item2, 
+            JudgeId = lstAllCriteriasJudges.FirstOrDefault(z => z.Criterianame == tc.Item2 && z.Divisionname == x.Item2)?.Userid, 
+            Judge = lstAllCriteriasJudges.FirstOrDefault(z => z.Criterianame == tc.Item2 && z.Divisionname == x.Item2)?.Judgename
+          }).ToList()
+      });
+    }
+    StateHasChanged();
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var cosa = await sessionStorage.GetItemAsync<Tuple<int, string>>(Helper.paramChellengeName);
+      _challengeName = cosa.Item2;
+      _eventchallengeId = cosa.Item1;
+      await FillDataSources();
+    }
+    catch (Exception a)
+    {
+      Serilog.Log.Error(a, "Error Opening ChallengeAssignement");
+      navManager.NavigateTo("/EventConfig");
+    }
+  }
+
+  private void Callback(SelectEventArgs<Injauser> obj)
+  {
+    Serilog.Log.Information($"ahola {obj}");
+  }
+  #endregion
+
+  #region Grid
+
+  SfGrid<InjaCriteria>? GridCriterias { get; set; }
+
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (GridCriterias == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GridCriterias)}_excelexport":
+        await GridCriterias.ExportToExcelAsync();
+        break;
+      case $"{nameof(GridCriterias)}_pdfexport":
+        await GridCriterias.ExportToPdfAsync();
+        break;
+      case $"{nameof(GridCriterias)}_csvexport":
+        await GridCriterias.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void OnGridDoubleClick(RecordDoubleClickEventArgs<InjaCriteria> obj)
+  {
+  }
+
+  private void OnGridBeginEdit(BeginEditArgs<InjaCriteria> obj)
+  {
+    Serilog.Log.Information($"obj");
+  }
+
+  #endregion
+
+}

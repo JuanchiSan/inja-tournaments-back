@@ -1,0 +1,277 @@
+﻿@page "/EventChallengeConfig"
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+
+<h2>
+  Event Challenge Config
+</h2>
+<br>
+<div id="formId" class="form-horizontal">
+  @if (Model != null)
+  {
+    <EditForm Model="@Model">
+      <DataAnnotationsValidator/>
+      <span>Challenge Type</span>
+      <div class="form-group">
+        <SfComboBox TValue="int?" TItem="Challengetype" Enabled="@(Model?.EventChallengeId == -1)"
+                    DataSource="_lstChallengeTypes" @bind-Value="_comboChallengeTypeId">
+          <ComboBoxFieldSettings Value="@nameof(Challengetype.Id)" Text="@nameof(Challengetype.Name)"/>
+        </SfComboBox>
+      </div>
+      <span>Challenge Name</span>
+      <div class="form-group">
+        <SfTextBox Placeholder="Challenge Name" FloatLabelType="FloatLabelType.Never"
+                   @bind-Value="@(Model!.EventChallengeName)"/>
+        <ValidationMessage For="@(() => Model!.EventChallengeName)"/>
+      </div>
+      <div class="form-group">
+        <span>Start Date</span>
+        <div class="e-float-input">
+          <SfDateTimePicker TValue="DateTime?" Format="dd/MM/yyyy HH:mm" Placeholder="Start Date" @bind-Value="@Model!.StartDate"/>
+          <ValidationMessage For="@(() => Model!.StartDate)"/>
+        </div>
+        <span>End Date</span>
+        <div class="e-float-input">
+          <SfDateTimePicker TValue="DateTime?" Format="dd/MM/yyyy HH:mm" TimeFormat="HH:mm" Placeholder="End Date" @bind-Value="@Model!.EndDate"/>
+          <ValidationMessage For="@(() => Model!.EndDate)"/>
+        </div>
+      </div>
+      <br/>
+      <span>Competitions</span>
+      @{
+        foreach (var dbItem in Helper.DB.Competitiontypes)
+        {
+          <SfRadioButton Name="ctype" TChecked="int?" Value="@(dbItem.Id.ToString())" Label="@dbItem.Name" @bind-Checked="@_bId" ValueChange="OnRadioButtonValueChange"/>
+        }
+      }
+      <br/>
+      <span>Divisions</span>
+      <div class="form-group">
+        <div class="e-float-input">
+          <SfGrid @ref="@DataGrid" TValue="InternalEventChallengeDivision" ID="@nameof(DataGrid)"
+                  AllowResizing="true" AllowSelection="true" AllowSorting="true"
+                  DataSource="@_lstModelDivision" Query="@_divisionQuery"
+                  Toolbar="@(new object[] { "Edit", "Update", "Cancel" })">
+            <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
+            <GridColumns>
+              <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionId)" IsPrimaryKey="true" Visible="false"/>
+              <GridColumn Field="@nameof(InternalEventChallengeDivision.Checked)" HeaderText="Checked" DisplayAsCheckBox="true" Width="50"/>
+              <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="Name" Width="150" AllowEditing="false"/>
+            </GridColumns>
+          </SfGrid>
+        </div>
+      </div>
+
+      <div class="e-row">
+        <div style="width: 220px;margin:0 auto;height: 100px;padding-top: 25px;">
+          <div style="display: inline-block;">
+            <SfButton IsPrimary="true" @onclick="@OnSaveClick">Save Changes</SfButton>
+          </div>
+          <div style="float: right;">
+            <SfButton @onclick="@OnCancelClick">Cancel</SfButton>
+          </div>
+        </div>
+      </div>
+    </EditForm>
+  }
+</div>
+@* <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/> *@
+
+@code {
+  int? _comboChallengeTypeId;
+  int? _bId;
+  List<Challengetype>? _lstChallengeTypes;
+  List<Division>? _lstDivisions { get; set; }
+  List<InternalEventChallengeDivision>? _lstModelDivision { get; set; }
+  List<Competitiontype>? _lstCompetitions { get; set; }
+  List<Eventchallengedivision>? _lstEventChallengeDivision { get; set; }
+  SfGrid<InternalEventChallengeDivision>? DataGrid { get; set; }
+  InternalEventChallenge? Model { get; set; }
+  Query _divisionQuery = new();
+
+  private void FillDataSources()
+  {
+    _lstCompetitions = Helper.DB.Competitiontypes.ToList();
+    _bId = _lstCompetitions.FirstOrDefault()?.Id;
+    _divisionQuery = GetQueryRadioButton(Convert.ToInt32(_bId));
+    _lstDivisions = Helper.DB.Divisions
+      .Include(x => x.Competitiontype)
+      .ToList();
+    _lstChallengeTypes = Helper.DB.Challengetypes.ToList();
+    _lstEventChallengeDivision = Helper.DB.Eventchallengedivisions
+      .Where(x => Model != null && x.Eventchallengeid == Model.EventChallengeId)
+      .ToList();
+    if (Model == null) return;
+    _comboChallengeTypeId = Model.ChallengeTypeId == -1 ? _lstChallengeTypes.OrderBy(x => x.Name).First().Id : Model.ChallengeTypeId;
+    _lstModelDivision = _lstDivisions.Select(x => new InternalEventChallengeDivision
+    {
+      DivisionId = x.Id,
+      DivisionName = x.Name,
+      CompetitionTypeId = x.Competitiontypeid,
+      Checked = _lstEventChallengeDivision.Any(y => y.Eventchallengeid == Model.EventChallengeId && y.Divisionid == x.Id)
+    }).ToList();
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var param = await sessionStorage.GetItemAsync<Tuple<int?, int?, string?>>(Helper.paramChellengeName);
+      Model = new InternalEventChallenge
+      {
+        EventId = Convert.ToInt32(param.Item1),
+        EventChallengeId = Convert.ToInt32(param.Item2),
+        EventChallengeName = Convert.ToString(param.Item3)!
+      };
+      if (Model.EventChallengeId != -1)
+      {
+        var dbItem = Helper.DB.Eventchallenges.FirstOrDefault(x => x.Id == Model.EventChallengeId);
+        if (dbItem != null) // debería ser siempre, peeeeero
+        {
+          Model.ChallengeTypeId = dbItem.Challengeid;
+          Model.StartDate = dbItem.Startdate;
+          Model.EndDate = dbItem.Enddate;
+        }
+      }
+      FillDataSources();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error Decoding EventChallengeConfig Param");
+      navManager.NavigateTo("/EventConfig");
+    }
+    StateHasChanged();
+  }
+
+  private void OnRadioButtonValueChange(ChangeArgs<int?> obj)
+  {
+    if (obj.Value == null) return;
+    _divisionQuery = GetQueryRadioButton((int)obj.Value);
+  }
+
+  private Tuple<int,string> SaveNew()
+  {
+    var db = Helper.DB;
+    var dbEC = new Eventchallenge
+    {
+      Challengeid = Convert.ToInt32(_comboChallengeTypeId),
+    };
+    db.Eventchallenges.Add(dbEC);
+    dbEC.Startdate = Model?.StartDate;
+    dbEC.Enddate = Model?.EndDate;
+    if (Model?.EventChallengeName != null) dbEC.Name = Model.EventChallengeName;
+    dbEC.Eventid = Convert.ToInt32(Model?.EventId);
+    _lstModelDivision?.Where(x => x.Checked)
+      .ToList()
+      .ForEach(y => dbEC.Eventchallengedivisions.Add(
+        new Eventchallengedivision
+        {
+          Divisionid = y.DivisionId
+        }));
+
+    try
+    {
+      db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error Saving EventChallenges (Config)");
+      return Tuple.Create(1, e.ToString());
+    }
+    return Tuple.Create(0, string.Empty);
+  }
+
+  private Tuple<int,string> SaveOld()
+  {
+    var db = Helper.DB;
+    Eventchallenge? dbEC;
+    dbEC = db.Eventchallenges
+      .Include(z => z.Eventchallengedivisions)
+      .FirstOrDefault(x => x.Id == Model.EventChallengeId);
+    dbEC.Startdate = Model.StartDate;
+    dbEC.Enddate = Model.EndDate;
+    dbEC.Name = Model.EventChallengeName;
+    
+    // borro los deseleccionados
+    foreach (var memitem in _lstModelDivision.ToList())
+    {
+      var dbECD = dbEC.Eventchallengedivisions.FirstOrDefault(x => x.Divisionid == memitem.DivisionId);
+      switch (memitem.Checked)
+      {
+        // No está en la base, hay que agregarlo
+        case true when dbECD == null:
+          dbEC.Eventchallengedivisions.Add(new Eventchallengedivision
+          {
+            Divisionid = memitem.DivisionId
+          });
+          break;
+        // Está en la base y hay que borrarlo
+        case false when dbECD != null:
+          dbEC.Eventchallengedivisions.Remove(dbECD);
+          break;
+      }
+    }
+
+    try
+    {
+      db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error Saving EventChallenges (Config)");
+      return Tuple.Create(1, e.ToString());
+    }
+    return Tuple.Create(0, string.Empty);
+  }
+  
+  private void OnSaveClick(MouseEventArgs obj)
+  {
+    Tuple<int, string> result =
+  // Acá se viene el quilombo de los quilombos
+      Model is {EventChallengeId: -1 } ? SaveNew() : SaveOld();
+    
+    if(result.Item1 == 0)
+      navManager.NavigateTo("/EventConfig");
+  }
+
+  private void OnCancelClick(MouseEventArgs obj)
+  {
+    navManager.NavigateTo("/EventConfig");
+  }
+
+  private Query GetQueryRadioButton(int val) => new Query().Where("competitionTypeId", "equals", val);
+}
+
+@code {
+
+  public class InternalEventChallenge
+  {
+    public int EventChallengeId { get; set; } = -1;
+
+    [Required]
+    public int EventId { get; set; }
+
+    [Required]
+    public int? ChallengeTypeId { get; set; }
+
+    [Required]
+    public string EventChallengeName { get; set; } = string.Empty;
+
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+  //public List<InternalEventChallengeDivision> Divisions { get; set; } = new();
+  }
+
+  public class InternalEventChallengeDivision
+  {
+    [Key]
+    public int DivisionId { get; set; }
+
+    public int CompetitionTypeId { get; set; }
+    public bool Checked { get; set; }
+    public string DivisionName { get; set; } = string.Empty;
+  }
+
+}

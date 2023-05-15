@@ -21,7 +21,7 @@
 		</SfGrid>
 	</div>
 	<div>
-		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="DivisionGrid" 
+		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="@nameof(DivisionGrid)" 
 		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
 		        Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})"
 		        Query="@(MakeQuery())">

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using InjaData.Models;
 using AutoMapper;
+using InjaDTO;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace InjaAPI.Controllers;
 
@@ -73,8 +75,42 @@ public class PhotographerController : ControllerBase
   // }
 
   [AllowAnonymous]
+  [HttpGet("GetContenderChallenges")]
+  public async Task<ActionResult<ResponseDivisionContenderChallengeDTO>> GetContenderChallenges(int eventid, int challengeid, int divisionid, int contenderid)
+  {
+    var dbItems = await _context
+      .VUserinscriptionPlanas
+      .Where(x => x.Eventid == eventid && x.Challengeid == challengeid)
+      .ToListAsync();
+
+    if (dbItems.All(x => x.Userid != contenderid)) return NotFound();
+
+    var dbPhoto = _context
+      .Photos
+      .FirstOrDefault(x => x.Challengeid == challengeid && x.Eventid == eventid && x.Contenderid == contenderid);
+
+    var contenderName = _context.Injausers.FirstOrDefault(x => x.Id == contenderid)?.Name;
+    if (contenderName == null) return NotFound();
+    var result = new ResponseDivisionContenderChallengeDTO
+    {
+      EventId = eventid,
+      EventName = _context.Events.FirstOrDefault(x => x.Id == eventid)!.Name,
+      ChallengeId = challengeid,
+      ChallengeName = _context.Eventchallenges.FirstOrDefault(x => x.Challengeid == challengeid && x.Eventid == eventid)!.Name,
+      ContenderId = contenderid,
+      ContenderName = contenderName,
+      DivisionId = divisionid,
+      DivisionName = _context.Divisions.FirstOrDefault(x => x.Id == divisionid)!.Name,
+      PhotoURL = (dbPhoto == null ? string.Empty : dbPhoto.PhotoUrl) ?? string.Empty,
+      TotalContendersThisChallenge = dbItems.Count,
+      TotalPhotosInThisChallenge = _context.Photos.Count(x => x.Eventid == eventid && x.Challengeid == challengeid)
+    };
+    return Ok(result);
+  }
+
+  [AllowAnonymous]
   [HttpPost("UploadPhotoFile")]
-  public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int contenderId, int photographerId, IFormFile? file)
+  public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int divisionid, int contenderId, int photographerId, IFormFile? file)
   {
     try
     {
@@ -84,14 +120,16 @@ public class PhotographerController : ControllerBase
       var ct = DateTime.Now;
 
       if (file.Length <= 0) return BadRequest("File length is 0");
-      var filenameResponse = $"{eventId}_{challengeId}_{contenderId}_{photographerId}";
+      var filenameResponse = $"{eventId}_{challengeId}_{divisionid}{contenderId}_{photographerId}";
       var fileNameStorage = filenameResponse + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
-      var photourl = $"http://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&contenderId={contenderId}&photographerId={photographerId}";
+      var photourl =
+        $"http://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&divisionid={divisionid}&contenderId={contenderId}&photographerId={photographerId}";
 
       var dbPhoto = new Photo
       {
         Challengeid = challengeId,
         Contenderid = contenderId,
+        Divisionid = divisionid,
         Photographerid = photographerId,
         Eventid = eventId,
         Created = ct,
@@ -111,18 +149,19 @@ public class PhotographerController : ControllerBase
     }
     catch (Exception e)
     {
-      Serilog.Log.Error("Error Saving File", e);
+      Serilog.Log.Error(e,"Error Saving File");
       return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
     }
   }
 
   [AllowAnonymous]
   [HttpGet("DownloadPhotoFile")]
-  public IActionResult DownloadPhotoFile(int eventId, int challengeId, int contenderId, int photographerId)
+  public IActionResult DownloadPhotoFile(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
     try
     {
-      var dbItems = _context.Photos.Where(x => x.Challengeid == challengeId && x.Eventid == eventId && x.Photographerid == photographerId && x.Contenderid == contenderId)
+      var dbItems = _context.Photos
+        .Where(x => x.Divisionid == divisionId && x.Challengeid == challengeId && x.Eventid == eventId && x.Photographerid == photographerId && x.Contenderid == contenderId)
         .OrderByDescending(x => x.Created);
       if (!dbItems.Any())
         return NotFound("Image Not Found");
@@ -135,7 +174,7 @@ public class PhotographerController : ControllerBase
     }
     catch (Exception e)
     {
-      Serilog.Log.Error("Error Reading File", e);
+      Serilog.Log.Error(e,"Error Reading File");
       return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
     }
   }

@@ -1,0 +1,148 @@
+﻿@page "/Contenders"
+
+@using Syncfusion.Blazor.BarcodeGenerator
+@using QRCoder
+@using System.Drawing.Imaging
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+
+<h3>Contenders</h3>
+
+<div>
+  <div>
+    <span>Event</span>
+    <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                Width="550" PopupWidth="500"
+                DataSource="@(_lstEvents)">
+      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+    </SfComboBox>
+  </div>
+  <div>
+    <SfGrid @ref="ContenderGrid" TValue="VUserinscriptionPlana" ID="@nameof(ContenderGrid)"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+            AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
+            DataSource="_lstUsers"
+            Query="@_queryUsers">
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridSortSettings>
+        <GridSortColumns>
+          <GridSortColumn Field="@nameof(VUserinscriptionPlana.Eventchallengename)"/>
+          <GridSortColumn Field="@nameof(VUserinscriptionPlana.Divisionname)"/>
+        </GridSortColumns>
+      </GridSortSettings>
+      <GridEvents PdfQueryCellInfoEvent="@PdfQueryCellInfoHandler" OnToolbarClick="@OnContenderGridToolBarClick" TValue="VUserinscriptionPlana"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Userid)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Lastname)" HeaderText="Last Name" Width="150"/>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Firstname)" HeaderText="First" Width="150"/>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Mail)" HeaderText="Mail" Width="150" Visible="false"/>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Divisionname)" HeaderText="Division" Width="150"/>
+        <GridColumn Field="@nameof(VUserinscriptionPlana.Eventchallengename)" HeaderText="Challenge" Width="150"/>
+        <GridColumn Field="QR" HeaderText="QR" Width="220">
+          <Template>
+            @{
+              var dbItem = context as VUserinscriptionPlana;
+              var strFinal = Helper.strURL + $"eventId={dbItem.Eventid}&divisionId={dbItem.Divisionid}&challengeId={dbItem.Eventchallengeid}&contenderId={dbItem.Userid}";
+
+              <SfQRCodeGenerator Width="210px" Height="210px" Value="@(strFinal)">
+                <QRCodeGeneratorDisplayText Text=" "/>
+              </SfQRCodeGenerator>
+            }
+          </Template>
+        </GridColumn>
+      </GridColumns>
+    </SfGrid>
+  </div>
+</div>
+
+@code {
+  Query? _queryUsers;
+
+  private void FillDataSources()
+  {
+    _lstUsers = Helper.DB
+      .VUserinscriptionPlanas.ToList();
+  }
+
+  protected override void OnInitialized()
+  {
+    _lstEvents = Helper.DB.Events.ToList();
+    if (_lstEvents.Any())
+      _eventId = _lstEvents.FirstOrDefault().Id;
+
+    FillDataSources();
+    SetUsersQuery();
+    StateHasChanged();
+  }
+
+  #region Grid
+
+  SfGrid<VUserinscriptionPlana>? ContenderGrid { get; set; }
+  List<VUserinscriptionPlana>? _lstUsers { get; set; }
+
+  private void PdfQueryCellInfoHandler(PdfQueryCellInfoEventArgs<VUserinscriptionPlana> args)
+  {
+    if (args.Column.HeaderText != "QR") return;
+   
+    var qrGenerator = new QRCodeGenerator();
+    var qrCodeData = qrGenerator.CreateQrCode(Helper.strURL + $"eventId={args.Data.Eventid}&divisionId={args.Data.Divisionid}&challengeId={args.Data.Eventchallengeid}&contenderId={args.Data.Userid}", QRCodeGenerator.ECCLevel.Q);
+    var qrCode = new QRCode(qrCodeData);
+    var qrCodeImage = qrCode.GetGraphic(3);
+    
+   
+    //byte[] dataString = Convert.FromBase64String(pepe); 
+    System.IO.MemoryStream imageStream = new System.IO.MemoryStream();
+    qrCodeImage.Save(imageStream, ImageFormat.Png);
+    args.Cell.Style.BackgroundImage = Syncfusion.PdfExport.PdfImage.FromStream(imageStream); 
+    args.Cell.ImagePosition = Syncfusion.PdfExport.PdfGridImagePosition.Center;
+  } 
+  
+  private async Task OnContenderGridToolBarClick(ClickEventArgs args)
+  {
+    if (ContenderGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(ContenderGrid)}_excelexport":
+        await ContenderGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(ContenderGrid)}_pdfexport":
+        await ContenderGrid.ExportToPdfAsync(new PdfExportProperties{IncludeTemplateColumn = true });
+        break;
+      case $"{nameof(ContenderGrid)}_csvexport":
+        await ContenderGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  #endregion
+
+  private void SetUsersQuery()
+  {
+    _queryUsers = _eventId == null ? null :
+      new Query()
+        .Where("EventId", "equals", _eventId)
+        .Where("usertypeid", "equals", 1);
+  }
+
+  #region ComboBox
+
+  List<Event>? _lstEvents;
+
+  int? _eventId { get; set; }
+  SfComboBox<int?, Event>? sfComboEvent { get; set; }
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDataSources();
+    SetUsersQuery();
+    StateHasChanged();
+  }
+
+  #endregion
+
+}

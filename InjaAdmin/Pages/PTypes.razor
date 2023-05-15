@@ -21,7 +21,8 @@
   </div>
   <div>
     <SfGrid @ref="@UserTypeGrid" TValue="Usertype" ID="UserTypeGrid"
-            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" 
+            AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
             Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
       <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>

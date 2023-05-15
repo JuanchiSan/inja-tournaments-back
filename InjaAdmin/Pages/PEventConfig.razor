@@ -10,7 +10,7 @@
     <table>
       <tr>
         <td>
-          Evento
+          Event
         </td>
         <td width="500">
           <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
@@ -30,7 +30,7 @@
     </table>
   </div>
   <div>
-    <SfButton Content="Add Challenge" @onclick="OnAddChallengeClick"/>
+    <SfButton Content="Add Challenge" @onclick="@OnAddChallengeClick"/>
   </div>
   <div>
     <SfGrid @ref="@EventChallengeDivisionGrid" TValue="VEventchallengedivision" ID="@nameof(EventChallengeDivisionGrid)"
@@ -44,32 +44,39 @@
       <GridSortSettings>
         <GridSortColumns>
           <GridSortColumn Field="@nameof(VEventchallengedivision.Competitiontypename)"/>
-          <GridSortColumn Field="@nameof(VEventchallengedivision.Challengename)" />
+          <GridSortColumn Field="@nameof(VEventchallengedivision.Challengename)"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" OnRecordDoubleClick="@OnGridRowDoubleClick" TValue="VEventchallengedivision"/>
+      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="OnGridCommandClicked" OnActionBegin="OnGridActionBegin" TValue="VEventchallengedivision"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VEventchallengedivision.Competitiontypename)" HeaderText="Competition" Width="150"/>
-        <GridColumn Field="@nameof(VEventchallengedivision.Challengename)" HeaderText="Challenge Type" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengename)" HeaderText="Event Challenge" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengestartdate)" HeaderText="Star Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengeenddate)" HeaderText="End Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Challengename)" HeaderText="Challenge Type" Width="150"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Competitiontypename)" HeaderText="Competition" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Divisionnames)" HeaderText="Division" Width="200"/>
+        <GridColumn HeaderText="Manage Records" Width="150">
+          <GridCommandColumns>
+            <GridCommandColumn Type="CommandButtonType.Edit" Title="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+            <GridCommandColumn Type="CommandButtonType.None" Title="Judges"/>
+          </GridCommandColumns>
+        </GridColumn>
       </GridColumns>
     </SfGrid>
   </div>
 
+  @* --OnRecordDoubleClick="@OnGridRowDoubleClick" *@
 </div>
 
 
-
 @code {
-  
+
   #region MyRegion
 
-  private void OnAddChallengeClick(MouseEventArgs obj)
+  private async Task OnAddChallengeClick(MouseEventArgs obj)
   {
-    //dialogVisible = true;
+    await sessionStorage.SetItemAsync(Helper.paramChellengeName, Tuple.Create(_eventId, -1, string.Empty));
+    navManager.NavigateTo("/EventChallengeConfig");
   }
 
   #endregion
@@ -78,12 +85,34 @@
 
   SfGrid<VEventchallengedivision>? EventChallengeDivisionGrid { get; set; }
 
-  private async Task OnGridRowDoubleClick(RecordDoubleClickEventArgs<VEventchallengedivision> obj)
+  private async Task OnGridCommandClicked(CommandClickEventArgs<VEventchallengedivision> obj)
   {
-    await sessionStorage.SetItemAsync(Helper.paramChellengeName, Tuple.Create(obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename));
-    navManager.NavigateTo("/PChallengeAssignation");
+    if (_eventId == null) return;
+    
+    var tuple = Tuple.Create(_eventId, obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename);
+    switch (obj.CommandColumn.Title)
+    {
+      case "Judges":
+        await sessionStorage.SetItemAsync(Helper.paramChellengeName, tuple);
+        navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
+        break;
+      case "Edit":
+        await sessionStorage.SetItemAsync(Helper.paramChellengeName, tuple);
+        navManager.NavigateTo("/EventChallengeConfig");
+        break;
+    }
   }
+  
+  // private async Task OnGridRowDoubleClick(RecordDoubleClickEventArgs<VEventchallengedivision> obj)
+  // {
+  //   await sessionStorage.SetItemAsync(Helper.paramChellengeName, Tuple.Create(obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename));
+  //   navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
+  // }
 
+  private void OnGridActionBegin(ActionEventArgs<VEventchallengedivision> obj)
+  {
+  }
+  
   private async Task OnEventChallengeGridToolBarClick(ClickEventArgs args)
   {
     if (EventChallengeDivisionGrid == null) return;
