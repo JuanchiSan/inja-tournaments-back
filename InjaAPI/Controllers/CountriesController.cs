@@ -14,11 +14,13 @@ public class CountriesController : ControllerBase
 {
   private readonly dbContext _context;
   private readonly IMapper _mapper;
-
-  public CountriesController(dbContext context, IMapper mapper)
+  private readonly TokenService _tokenService;
+  
+  public CountriesController(dbContext context, IMapper mapper, TokenService tokenService)
   {
     _context = context;
     _mapper = mapper;
+    _tokenService = tokenService;
   }
 
   // GET: api/Countries

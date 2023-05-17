@@ -15,10 +15,10 @@
       <tbody>
       <tr>
         <td>
-          <SfButton @onclick="@(args => { navManager.NavigateTo("/EventConfig");})">Go Back</SfButton>
+          <SfButton @onclick="@(args => { navManager.NavigateTo("/EventConfig"); })">Go Back</SfButton>
         </td>
         <td>
-          <SfButton IsPrimary="true" @onclick="@OnSaveAllChanges" >Save All Changes</SfButton>
+          <SfButton IsPrimary="true" @onclick="@OnSaveAllChanges">Save All Changes</SfButton>
         </td>
       </tr>
       </tbody>
@@ -83,6 +83,7 @@
   private List<Tuple<int?, string?>>? LstDivisions;
   private List<Injauser> LstJudges = new();
   private List<InternalInjaCriteria>? LstCriterias;
+  private List<VCriteriasJudgesPlana>? LstAllCriteriasJudges;
 
   string? _challengeName { get; set; }
   int? _eventchallengeId { get; set; }
@@ -92,14 +93,60 @@
     return i < LstDivisions?.Count ? LstDivisions[i].Item2 : string.Empty;
   }
 
+  private int DivisionIdOfPlace(int i)
+  {
+    if (LstDivisions != null && i < LstDivisions.Count)
+      return Convert.ToInt32(LstDivisions[i].Item1);
+    return -1;
+  }
+
   private void OnSaveAllChanges(MouseEventArgs obj)
   {
-    foreach (var icriteria in LstCriterias)
+    if (LstDivisions == null || LstDivisions.Count == 0) return;
+    foreach (var icriteria in LstCriterias!)
     {
-      
+      for (int i = 0; i < LstDivisions.Count; i++)
+      {
+        var divisionid = DivisionIdOfPlace(i);
+        var criteriaId = icriteria.CriteriaId;
+        var round = icriteria.Round;
+        var ejcd = LstAllCriteriasJudges?.FirstOrDefault(x => x.Divisionid == divisionid && x.Criteriaid == criteriaId && x.Rounds == round);
+        var challengejudgementcriteriaid = ejcd?.Challengejudgementcriteriaid;
+        var valObjJudge = icriteria.GetType().GetProperty($"div_{i}")?.GetValue(icriteria);
+        var judgeid = valObjJudge == null ? (int?)null : Convert.ToInt32(valObjJudge);
+
+        Eventjudgechallengedivision? db_ejcd = null;
+
+        if (ejcd.Userid != null && judgeid == null) // existe ejcd y sacaron el juez, hay que borrar
+        {
+          db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
+          Helper.DB.Eventjudgechallengedivisions.Remove(db_ejcd!);
+        }
+        if (ejcd.Userid != null && judgeid != null && ejcd.Userid != judgeid) // Existe y le cambiaron el juez
+        {
+          db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
+          db_ejcd.Judgeid = Convert.ToInt32(judgeid);
+        }
+        if (ejcd.Userid == null && judgeid != null) // No existe y lo tengo que agregar
+        {
+          db_ejcd = new Eventjudgechallengedivision
+          {
+            Divisionid = divisionid,
+            Eventchallengeid = Convert.ToInt32(_eventchallengeId),
+            Challengejuzmentcriteria = Convert.ToInt32(challengejudgementcriteriaid),
+            Judgeid = Convert.ToInt32(judgeid),
+            Active = true,
+            Creationdate = DateTime.Now
+          };
+          Helper.DB.Eventjudgechallengedivisions.Add(db_ejcd);
+        }
+        if (db_ejcd != null)
+          Helper.DB.SaveChanges();
+      }
     }
+    navManager.NavigateTo("/EventConfig");
   }
-  
+
   private async Task FillDataSources()
   {
   // Fill Judges
@@ -107,16 +154,16 @@
       .Where(x => x.Usertype == 3.ToString())
       .ToListAsync();
 
-    var lstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
+    LstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
       .Where(x => x.Eventchallengeid == _eventchallengeId)
       .ToListAsync();
 
-    var dcriterias = lstAllCriteriasJudges
+    var dcriterias = LstAllCriteriasJudges
       .Select(x => Tuple.Create(x.Criteriaid, x.Rounds, x.Criterianame))
       .Distinct()
       .ToList();
 
-    LstDivisions = lstAllCriteriasJudges
+    LstDivisions = LstAllCriteriasJudges
       .Select(x => Tuple.Create(x.Divisionid, x.Divisionname))
       .Distinct()
       .ToList();
@@ -133,60 +180,60 @@
         Round = Convert.ToInt32(tc.Item2),
       };
 
-  #region div_
+  #region divisiones
 
       var i = 1;
       if (LstDivisions.Count >= i)
       {
-        d.div_0 = lstAllCriteriasJudges
+        d.div_0 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 2;
       if (LstDivisions.Count >= i)
       {
-        d.div_1 = lstAllCriteriasJudges
+        d.div_1 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 3;
       if (LstDivisions.Count >= i)
       {
-        d.div_2 = lstAllCriteriasJudges
+        d.div_2 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 4;
       if (LstDivisions.Count >= i)
       {
-        d.div_3 = lstAllCriteriasJudges
+        d.div_3 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 5;
       if (LstDivisions.Count >= i)
       {
-        d.div_4 = lstAllCriteriasJudges
+        d.div_4 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 6;
       if (LstDivisions.Count >= i)
       {
-        d.div_5 = lstAllCriteriasJudges
+        d.div_5 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 7;
       if (LstDivisions.Count >= i)
       {
-        d.div_6 = lstAllCriteriasJudges
+        d.div_6 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 8;
       if (LstDivisions.Count >= i)
       {
-        d.div_7 = lstAllCriteriasJudges
+        d.div_7 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
       i = 9;
       if (LstDivisions.Count >= i)
       {
-        d.div_8 = lstAllCriteriasJudges
+        d.div_8 = LstAllCriteriasJudges
           .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
       }
 

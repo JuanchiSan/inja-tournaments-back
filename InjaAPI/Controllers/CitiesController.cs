@@ -14,11 +14,13 @@ public class CitiesController : ControllerBase
 {
 	private readonly dbContext _context;
 	private readonly IMapper _mapper;
+	private readonly TokenService _tokenService;
 
-	public CitiesController(dbContext context, IMapper mapper)
+	public CitiesController(dbContext context, IMapper mapper, TokenService tokenService)
 	{
 		_context = context;
 		_mapper = mapper;
+		_tokenService = tokenService;
 	}
 
 	// GET: api/Cities

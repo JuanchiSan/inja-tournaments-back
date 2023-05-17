@@ -2,13 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using InjaData.Models;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
-using InjaAPI;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Cors;
 using InjaDTO;
 
 namespace InjaAPI.Controllers;

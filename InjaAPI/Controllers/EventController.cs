@@ -14,11 +14,13 @@ public class EventsController : ControllerBase
 {
 	private readonly dbContext _context;
 	private readonly IMapper _mapper;
-
-	public EventsController(dbContext context, IMapper mapper)
+	private readonly TokenService _tokenService;
+	
+	public EventsController(dbContext context, IMapper mapper, TokenService tokenService)
 	{
 		_context = context;
 		_mapper = mapper;
+		_tokenService = tokenService;
 	}
 
 	[AllowAnonymous]
