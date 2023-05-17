@@ -66,3 +66,16 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.print-only-show {
+    display: none;
+}
+    
+@media print {
+    .print-hide {
+        display: none;
+    }
+    .print-only-show {
+        display: block;
+    }
+}
