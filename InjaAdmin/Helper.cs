@@ -19,6 +19,7 @@ public static class Helper
 
 	public static string paramDetailPointView => "paramdetailview";
 	public static string paramChellengeName => "paramChallengeName";
+	public static string paramJudgeChellengeName => "paramJudgeChallengeName";
 
 	public static string strURL => "https://inja-app.guadcore.ar/qr-handler?";
 	public static void ResetContext()

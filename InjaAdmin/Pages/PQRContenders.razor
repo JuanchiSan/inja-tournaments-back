@@ -1,0 +1,78 @@
+﻿@page "/QRContenders"
+
+@using Syncfusion.Blazor.BarcodeGenerator
+@using QRCoder
+@using System.Drawing.Imaging
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+
+<h3>Contenders</h3>
+
+<div>
+  <div>
+    <span>Event</span>
+    <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
+      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+    </SfComboBox>
+  </div>
+  <div>
+    @{
+      if (_lstUsers != null)
+      {
+        foreach (var user in _lstUsers)
+        {
+          var strFinal = $"https://inja-apo.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}"; 
+          <div>
+            <div>@user.Eventchallengename</div>
+            <div>@user.Divisionname</div>
+            <div>
+              <SfQRCodeGenerator Width="150px" Height="150px" Value="@(strFinal)">
+                <QRCodeGeneratorDisplayText Text="@user.Usernumber"/>
+              </SfQRCodeGenerator>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
+
+@code {
+  List<VUserinscriptionPlana>? _lstUsers { get; set; }
+  List<Event>? _lstEvents { get; set; }
+
+  private void FillDataSources()
+  {
+    if (_eventId != null)
+      _lstUsers = Helper.DB
+        .VUserinscriptionPlanas.Where(x => x.Eventid == _eventId).ToList();
+  }
+
+  protected override void OnInitialized()
+  {
+    _lstEvents = Helper.DB.Events.ToList();
+    if (_lstEvents is {Count: > 0 })
+      _eventId = _lstEvents.FirstOrDefault()?.Id;
+    
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  #region ComboBox
+
+
+  int? _eventId { get; set; }
+  SfComboBox<int?, Event>? sfComboEvent { get; set; }
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  #endregion
+
+}

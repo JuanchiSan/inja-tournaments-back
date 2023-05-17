@@ -15,6 +15,8 @@ public partial class VCriteriasJudgesPlana
 
     public short? Rounds { get; set; }
 
+    public int? Challengejudgementcriteriaid { get; set; }
+
     public int? Criteriaid { get; set; }
 
     public string? Criterianame { get; set; }

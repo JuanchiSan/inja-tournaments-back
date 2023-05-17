@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using InjaData.Models;
 using AutoMapper;
 using InjaDTO;
@@ -73,6 +74,11 @@ public class PhotographerController : ControllerBase
   //     return StatusCode(StatusCodes.Status500InternalServerError, "Error reading Image. See Internal Logs");
   //   }
   // }
+  private string GetFileName(int eventId, int challengeId, int divisionid, int contenderId, int photographerId) => $"{eventId}_{challengeId}_{divisionid}_{contenderId}_{photographerId}";
+
+  private string GetPhotoURL(int eventId, int challengeId, int divisionId, int contenderId, int photographerId) =>
+    $"https://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&divisionid={divisionId}&contenderId={contenderId}&photographerId={photographerId}";
+
 
   [AllowAnonymous]
   [HttpGet("GetContenderChallenges")]
@@ -87,7 +93,8 @@ public class PhotographerController : ControllerBase
 
     var dbPhoto = _context
       .Photos
-      .FirstOrDefault(x => x.Challengeid == challengeid && x.Eventid == eventid && x.Contenderid == contenderid);
+      .Where(x => x.Challengeid == challengeid && x.Eventid == eventid && x.Contenderid == contenderid)
+      .OrderByDescending(x => x.Created).FirstOrDefault();
 
     var contenderName = _context.Injausers.FirstOrDefault(x => x.Id == contenderid)?.Name;
     if (contenderName == null) return NotFound();
@@ -120,10 +127,8 @@ public class PhotographerController : ControllerBase
       var ct = DateTime.Now;
 
       if (file.Length <= 0) return BadRequest("File length is 0");
-      var filenameResponse = $"{eventId}_{challengeId}_{divisionid}{contenderId}_{photographerId}";
-      var fileNameStorage = filenameResponse + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
-      var photourl =
-        $"http://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&divisionid={divisionid}&contenderId={contenderId}&photographerId={photographerId}";
+      var fileNameStorage = GetFileName(eventId, challengeId, divisionid, contenderId, photographerId) + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
+      var photourl = GetPhotoURL(eventId, challengeId, divisionid, contenderId, photographerId);
 
       var dbPhoto = new Photo
       {
@@ -149,7 +154,7 @@ public class PhotographerController : ControllerBase
     }
     catch (Exception e)
     {
-      Serilog.Log.Error(e,"Error Saving File");
+      Serilog.Log.Error(e, "Error Saving File");
       return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
     }
   }
@@ -174,14 +179,14 @@ public class PhotographerController : ControllerBase
     }
     catch (Exception e)
     {
-      Serilog.Log.Error(e,"Error Reading File");
+      Serilog.Log.Error(e, "Error Reading File");
       return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
     }
   }
 
-  /*
-  [HttpPost]
-  public async Task<ActionResult<string>> UploadImage(ImageUploadDTO obj)
+  [AllowAnonymous]
+  [HttpPost("UploadPhotoImageBase64")]
+  public async Task<ActionResult<string>> UploadPhotoImageBase64(ImageUploadDTO obj)
   {
     if (obj.Photo64string == null)
     {
@@ -192,22 +197,22 @@ public class PhotographerController : ControllerBase
     {
       #region Controls
 
-      if (_context.Injausers.Find(obj.ContenderId) == null)
+      if (await _context.Injausers.FindAsync(obj.ContenderId) == null)
       {
         return BadRequest("Contender Not Found");
       }
 
-      if (_context.Events.Find(obj.EventId) == null)
+      if (await _context.Events.FindAsync(obj.EventId) == null)
       {
         return BadRequest("Event Not Found");
       }
 
-      if (_context.Injausers.Find(obj.PhotographerId) == null)
+      if (await _context.Injausers.FindAsync(obj.PhotographerId) == null)
       {
         return BadRequest("Photographer Not Found");
       }
 
-      if (_context.Challengetypes.Find(obj.ChallengeId) == null)
+      if (await _context.Challengetypes.FindAsync(obj.ChallengeId) == null)
       {
         return BadRequest("Challenge Not Found");
       }
@@ -217,21 +222,38 @@ public class PhotographerController : ControllerBase
       var base64Data = Regex.Match(obj.Photo64string, @"data:image/(?<type>.+?),(?<data>.+)").Groups["data"].Value;
       var bytes = Convert.FromBase64String(base64Data);
 
-      var fileName = $"{obj.EventId}_{obj.ChallengeId}_{obj.ContenderId}_{obj.PhotographerId}.png";
-      var filePath = Path.Combine("./Photos", fileName);
+      var ct = DateTime.Now;
+      var fileNameStorage = GetFileName(obj.EventId, obj.ChallengeId, obj.DivisionId, obj.ContenderId, obj.PhotographerId) + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
+      var photourl = GetPhotoURL(obj.EventId, obj.ChallengeId, obj.DivisionId, obj.ContenderId, obj.PhotographerId);
 
-      await using (var stream = new FileStream(filePath, FileMode.Create))
+      var dbPhoto = new Photo
+      {
+        Challengeid = obj.ChallengeId,
+        Contenderid = obj.ContenderId,
+        Divisionid = obj.DivisionId,
+        Photographerid = obj.PhotographerId,
+        Eventid = obj.EventId,
+        Created = ct,
+        StoredFileName = fileNameStorage,
+        Filename = "base64",
+        PhotoUrl = photourl
+      };
+
+      _context.Photos.Add(dbPhoto);
+
+      await _context.SaveChangesAsync();
+
+      await using (var stream = new FileStream(Path.Combine("./Photos", fileNameStorage), FileMode.Create))
       {
         await stream.WriteAsync(bytes);
       }
 
-      return Ok($"http://inja-api.guadcore.ar/api/Photographer/GetImage?param={fileName}");
+      return Ok(photourl);
     }
     catch (Exception e)
     {
-      Serilog.Log.Error("Error Saving Photo", e);
+      Serilog.Log.Error(e, "Error Saving Photo");
       return StatusCode(StatusCodes.Status500InternalServerError, "Error decoding Image. See Internal Logs");
     }
   }
-  */
 }

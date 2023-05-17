@@ -15,6 +15,10 @@ public partial class VUserinscriptionPlana
 
     public string? Mail { get; set; }
 
+    public string? Usernumber { get; set; }
+
+    public string? Nickname { get; set; }
+
     public int? Usertypeid { get; set; }
 
     public string? Usertypename { get; set; }

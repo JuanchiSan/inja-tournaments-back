@@ -35,6 +35,10 @@ public partial class Injauser
 
     public string? Name { get; set; }
 
+    public string? UserNumber { get; set; }
+
+    public string? Nickname { get; set; }
+
     public virtual City? City { get; set; }
 
     public virtual Doctype Doc { get; set; } = null!;

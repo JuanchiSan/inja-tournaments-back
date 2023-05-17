@@ -1,6 +1,6 @@
 ﻿@page "/ChallengeCriteriaJudgeConfig"
+
 @using Microsoft.EntityFrameworkCore
-@using System.Data.SqlTypes
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
@@ -10,42 +10,60 @@
   <div>
     <h2>Challenge @_challengeName</h2>
   </div>
+  <div class="bootstrap5-dark">
+    <table class="table">
+      <tbody>
+      <tr>
+        <td>
+          <SfButton @onclick="@(args => { navManager.NavigateTo("/EventConfig");})">Go Back</SfButton>
+        </td>
+        <td>
+          <SfButton IsPrimary="true" @onclick="@OnSaveAllChanges" >Save All Changes</SfButton>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
   <div>
     <div>Criterias</div>
     <div>
-      @if (_lstCriterias != null)
+      @if (LstCriterias != null)
       {
-        <SfGrid @ref="@GridCriterias" TValue="InjaCriteria" ID="@nameof(GridCriterias)"
+        <SfGrid @ref="@GridCriterias" TValue="InternalInjaCriteria" ID="@nameof(GridCriterias)"
                 AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"
                 AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-                Toolbar="@(new List<string> { "Edit", "Cancel", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
-                DataSource="@_lstCriterias">
-          <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>          
+                Toolbar="@(new List<string> { "Edit", "Update", "Cancel", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+                DataSource="@LstCriterias">
+          <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
           <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
           <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
-          <GridEvents OnToolbarClick="@GridToolbarClick" OnBeginEdit="@OnGridBeginEdit" OnRecordDoubleClick="OnGridDoubleClick" TValue="InjaCriteria"/>
+          <GridEvents OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
           <GridColumns>
-            <GridColumn Field="@nameof(InjaCriteria.CriteriaName)" HeaderText="Criterias" Width="200" AllowEditing="false"/>
-            <GridColumn Field="@nameof(InjaCriteria.Round)" HeaderText="Rounds" Width="200" AllowEditing="false"/>
-            @foreach (var d in _lstDivisions.OrderBy(x => x.Item2))
-            {
-              var col = $"div_{d.Item1}";
-              <GridColumn HeaderText="@d.Item2" Width="200" AllowEditing="true">
-                <Template>
-                  @{
-                    var item = context as InjaCriteria;
-                    @item[col]
-                  }
-                </Template>
-                <EditTemplate>
-                  <SfComboBox TValue="string" TItem="Injauser" DataSource="_lstJudges" AllowCustom="false" Placeholder="Select a Judge">
-                    <ComboBoxFieldSettings Value="@nameof(Injauser.Name)" Text="@nameof(Injauser.Name)"/>
-                    <ComboBoxEvents TItem="Injauser" TValue="string" OnValueSelect="Callback"></ComboBoxEvents>
-                  </SfComboBox>
-                </EditTemplate>
-              </GridColumn>
-            }
+            <GridColumn Field="@nameof(InternalInjaCriteria.CRKey)" IsPrimaryKey="true" Visible="false"/>
+            <GridColumn Field="@nameof(InternalInjaCriteria.CriteriaName)" HeaderText="Criterias" Width="200" AllowEditing="false"/>
+            <GridColumn Field="@nameof(InternalInjaCriteria.Round)" HeaderText="Rounds" Width="200" AllowEditing="false"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_0)" HeaderText="@(GetHeader(0))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 1)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_1)" HeaderText="@(GetHeader(1))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 2)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_2)" HeaderText="@(GetHeader(2))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 3)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_3)" HeaderText="@(GetHeader(3))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 4)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_4)" HeaderText="@(GetHeader(4))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 5)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_5)" HeaderText="@(GetHeader(5))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 6)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_6)" HeaderText="@(GetHeader(6))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 7)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_7)" HeaderText="@(GetHeader(7))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 8)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_8)" HeaderText="@(GetHeader(8))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 9)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+            <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_9)" HeaderText="@(GetHeader(9))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 10)"
+                               ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
+
           </GridColumns>
         </SfGrid>
       }
@@ -59,71 +77,122 @@
 </div>
 
 @code {
-  public class InjaDivisionJudge
-  {
-    public int DivisionId { get; set; }
-    public string? DivisionProp { get; init; }
-    public string? DivisionName { get; set; }
-    public int? JudgeId { get; set; }
-    public string? Judge { get; set; }
-  }
-  
-  public class InjaCriteria
-  {
-    public List<InjaDivisionJudge> LstDivisiones = new ();
-    
-    public string? CriteriaName { get; set; }
-    public int? Round { get; set; }
-
-    public string? this[string division]
-    {
-      get { return LstDivisiones.FirstOrDefault(x => x.DivisionProp == division)?.Judge; }
-    }
-  }
 
   #region general
-  List<Tuple<int?,string?>> _lstDivisions = new ();
+
+  private List<Tuple<int?, string?>>? LstDivisions;
+  private List<Injauser> LstJudges = new();
+  private List<InternalInjaCriteria>? LstCriterias;
+
   string? _challengeName { get; set; }
   int? _eventchallengeId { get; set; }
-  List<InjaCriteria>? _lstCriterias;
-  List<Injauser>? _lstJudges;
+
+  private string? GetHeader(int i)
+  {
+    return i < LstDivisions?.Count ? LstDivisions[i].Item2 : string.Empty;
+  }
+
+  private void OnSaveAllChanges(MouseEventArgs obj)
+  {
+    foreach (var icriteria in LstCriterias)
+    {
+      
+    }
+  }
   
   private async Task FillDataSources()
   {
-    // Fill Judges
-    _lstJudges = await Helper.DB.Injausers
+  // Fill Judges
+    LstJudges = await Helper.DB.Injausers
       .Where(x => x.Usertype == 3.ToString())
       .ToListAsync();
+
     var lstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
       .Where(x => x.Eventchallengeid == _eventchallengeId)
       .ToListAsync();
 
     var dcriterias = lstAllCriteriasJudges
-      .Select(x => Tuple.Create(x.Rounds, x.Criterianame))
+      .Select(x => Tuple.Create(x.Criteriaid, x.Rounds, x.Criterianame))
       .Distinct()
       .ToList();
-    _lstDivisions = lstAllCriteriasJudges
+
+    LstDivisions = lstAllCriteriasJudges
       .Select(x => Tuple.Create(x.Divisionid, x.Divisionname))
       .Distinct()
-      .ToList(); 
+      .ToList();
 
-    _lstCriterias = new List<InjaCriteria>();
+    LstCriterias = new List<InternalInjaCriteria>();
+
     foreach (var tc in dcriterias)
     {
-      _lstCriterias.Add(new InjaCriteria
+      var d = new InternalInjaCriteria
       {
-        CriteriaName = tc.Item2,
-        Round = tc.Item1,
-        LstDivisiones = _lstDivisions
-          .Select(x => new InjaDivisionJudge
-          {
-            DivisionId = Convert.ToInt32(x.Item1),
-            DivisionProp = $"div_{Convert.ToInt32(x.Item1)}",
-            DivisionName = x.Item2, 
-            JudgeId = lstAllCriteriasJudges.FirstOrDefault(z => z.Criterianame == tc.Item2 && z.Divisionname == x.Item2)?.Userid, 
-            Judge = lstAllCriteriasJudges.FirstOrDefault(z => z.Criterianame == tc.Item2 && z.Divisionname == x.Item2)?.Judgename
-          }).ToList()
-      });
+        CRKey = $"{Convert.ToInt32(tc.Item1)}_{Convert.ToInt32(tc.Item2)}",
+        CriteriaId = Convert.ToInt32(tc.Item1),
+        CriteriaName = tc.Item3!,
+        Round = Convert.ToInt32(tc.Item2),
+      };
+
+  #region div_
+
+      var i = 1;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_0 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 2;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_1 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 3;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_2 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 4;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_3 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 5;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_4 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 6;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_5 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 7;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_6 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 8;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_7 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+      i = 9;
+      if (LstDivisions.Count >= i)
+      {
+        d.div_8 = lstAllCriteriasJudges
+          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+      }
+
+  #endregion
+
+      LstCriterias.Add(d);
     }
     StateHasChanged();
   }
@@ -132,7 +201,7 @@
   {
     try
     {
-      var cosa = await sessionStorage.GetItemAsync<Tuple<int, string>>(Helper.paramChellengeName);
+      var cosa = await sessionStorage.GetItemAsync<Tuple<int, string>>(Helper.paramJudgeChellengeName);
       _challengeName = cosa.Item2;
       _eventchallengeId = cosa.Item1;
       await FillDataSources();
@@ -144,15 +213,11 @@
     }
   }
 
-  private void Callback(SelectEventArgs<Injauser> obj)
-  {
-    Serilog.Log.Information($"ahola {obj}");
-  }
   #endregion
 
   #region Grid
 
-  SfGrid<InjaCriteria>? GridCriterias { get; set; }
+  SfGrid<InternalInjaCriteria>? GridCriterias { get; set; }
 
   private async Task GridToolbarClick(ClickEventArgs args)
   {
@@ -171,15 +236,27 @@
     }
   }
 
-  private void OnGridDoubleClick(RecordDoubleClickEventArgs<InjaCriteria> obj)
-  {
-  }
-
-  private void OnGridBeginEdit(BeginEditArgs<InjaCriteria> obj)
-  {
-    Serilog.Log.Information($"obj");
-  }
-
   #endregion
 
+}
+
+@code
+{
+  public class InternalInjaCriteria
+  {
+    public string CRKey { get; set; } = string.Empty;
+    public int CriteriaId { get; set; }
+    public int Round { get; set; }
+    public string CriteriaName { get; set; } = string.Empty;
+    public int? div_0 { get; set; }
+    public int? div_1 { get; set; }
+    public int? div_2 { get; set; }
+    public int? div_3 { get; set; }
+    public int? div_4 { get; set; }
+    public int? div_5 { get; set; }
+    public int? div_6 { get; set; }
+    public int? div_7 { get; set; }
+    public int? div_8 { get; set; }
+    public int? div_9 { get; set; }
+  }
 }

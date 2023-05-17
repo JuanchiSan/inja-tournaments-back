@@ -1,0 +1,141 @@
+﻿@page "/PTestQR"
+
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Pdf.Barcode
+@using Syncfusion.Pdf
+@using Syncfusion.Pdf.Grid
+@using Syncfusion.Blazor.BarcodeGenerator
+@using Syncfusion.Drawing
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+
+<h3>PTestQR</h3>
+@if (LstUsers != null)
+{
+  <SfGrid @ref="ContenderGrid" TValue="MyTestUser" ID="@nameof(ContenderGrid)"
+          AllowPdfExport="true" AllowSelection="true"
+          Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
+          DataSource="@LstUsers">
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+    <GridEvents OnToolbarClick="@OnContenderGridToolBarClick" TValue="MyTestUser"/>
+    <GridColumns>
+      <GridColumn Field="@nameof(MyTestUser.Id)" HeaderText="Id" IsPrimaryKey="true" Visible="true" Width="100"/>
+      <GridColumn Field="@nameof(MyTestUser.Name)" HeaderText="Last Name" Width="150"/>
+      <GridColumn Field="QR" HeaderText="QR" Width="220">
+        <Template>
+          @{
+            var user = context as MyTestUser;
+            var strFinal = $"User:{user.Id} - Name:{user.Name}";
+            <SfQRCodeGenerator Width="210px" Height="210px" Value="@(strFinal)" @ref="@QRcode">
+              <QRCodeGeneratorDisplayText Text=" "/>
+            </SfQRCodeGenerator>
+          }
+        </Template>
+      </GridColumn>
+    </GridColumns>
+  </SfGrid>
+}
+
+@code {
+  SfGrid<MyTestUser>? ContenderGrid { get; set; }
+  List<MyTestUser>? LstUsers;
+  SfQRCodeGenerator QRcode;
+
+  private void FillDS()
+  {
+    LstUsers = new List<MyTestUser>
+    {
+      new MyTestUser
+      {
+        Name = "user 1",
+        Id = 1
+      },
+      new MyTestUser
+      {
+        Name = "user 2",
+        Id = 2
+      },
+      new MyTestUser
+      {
+        Name = "user 3",
+        Id = 3
+      }
+    };
+  }
+
+  protected override void OnInitialized()
+  {
+    FillDS();
+  }
+
+  //Add a page
+  static Syncfusion.Pdf.PdfPage page = null;
+
+  private async Task OnContenderGridToolBarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+  //Create a new PDF document
+
+    Syncfusion.Pdf.PdfDocument pdfDocument = new Syncfusion.Pdf.PdfDocument();
+    pdfDocument.Pages.PageAdded += Pages_PageAdded;
+    page = pdfDocument.Pages.Add();
+    if (args.Item.Id == $"{nameof(ContenderGrid)}_pdfexport") //Id is combination of Grid's ID and itemname
+    {
+      var pdfGrid = new PdfGrid();
+  //Add columns to PdfGrid
+      pdfGrid.Columns.Add(2);
+  //Add rows to PdfGrid
+      
+      for (int i = 0; i < 2; i++)
+      {
+        var row = pdfGrid.Rows.Add();
+  //Set height 
+        pdfGrid.Rows[i].Height = 210;
+        if (LstUsers != null) row.Cells[1].Value = LstUsers[i].Id;
+      }
+
+      //pdfGrid.BeginCellLayout += PdfGrid_BeginCellLayout;
+
+  //Draw grid to the page of PDF document
+      pdfGrid.Draw(page, new Syncfusion.Drawing.PointF(10, 10));
+
+      MemoryStream ms = new MemoryStream();
+  //Save the document
+      pdfDocument.Save(ms);
+
+      await JsRuntime.InvokeVoidAsync("exportSave", new object[] { "export.pdf", Convert.ToBase64String(ms.ToArray()) });
+    }
+  }
+
+  private static void Pages_PageAdded(object sender, PageAddedEventArgs args)
+  {
+    page = args.Page;
+  }
+
+  private void PdfGrid_BeginCellLayout(object sender, PdfGridBeginCellLayoutEventArgs args)
+  {
+    if (args.CellIndex != 0 || args.IsHeaderRow) return;
+    var barcode = new PdfQRBarcode
+    {
+      Size = new SizeF(200, 200),
+      Text = LstUsers[args.RowIndex].Name
+    };
+
+  //Draw barcode with respect to grid cell bounds
+    barcode.Draw(page, new Syncfusion.Drawing.PointF(args.Bounds.X + 5, args.Bounds.Y + 5));
+  }
+
+}
+
+@code {
+
+  public class MyTestUser
+  {
+    public int Id { get; set; }
+    public string Name { get; set; }
+  }
+
+}

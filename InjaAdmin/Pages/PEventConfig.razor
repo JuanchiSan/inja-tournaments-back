@@ -93,7 +93,7 @@
     switch (obj.CommandColumn.Title)
     {
       case "Judges":
-        await sessionStorage.SetItemAsync(Helper.paramChellengeName, tuple);
+        await sessionStorage.SetItemAsync(Helper.paramJudgeChellengeName, Tuple.Create(obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename));
         navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
         break;
       case "Edit":

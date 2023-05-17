@@ -11,6 +11,8 @@ public class ImageUploadDTO
 	public int EventId { get; set; }
 	public int ChallengeId { get; set; }
 	public int ContenderId { get; set; }
+	
+	public int DivisionId { get; set; }
 	public int PhotographerId { get; set; }
 	public string? Photo64string { get; set; }
 }
