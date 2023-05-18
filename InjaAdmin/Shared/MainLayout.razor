@@ -4,20 +4,20 @@
 
 <PageTitle>Inja Admin</PageTitle>
 
-<SfSidebar ID="Sidebar" Type="SidebarType.Push" Width="300px" DockSize="65px" EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
-	<div class="sidebar" style="position:fixed;z-index:1200">
+<SfSidebar class="print-hide" ID="Sidebar" Type="SidebarType.Push" Width="300px" DockSize="65px" EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
+	<div class="sidebar print-hide" style="position:fixed;z-index:1200">
 		<div class="topnav navbar navbar-dark">
 			<button class="navbar-toggler" @onclick="ToggleNavMenu" />
 			<a class="navbar-brand" href=""><span class="displayText" style="margin-right:30px">InjaAdmin</span></a>
 		</div>
-		<div @onmouseover="MouseIn" @onmouseout="MouseOut">
+		<div class="print-hide" @onmouseover="MouseIn" @onmouseout="MouseOut">
 			<NavMenu />
 		</div>
 	</div>
 </SfSidebar>
 
 <div class="main">
-	<div class="top-row px-4" style="z-index:1111;padding-top:0px">
+	<div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0px">
 		<div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
 		<CultureSwitcher />
 	</div>
