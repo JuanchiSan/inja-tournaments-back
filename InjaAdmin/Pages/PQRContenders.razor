@@ -10,7 +10,7 @@
 <div>
   <div class="print-hide">
     <span>Event</span>
-    <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+    <SfComboBox @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
                 Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
       <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
       <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
@@ -39,7 +39,7 @@
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>
             <div class="user-qr">
-              <SfQRCodeGenerator Width="150px" Height="150px" Value="@(strFinal)">
+              <SfQRCodeGenerator Width="150px" Height="150px"  Value="@(strFinal)">
                 <QRCodeGeneratorDisplayText Text="@user.Usernumber"/>
               </SfQRCodeGenerator>
             </div>
@@ -90,7 +90,6 @@
 </style>
 
 @code {
-  bool _finish { get; set; }
   List<VUserinscriptionPlana>? _lstUsers { get; set; }
   List<Event>? _lstEvents { get; set; }
   SfPager? Page;
@@ -115,7 +114,6 @@
 
   protected override void OnInitialized()
   {
-    _finish = false;
     _lstEvents = Helper.DB.Events.ToList();
     if (_lstEvents is {Count: > 0 })
       _eventId = _lstEvents.FirstOrDefault()?.Id;
@@ -127,11 +125,9 @@
   #region ComboBox
 
   int? _eventId { get; set; }
-  SfComboBox<int?, Event>? sfComboEvent { get; set; }
 
   private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
-    _finish = false;
     FillDataSources();
     StateHasChanged();
   }
