@@ -27,6 +27,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Deduction> Deductions { get; set; }
+
     public virtual DbSet<Division> Divisions { get; set; }
 
     public virtual DbSet<Doctype> Doctypes { get; set; }
@@ -68,6 +70,8 @@ public partial class dbContext : DbContext
     public virtual DbSet<VCriteriasJudge> VCriteriasJudges { get; set; }
 
     public virtual DbSet<VCriteriasJudgesPlana> VCriteriasJudgesPlanas { get; set; }
+
+    public virtual DbSet<VDeduction> VDeductions { get; set; }
 
     public virtual DbSet<VDivision> VDivisions { get; set; }
 
@@ -221,6 +225,43 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<Deduction>(entity =>
+        {
+            entity.HasKey(e => new { e.Suptypeid, e.Supuserid, e.Supeventid, e.Ceventid, e.Cuserid, e.Ctypeid, e.Cdivisionid, e.Ceventchallengeid, e.Deductionid }).HasName("deduction_pk");
+
+            entity.ToTable("deduction");
+
+            entity.Property(e => e.Suptypeid).HasColumnName("suptypeid");
+            entity.Property(e => e.Supuserid).HasColumnName("supuserid");
+            entity.Property(e => e.Supeventid).HasColumnName("supeventid");
+            entity.Property(e => e.Ceventid).HasColumnName("ceventid");
+            entity.Property(e => e.Cuserid).HasColumnName("cuserid");
+            entity.Property(e => e.Ctypeid).HasColumnName("ctypeid");
+            entity.Property(e => e.Cdivisionid).HasColumnName("cdivisionid");
+            entity.Property(e => e.Ceventchallengeid).HasColumnName("ceventchallengeid");
+            entity.Property(e => e.Deductionid).HasColumnName("deductionid");
+            entity.Property(e => e.Comment)
+                .HasMaxLength(200)
+                .HasColumnName("comment");
+            entity.Property(e => e.Creationdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creationdate");
+            entity.Property(e => e.Score)
+                .HasPrecision(5, 2)
+                .HasColumnName("score");
+            entity.Property(e => e.Updatedate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedate");
+
+            entity.HasOne(d => d.Sup).WithMany(p => p.Deductions)
+                .HasForeignKey(d => new { d.Suptypeid, d.Supuserid, d.Supeventid })
+                .HasConstraintName("fk_deduction_injauserjudge");
+
+            entity.HasOne(d => d.C).WithMany(p => p.Deductions)
+                .HasForeignKey(d => new { d.Ceventchallengeid, d.Cdivisionid, d.Ctypeid, d.Cuserid, d.Ceventid })
+                .HasConstraintName("fk_deducion_inscription");
         });
 
         modelBuilder.Entity<Division>(entity =>
@@ -854,6 +895,49 @@ public partial class dbContext : DbContext
                 .HasColumnName("judgename");
             entity.Property(e => e.Rounds).HasColumnName("rounds");
             entity.Property(e => e.Userid).HasColumnName("userid");
+        });
+
+        modelBuilder.Entity<VDeduction>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_deductions");
+
+            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Comment)
+                .HasMaxLength(200)
+                .HasColumnName("comment");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Contendername)
+                .HasMaxLength(200)
+                .HasColumnName("contendername");
+            entity.Property(e => e.Contendernumber)
+                .HasMaxLength(10)
+                .HasColumnName("contendernumber");
+            entity.Property(e => e.Creationdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creationdate");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Eventchallengename)
+                .HasMaxLength(100)
+                .HasColumnName("eventchallengename");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Judgeid).HasColumnName("judgeid");
+            entity.Property(e => e.Judgename)
+                .HasMaxLength(200)
+                .HasColumnName("judgename");
+            entity.Property(e => e.Nickname)
+                .HasMaxLength(50)
+                .HasColumnName("nickname");
+            entity.Property(e => e.Score)
+                .HasPrecision(5, 2)
+                .HasColumnName("score");
+            entity.Property(e => e.Updatedate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedate");
         });
 
         modelBuilder.Entity<VDivision>(entity =>

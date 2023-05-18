@@ -19,6 +19,8 @@ public partial class Userinscription
 
     public int Ueventid { get; set; }
 
+    public virtual ICollection<Deduction> Deductions { get; set; } = new List<Deduction>();
+
     public virtual Eventchallengedivision Eventchallengedivision { get; set; } = null!;
 
     public virtual Injauserusertype U { get; set; } = null!;

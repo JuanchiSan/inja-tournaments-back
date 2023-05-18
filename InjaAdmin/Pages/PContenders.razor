@@ -1,7 +1,9 @@
 ﻿@page "/Contenders"
+@using Microsoft.EntityFrameworkCore
 
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <h3>Contenders</h3>
 
@@ -20,22 +22,27 @@
         <GridSortColumn Field="@nameof(Injauser.Firstname)"/>
       </GridSortColumns>
     </GridSortSettings>
-    <GridEvents OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/>
+    <GridEvents OnRecordDoubleClick="OnRecordDoubleClick" OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/>
     <GridColumns>
       <GridColumn Field="@nameof(Injauser.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
       <GridColumn Field="@nameof(Injauser.Lastname)" HeaderText="Last Name" Width="150"/>
       <GridColumn Field="@nameof(Injauser.Firstname)" HeaderText="First" Width="150"/>
+      <GridColumn Field="@nameof(Injauser.UserNumber)" HeaderText="User Number" Width="150"/>
       <GridColumn Field="@nameof(Injauser.Mail)" HeaderText="Mail" Width="150" Visible="false"/>
       <GridColumn Field="@nameof(Injauser.Phone)" HeaderText="Phone" Width="150"/>
     </GridColumns>
   </SfGrid>
 </div>
 
-
 @code {
 
   private void FillDataSources()
   {
+    _lstUsers = InjaAdmin.Helper.DB
+      .Injausers
+      .Include(x => x.Injauserusertypes)
+      .Where(z => z.Injauserusertypes.Any(r => r.Typeid == 1))
+      .ToList();
   }
 
   protected override void OnInitialized()
@@ -65,7 +72,11 @@
         break;
     }
   }
-
+  private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
+  {
+    await sessionStorage.SetItemAsStringAsync("contender", obj.RowData.Id.ToString());
+    navManager.NavigateTo("/ContenderInscription");
+  }
+  
   #endregion
-
 }

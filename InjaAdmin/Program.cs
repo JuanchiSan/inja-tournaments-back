@@ -67,7 +67,14 @@ builder.Services.AddBlazoredSessionStorage();
 
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR(e => { e.MaximumReceiveMessageSize = 102400000; });
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor()
+	.AddHubOptions(options =>
+	{
+		options.EnableDetailedErrors = true;
+		options.ClientTimeoutInterval = TimeSpan.FromMinutes(1); // Ajusta el tiempo de espera según tus necesidades
+		options.KeepAliveInterval = TimeSpan.FromSeconds(30); // Ajusta el intervalo de keep-alive según tus necesidades
+	});
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<SfDialogService>();

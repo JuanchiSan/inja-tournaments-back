@@ -1,8 +1,6 @@
 ﻿@page "/QRContenders"
 
 @using Syncfusion.Blazor.BarcodeGenerator
-@using QRCoder
-@using System.Drawing.Imaging
 
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
@@ -18,16 +16,25 @@
       <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
     </SfComboBox>
   </div>
+  @{
+    if (_lstUsers is {Count: > 0})
+    {
+      <div>
+        <SfPager @ref="@Page" PageSize="@PageSize" TotalItemsCount="_lstUsers.Count" ItemClick="HandleNumericClick"/>
+      </div>
+    }
+  }
   <div class="section">
-    <h2 class="print-hide section-title">QR List</h2> <p class="print-hide helper">(Press Ctrl+P to print the complete listing)</p>
+    <h2 class="print-hide section-title">QR List</h2>
+    <p class="print-hide helper">(Press Ctrl+P to print the complete listing)</p>
   </div>
   <div class="user-list">
     @{
-      if (_lstUsers != null && _lstUsers.Count > 0)
+      if (_lstUsers is {Count: > 0 })
       {
-        foreach (var user in _lstUsers)
+        foreach (var user in _lstUsers.OrderBy(x => x.Usernumber).Skip(_skipValue).Take(_takeValue))
         {
-          var strFinal = $"https://inja-apo.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}"; 
+          var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}";
           <div class="user-data">
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>
@@ -83,8 +90,21 @@
 </style>
 
 @code {
+  bool _finish { get; set; }
   List<VUserinscriptionPlana>? _lstUsers { get; set; }
   List<Event>? _lstEvents { get; set; }
+  SfPager? Page;
+  
+  //public int pageSize { get; set; }
+  private readonly int PageSize = 20;
+  private int _skipValue;
+  private int _takeValue = 20;
+
+  private void HandleNumericClick(PagerItemClickEventArgs args)
+  {
+    _skipValue = (args.CurrentPage * Page!.PageSize) - Page.PageSize;
+    _takeValue = Page.PageSize;
+  }
 
   private void FillDataSources()
   {
@@ -95,22 +115,23 @@
 
   protected override void OnInitialized()
   {
+    _finish = false;
     _lstEvents = Helper.DB.Events.ToList();
     if (_lstEvents is {Count: > 0 })
       _eventId = _lstEvents.FirstOrDefault()?.Id;
-    
+
     FillDataSources();
     StateHasChanged();
   }
 
   #region ComboBox
 
-
   int? _eventId { get; set; }
   SfComboBox<int?, Event>? sfComboEvent { get; set; }
 
   private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
+    _finish = false;
     FillDataSources();
     StateHasChanged();
   }

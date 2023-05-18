@@ -1,0 +1,38 @@
+﻿@page "/ContenderInscription"
+<h3>PContendersInscription</h3>
+
+<div>
+  
+</div>
+<div>
+  <div>
+    @* <SfGrid @ref="ContenderGrid" TValue="Injauser" ID="@nameof(ContenderGrid)" *@
+    @*         AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" *@
+    @*         AllowPdfExport="true" AllowSelection="true" AllowSorting="true" *@
+    @*         Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })" *@
+    @*         DataSource="_lstUsers"> *@
+    @*   <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/> *@
+    @*   <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/> *@
+    @*   <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/> *@
+    @*   <GridSortSettings> *@
+    @*     <GridSortColumns> *@
+    @*       <GridSortColumn Field="@nameof(Injauser.Lastname)"/> *@
+    @*       <GridSortColumn Field="@nameof(Injauser.Firstname)"/> *@
+    @*     </GridSortColumns> *@
+    @*   </GridSortSettings> *@
+    @*   <GridEvents OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/> *@
+    @*   <GridColumns> *@
+    @*     <GridColumn Field="@nameof(Injauser.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/> *@
+    @*     <GridColumn Field="@nameof(Injauser.Lastname)" HeaderText="Last Name" Width="150"/> *@
+    @*     <GridColumn Field="@nameof(Injauser.Firstname)" HeaderText="First" Width="150"/> *@
+    @*     <GridColumn Field="@nameof(Injauser.UserNumber)" HeaderText="User Number" Width="150"/> *@
+    @*     <GridColumn Field="@nameof(Injauser.Mail)" HeaderText="Mail" Width="150" Visible="false"/> *@
+    @*     <GridColumn Field="@nameof(Injauser.Phone)" HeaderText="Phone" Width="150"/> *@
+    @*   </GridColumns> *@
+    @* </SfGrid> *@
+  </div>
+</div>
+
+@code {
+  
+}
