@@ -36,7 +36,7 @@ public class DeductionController : ControllerBase
     
     var dbJudge = await _context
       .Injausers.Include(x => x.Injauserusertypes)
-      .FirstOrDefaultAsync(y => y.Id == contenderid &&
+      .FirstOrDefaultAsync(y => y.Id == judgeid &&
                                 y.Injauserusertypes.Any(z => z.Eventid == eventId && z.Userid == judgeid && z.Typeid == 6));
 
     if (dbJudge == null)
@@ -48,7 +48,7 @@ public class DeductionController : ControllerBase
       .Userinscriptions
       .Include(ec => ec.Eventchallengedivision)
       .ThenInclude(y => y.Eventchallenge)
-      .FirstOrDefaultAsync(x => x.Ueventid == eventId && x.Utypeid == 3 && x.Uuserid == contenderid && x.Divisionid == divisionid &&
+      .FirstOrDefaultAsync(x => x.Ueventid == eventId && x.Utypeid == 1 && x.Uuserid == contenderid && x.Divisionid == divisionid &&
                                 x.Eventchallengedivision.Eventchallenge.Challengeid == challengeid);
 
     if (dbInscription == null)
@@ -68,6 +68,7 @@ public class DeductionController : ControllerBase
         Deductionid = deductionnumber,
         Suptypeid = 6,
         Supeventid = eventId,
+        Supuserid = judgeid,
         Ceventid = eventId,
         Cuserid = contenderid,
         Ctypeid = 1,
