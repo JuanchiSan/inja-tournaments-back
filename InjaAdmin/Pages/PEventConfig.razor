@@ -21,24 +21,24 @@
           </SfComboBox>
         </td>
         <td>
-          Desde: @_eventDesde
+          From: @_eventDesde
         </td>
         <td>
-          Hasta: @_eventHasta
+          Until: @_eventHasta
+        </td>
+        <td>
+          <SfButton Content="Add Challenge" @onclick="@OnAddChallengeClick"/>
         </td>
       </tr>
     </table>
   </div>
   <div>
-    <SfButton Content="Add Challenge" @onclick="@OnAddChallengeClick"/>
-  </div>
-  <div>
     <SfGrid @ref="@EventChallengeDivisionGrid" TValue="VEventchallengedivision" ID="@nameof(EventChallengeDivisionGrid)"
-            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" 
+            AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
             Query="@GetChallengeDivisionQuery()">
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-      <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
       <SfDataManager AdaptorInstance="@typeof(EventChallengeDivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
       <GridSortSettings>
@@ -93,7 +93,7 @@
     switch (obj.CommandColumn.Title)
     {
       case "Judges":
-        await sessionStorage.SetItemAsync(Helper.paramJudgeChellengeName, Tuple.Create(obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename));
+        await sessionStorage.SetItemAsync(Helper.paramJudgeChellengeName, tuple);
         navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
         break;
       case "Edit":

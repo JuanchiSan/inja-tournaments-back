@@ -1,0 +1,166 @@
+﻿@page "/QRContender"
+
+@using Syncfusion.Blazor.BarcodeGenerator
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+
+<h3 class="print-hide">Contenders</h3>
+
+<div>
+  <div class="print-hide">
+    <span>Event</span>
+    <SfComboBox @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
+      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+    </SfComboBox>
+  </div>
+  <div class="print-hide">
+    <span>Contender</span>
+    <SfComboBox @bind-Value="@(_contenderId)" TValue="int?" TItem="InternalContender"
+                Width="350" PopupWidth="350" DataSource="@(_lstContenders)">
+      <ComboBoxFieldSettings Text="@nameof(InternalContender.ContenderName)" Value="@nameof(InternalContender.ContenderId)"/>
+      <ComboBoxEvents TValue="int?" TItem="InternalContender" ValueChange="@OnContenderValueChange"/>
+    </SfComboBox>
+  </div>
+  <div class="section">
+    <h2 class="print-hide section-title">QR List</h2>
+    <p class="print-hide helper">(Press Ctrl+P to print the complete listing)</p>
+  </div>
+  <div class="user-list">
+    @{
+      if (_lstUsersToPrint is {Count: > 0 })
+      {
+        foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber))
+        {
+          var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}";
+          <div class="user-data">
+            <div class="user-challenge">@user.Eventchallengename</div>
+            <div class="user-division">@user.Divisionname</div>
+            <div class="user-qr">
+              <SfQRCodeGenerator Width="150px" Height="150px"  Value="@(strFinal)">
+                <QRCodeGeneratorDisplayText Text="@user.Usernumber"/>
+              </SfQRCodeGenerator>
+            </div>
+          </div>
+        }
+      }
+      else
+      {
+        <p>No items for the selected event.</p>
+      }
+    }
+  </div>
+</div>
+
+<style>
+  .user-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .user-data {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+  }
+  .user-division {
+    z-index: 10;
+  }
+  .user-qr {
+    top: -14px;
+    position: relative;
+    z-index: 1;
+  }
+  .section-title {
+    font-size: 1.3em;
+  }
+  .section {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    margin-top: 1em;
+  }
+  .helper {
+    font-size: .8em;
+    margin-left: 1em;
+  }
+  
+</style>
+
+@code {
+  
+  int? _eventId { get; set; }
+  int? _contenderId { get; set; }
+  List<Event>? _lstEvents { get; set; }
+
+  List<VUserinscriptionPlana>? _lstUsersToPrint { get; set; }
+  List<InternalContender>? _lstContenders { get; set; }
+  
+  private void FillDataSources()
+  {
+    _contenderId = null;
+    _lstUsersToPrint = null;
+
+    if (_eventId == null) return;
+    var temp = Helper.DB
+      .VUserinscriptionPlanas
+      .Where(x => x.Eventid == _eventId)
+      .Select(x => Tuple.Create(x.Userid, x.Contendername))
+      .ToList()
+      .Distinct();
+    _lstContenders = temp
+      .Select(y => new InternalContender
+      {
+        ContenderId = Convert.ToInt32(y.Item1),
+        ContenderName = y.Item2!
+      }).ToList()
+      .OrderBy(x => x.ContenderName)
+      .ToList();
+  }
+
+  protected override void OnInitialized()
+  {
+    _lstEvents = Helper.DB.Events.ToList();
+    if (_lstEvents is {Count: > 0 })
+      _eventId = _lstEvents.FirstOrDefault()?.Id;
+
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  #region ComboBox
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  private void OnContenderValueChange(ChangeEventArgs<int?, InternalContender> args)
+  {
+    _lstUsersToPrint = null;
+    if (_contenderId != null)
+    {
+      _lstUsersToPrint = Helper.DB
+        .VUserinscriptionPlanas
+        .Where(x => x.Userid == _contenderId)
+        .ToList();
+    }
+    StateHasChanged();
+  }
+  
+  #endregion
+
+}
+
+@code {
+
+  public class InternalContender
+  {
+    public int ContenderId { get; set; }
+    public string ContenderName { get; set; } = string.Empty;
+  }
+
+}

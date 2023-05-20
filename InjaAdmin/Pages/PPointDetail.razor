@@ -10,12 +10,11 @@
   </div>
   <div>
      <SfGrid @ref="@GridPoints" TValue="VUserpoint" ID="@nameof(GridPoints)"
-             AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"  
+             AllowFiltering="true" AllowReordering="true" AllowResizing="true"  
              AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
                 Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
                 DataSource="@_lstPoints" >
           <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-          <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
           <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
           <GridColumns>

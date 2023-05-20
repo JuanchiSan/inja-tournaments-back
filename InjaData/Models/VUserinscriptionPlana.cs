@@ -36,4 +36,6 @@ public partial class VUserinscriptionPlana
     public string? Eventchallengename { get; set; }
 
     public int? Eventid { get; set; }
+
+    public string? Contendername { get; set; }
 }

@@ -4,11 +4,11 @@
 
 <div>
 	<SfGrid @ref="@DataGrid" TValue="Challengetype" ID="@nameof(DataGrid)"
-					AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+	        AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true" 
+	        AllowExcelExport="true" AllowPdfExport="true" 
 					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
 		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-		<GridPageSettings PageSize="100" PageSizes="true"/>
 		<SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
 		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
 		<GridColumns>

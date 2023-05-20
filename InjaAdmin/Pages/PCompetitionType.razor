@@ -4,11 +4,10 @@
 <div>
 	<div>
 		<SfGrid @ref="@CompetitionGrid" TValue="Competitiontype" ID="CompetitionGrid"
-		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+		        AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
 		        Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
 			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-			<GridPageSettings PageSizes="true"></GridPageSettings>
 			<SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
 			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 			<GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected" />

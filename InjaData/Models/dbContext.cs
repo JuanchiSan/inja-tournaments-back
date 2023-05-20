@@ -77,6 +77,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VEventchallengedivision> VEventchallengedivisions { get; set; }
 
+    public virtual DbSet<VEventchallengedivisionPlana> VEventchallengedivisionPlanas { get; set; }
+
     public virtual DbSet<VEventjudgechallengedivisionPlana> VEventjudgechallengedivisionPlanas { get; set; }
 
     public virtual DbSet<VGroupUserpoint> VGroupUserpoints { get; set; }
@@ -992,6 +994,40 @@ public partial class dbContext : DbContext
                 .HasColumnName("eventname");
         });
 
+        modelBuilder.Entity<VEventchallengedivisionPlana>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_eventchallengedivision_plana");
+
+            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Challengename)
+                .HasMaxLength(50)
+                .HasColumnName("challengename");
+            entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
+            entity.Property(e => e.Competitiontypename)
+                .HasMaxLength(50)
+                .HasColumnName("competitiontypename");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Eventchallengeenddate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventchallengeenddate");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
+            entity.Property(e => e.Eventchallengename)
+                .HasMaxLength(100)
+                .HasColumnName("eventchallengename");
+            entity.Property(e => e.Eventchallengestartdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventchallengestartdate");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
+        });
+
         modelBuilder.Entity<VEventjudgechallengedivisionPlana>(entity =>
         {
             entity
@@ -1059,6 +1095,9 @@ public partial class dbContext : DbContext
                 .ToView("v_userinscription_plana");
 
             entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Contendername)
+                .HasMaxLength(200)
+                .HasColumnName("contendername");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Divisionname)
                 .HasMaxLength(200)
@@ -1108,7 +1147,7 @@ public partial class dbContext : DbContext
                 .HasColumnName("comment");
             entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
             entity.Property(e => e.Competitiontypename)
-                .HasMaxLength(200)
+                .HasMaxLength(50)
                 .HasColumnName("competitiontypename");
             entity.Property(e => e.Contenderid).HasColumnName("contenderid");
             entity.Property(e => e.Contendername).HasColumnName("contendername");
@@ -1125,6 +1164,7 @@ public partial class dbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("eventchallengename");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventjudgechallengedivisionid).HasColumnName("eventjudgechallengedivisionid");
             entity.Property(e => e.Judgeid).HasColumnName("judgeid");
             entity.Property(e => e.Judgename).HasColumnName("judgename");
             entity.Property(e => e.Maxscore)
@@ -1161,6 +1201,7 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Slot9)
                 .HasPrecision(5, 2)
                 .HasColumnName("slot9");
+            entity.Property(e => e.Slotcant).HasColumnName("slotcant");
             entity.Property(e => e.Totalpoints)
                 .HasPrecision(8, 2)
                 .HasColumnName("totalpoints");

@@ -7,6 +7,8 @@ public partial class VUserpoint
 {
     public string? VupKey { get; set; }
 
+    public int? Eventjudgechallengedivisionid { get; set; }
+
     public int? Judgeid { get; set; }
 
     public string? Judgename { get; set; }
@@ -62,4 +64,6 @@ public partial class VUserpoint
     public decimal? Totalpoints { get; set; }
 
     public string? Comment { get; set; }
+
+    public int? Slotcant { get; set; }
 }

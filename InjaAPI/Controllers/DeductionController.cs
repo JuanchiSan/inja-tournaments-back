@@ -143,8 +143,9 @@ public class DeductionController : ControllerBase
         .VDeductions
         .Where(x => x.Eventid == eventId && x.Contenderid == contenderId)
         .ToListAsync();
+
       if (!dbDeductions.Any())
-        return NotFound();
+        return Ok(new List<VDeduction>());
       
       return dbDeductions;
       

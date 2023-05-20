@@ -9,12 +9,11 @@
 
 <div>
   <SfGrid @ref="ContenderGrid" TValue="Injauser" ID="@nameof(ContenderGrid)"
-          AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+          AllowFiltering="true" AllowReordering="true" AllowResizing="true"
           AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
           Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
           DataSource="_lstUsers">
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-    <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
     <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
     <GridSortSettings>
       <GridSortColumns>
@@ -74,7 +73,7 @@
   }
   private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
   {
-    await sessionStorage.SetItemAsStringAsync("contender", obj.RowData.Id.ToString());
+    await sessionStorage.SetItemAsStringAsync("contenderId", obj.RowData.Id.ToString());
     navManager.NavigateTo("/ContenderInscription");
   }
   

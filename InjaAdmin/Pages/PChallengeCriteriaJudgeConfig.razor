@@ -15,7 +15,7 @@
       <tbody>
       <tr>
         <td>
-          <SfButton @onclick="@(args => { navManager.NavigateTo("/EventConfig"); })">Go Back</SfButton>
+          <SfButton @onclick="@(_ => { navManager.NavigateTo("/EventConfig"); })">Go Back</SfButton>
         </td>
         <td>
           <SfButton IsPrimary="true" @onclick="@OnSaveAllChanges">Save All Changes</SfButton>
@@ -30,13 +30,12 @@
       @if (LstCriterias != null)
       {
         <SfGrid @ref="@GridCriterias" TValue="InternalInjaCriteria" ID="@nameof(GridCriterias)"
-                AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+                AllowFiltering="true" AllowReordering="true" AllowResizing="true"
                 AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
                 Toolbar="@(new List<string> { "Edit", "Update", "Cancel", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
                 DataSource="@LstCriterias">
           <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
           <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-          <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
           <GridEvents OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
           <GridColumns>
@@ -87,7 +86,8 @@
 
   string? _challengeName { get; set; }
   int? _eventchallengeId { get; set; }
-
+  int? _eventId { get; set; }
+  
   private string? GetHeader(int i)
   {
     return i < LstDivisions?.Count ? LstDivisions[i].Item2 : string.Empty;
@@ -117,17 +117,17 @@
 
         Eventjudgechallengedivision? db_ejcd = null;
 
-        if (ejcd.Userid != null && judgeid == null) // existe ejcd y sacaron el juez, hay que borrar
+        if (ejcd?.Userid != null && judgeid == null) // existe ejcd y sacaron el juez, hay que borrar
         {
           db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
           Helper.DB.Eventjudgechallengedivisions.Remove(db_ejcd!);
         }
-        if (ejcd.Userid != null && judgeid != null && ejcd.Userid != judgeid) // Existe y le cambiaron el juez
+        if (ejcd?.Userid != null && judgeid != null && ejcd.Userid != judgeid) // Existe y le cambiaron el juez
         {
           db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
-          db_ejcd.Judgeid = Convert.ToInt32(judgeid);
+          if (db_ejcd != null) db_ejcd.Judgeid = Convert.ToInt32(judgeid);
         }
-        if (ejcd.Userid == null && judgeid != null) // No existe y lo tengo que agregar
+        if (ejcd?.Userid == null && judgeid != null) // No existe y lo tengo que agregar
         {
           db_ejcd = new Eventjudgechallengedivision
           {
@@ -151,20 +151,25 @@
   {
   // Fill Judges
     LstJudges = await Helper.DB.Injausers
-      .Where(x => x.Usertype == 3.ToString())
+      .Include(q=>q.Injauserusertypes)
+      .Where(x => x.Injauserusertypes.Any(g=>g.Typeid == 3 && g.Eventid == _eventId))
+      .OrderBy(x=>x.Name)
       .ToListAsync();
 
     LstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
       .Where(x => x.Eventchallengeid == _eventchallengeId)
+      .OrderBy(x=>x.Divisionname)
       .ToListAsync();
 
     var dcriterias = LstAllCriteriasJudges
       .Select(x => Tuple.Create(x.Criteriaid, x.Rounds, x.Criterianame))
       .Distinct()
+      .OrderBy(x=>x.Item3)
       .ToList();
 
     LstDivisions = LstAllCriteriasJudges
       .Select(x => Tuple.Create(x.Divisionid, x.Divisionname))
+      .OrderBy(x=>x.Item2)
       .Distinct()
       .ToList();
 
@@ -180,64 +185,73 @@
         Round = Convert.ToInt32(tc.Item2),
       };
 
-  #region divisiones
-
-      var i = 1;
-      if (LstDivisions.Count >= i)
+      for (var j = 1; j <= 10; j++)
       {
-        d.div_0 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+        if (LstDivisions.Count >= j)
+        {
+          d.GetType().GetProperty($"div_{j-1}")?.SetValue(d, 
+            LstAllCriteriasJudges
+                  .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[j - 1].Item1)?.Userid);
+        }
       }
-      i = 2;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_1 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 3;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_2 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 4;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_3 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 5;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_4 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 6;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_5 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 7;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_6 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 8;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_7 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-      i = 9;
-      if (LstDivisions.Count >= i)
-      {
-        d.div_8 = LstAllCriteriasJudges
-          .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-      }
-
-  #endregion
+  //     #region divisiones
+  //     
+  //     var i = 1;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_0 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 2;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_1 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 3;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_2 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 4;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_3 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 5;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_4 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 6;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_5 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 7;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_6 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 8;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_7 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //     i = 9;
+  //     if (LstDivisions.Count >= i)
+  //     {
+  //       d.div_8 = LstAllCriteriasJudges
+  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
+  //     }
+  //
+  // #endregion
 
       LstCriterias.Add(d);
     }
@@ -248,9 +262,10 @@
   {
     try
     {
-      var cosa = await sessionStorage.GetItemAsync<Tuple<int, string>>(Helper.paramJudgeChellengeName);
-      _challengeName = cosa.Item2;
-      _eventchallengeId = cosa.Item1;
+      var cosa = await sessionStorage.GetItemAsync<Tuple<int, int, string>>(Helper.paramJudgeChellengeName);
+      _eventId = cosa.Item1;
+      _challengeName = cosa.Item3;
+      _eventchallengeId = cosa.Item2;
       await FillDataSources();
     }
     catch (Exception a)

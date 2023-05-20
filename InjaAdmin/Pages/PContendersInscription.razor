@@ -1,38 +1,118 @@
 ﻿@page "/ContenderInscription"
-<h3>PContendersInscription</h3>
+
+<h3>Contender Inscription</h3>
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
 
 <div>
-  
-</div>
-<div>
   <div>
-    @* <SfGrid @ref="ContenderGrid" TValue="Injauser" ID="@nameof(ContenderGrid)" *@
-    @*         AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" *@
-    @*         AllowPdfExport="true" AllowSelection="true" AllowSorting="true" *@
-    @*         Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })" *@
-    @*         DataSource="_lstUsers"> *@
-    @*   <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/> *@
-    @*   <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/> *@
-    @*   <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/> *@
-    @*   <GridSortSettings> *@
-    @*     <GridSortColumns> *@
-    @*       <GridSortColumn Field="@nameof(Injauser.Lastname)"/> *@
-    @*       <GridSortColumn Field="@nameof(Injauser.Firstname)"/> *@
-    @*     </GridSortColumns> *@
-    @*   </GridSortSettings> *@
-    @*   <GridEvents OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/> *@
-    @*   <GridColumns> *@
-    @*     <GridColumn Field="@nameof(Injauser.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/> *@
-    @*     <GridColumn Field="@nameof(Injauser.Lastname)" HeaderText="Last Name" Width="150"/> *@
-    @*     <GridColumn Field="@nameof(Injauser.Firstname)" HeaderText="First" Width="150"/> *@
-    @*     <GridColumn Field="@nameof(Injauser.UserNumber)" HeaderText="User Number" Width="150"/> *@
-    @*     <GridColumn Field="@nameof(Injauser.Mail)" HeaderText="Mail" Width="150" Visible="false"/> *@
-    @*     <GridColumn Field="@nameof(Injauser.Phone)" HeaderText="Phone" Width="150"/> *@
-    @*   </GridColumns> *@
-    @* </SfGrid> *@
+    <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                Width="550" PopupWidth="500"
+                DataSource="@(_lstEvents)">
+      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+    </SfComboBox>
+  </div>
+  <div>
+
+    <SfGrid @ref="Grid" TValue="InternalEventChallengeDivision" ID="@nameof(Grid)"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+            AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Update", "Cancel", "PdfExport", "Print", "Search" })"
+            DataSource="_lstChallengesDivisions">
+      <GridEditSettings AllowEditing="true"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridSortSettings>
+        <GridSortColumns>
+          <GridSortColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)"/>
+        </GridSortColumns>
+      </GridSortSettings>
+      <GridEvents OnToolbarClick="@OnGridToolBarClick" TValue="InternalEventChallengeDivision"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.Key)" IsPrimaryKey="true" Visible="false" Width="100"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.Selected)" DisplayAsCheckBox="true" HeaderText="Selected" Width="70"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Last Name" Width="150"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="First" Width="150"/>
+      </GridColumns>
+    </SfGrid>
   </div>
 </div>
 
 @code {
-  
+  SfComboBox<int?, Event>? sfComboEvent;
+  SfGrid<InternalEventChallengeDivision>? Grid;
+  List<InternalEventChallengeDivision>? _lstChallengesDivisions;
+  int? _eventId;
+  int? _contenderId;
+  List<Event>? _lstEvents;
+
+  private void FillDS()
+  {
+    _lstChallengesDivisions = null;
+    if (_lstEvents == null) return;
+    var cosa = Helper.DB.VEventchallengedivisionPlanas.Where(x => x.Eventid == _eventId).ToList();
+    var insc = Helper.DB.VUserinscriptionPlanas.Where(x => x.Eventid == _eventId && x.Userid == _contenderId).ToList();
+
+    _lstChallengesDivisions = new List<InternalEventChallengeDivision>();
+    foreach (var item in cosa)
+    {
+      _lstChallengesDivisions.Add(new InternalEventChallengeDivision
+      {
+        DivisionId = Convert.ToInt32(item.Divisionid),
+        DivisionName = Convert.ToString(item.Divisionname) ?? string.Empty,
+        EventChallengeid = Convert.ToInt32(item.Eventchallengeid),
+        EventChallengeName = Convert.ToString(item.Eventchallengename) ?? string.Empty,
+        Selected = insc.Any(x => x.Eventchallengeid == item.Eventchallengeid && x.Divisionid == item.Divisionid)
+      });
+    }
+  }
+
+  private async Task OnGridToolBarClick(ClickEventArgs args)
+  {
+    if (Grid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(Grid)}_excelexport":
+        await Grid.ExportToExcelAsync();
+        break;
+      case $"{nameof(Grid)}_pdfexport":
+        await Grid.ExportToPdfAsync();
+        break;
+      case $"{nameof(Grid)}_csvexport":
+        await Grid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDS();
+    StateHasChanged();
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    _contenderId = await sessionStorage.GetItemAsync<int>("contenderId");
+    _lstEvents = Helper.DB.Events.ToList();
+    if (_lstEvents.Any())
+      _eventId = _lstEvents.First().Id;
+    FillDS();
+  }
+
+}
+
+@code{
+
+  public class InternalEventChallengeDivision
+  {
+    public string Key => $"{EventChallengeid}_{DivisionId}";
+    public int EventChallengeid { get; set; }
+    public string EventChallengeName { get; set; } = string.Empty;
+    public int DivisionId { get; set; }
+    public string DivisionName { get; set; } = string.Empty;
+    public bool Selected { get; set; }
+  }
+
 }

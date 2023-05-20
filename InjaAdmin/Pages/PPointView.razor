@@ -15,25 +15,27 @@
                       Width="550" PopupWidth="500"
                       DataSource="@(_lstEvents)">
             <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
-            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="() => { _eventChallengeId = null ; _divisionId = null;}" />
           </SfComboBox>
         </td>
         <td>Challenge</td>
         <td width="350">
           <SfComboBox @ref="comboChallenges" @bind-Value="@_eventChallengeId" TValue="int?" TItem="EventChallengeInternal"
                       Width="550" PopupWidth="500"
-                      DataSource="@(_lstChallenges)">
+                      DataSource="@(_lstChallenges)"
+                      Query="@(new Query().Where("eventid","equals",_eventId))">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="@OnEventChallengeValueChange"/>
+            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="() => { _divisionId = null;}"/>
           </SfComboBox>
         </td>
         <td>Competition</td>
         <td>
           <SfComboBox @ref="comboDivisions" @bind-Value="@_divisionId" TValue="int?" TItem="EventChallengeDivisionInternal"
                       Width="550" PopupWidth="500"
-                      DataSource="@(_lstDivision)">
+                      DataSource="@(_lstDivision)"
+                      Query="@(new Query().Where("eventchallengeid","equals", _eventChallengeId))">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeDivisionInternal.DivisionCompetition)" Value="@nameof(EventChallengeDivisionInternal.DivisionId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" ValueChange="@OnDivisionValueChange"/>
+            <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" />
           </SfComboBox>
         </td>
       </tr>
@@ -41,13 +43,18 @@
   </div>
   <div>
     <SfGrid @ref="@GridPoints" TValue="VGroupUserpoint" ID="@nameof(GridPoints)"
-            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true"
+            AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
             DataSource="@_lstPoints" Query="@GetPointsQuery()">
       <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-      <GridPageSettings PageSize="100" PageSizes="@(new object[] { 100, "All" })"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridSortSettings>
+        <GridSortColumns>
+          <GridSortColumn Field="@nameof(VGroupUserpoint.Totalpoints)" Direction="SortDirection.Descending"/>
+        </GridSortColumns>
+      </GridSortSettings> 
       <GridEvents OnActionBegin="@GridPointsActionBegin" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
       <GridColumns>
         <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
@@ -136,7 +143,7 @@
     public int? EventChallengeId { get; set; }
   }
 
-  protected override async Task OnInitializedAsync()
+  private async Task FillDS()
   {
     _lstEvents = await new dbContext()
       .Events
@@ -147,12 +154,34 @@
       .VGroupUserpoints
       .ToListAsync();
 
-    if (_lstEvents.Any())
-    {
-      _eventId = _lstEvents.FirstOrDefault()?.Id;
-      if (comboEvents != null)
-        await comboEvents.RefreshDataAsync();
-    }
+    _lstChallenges = await new dbContext()
+      .Eventchallenges
+      .Include(x => x.Challenge)
+      .OrderBy(z => z.Name)
+      .Select(y => new EventChallengeInternal
+      {
+        EventChallengeId = y.Id,
+        EventChallengeName = y.Name,
+        EventId = y.Eventid
+      })
+      .ToListAsync();
+    
+    _lstDivision = await new dbContext()
+      .Eventchallengedivisions
+      .Include(x => x.Division)
+      .ThenInclude(y => y.Competitiontype)
+      .Select(q => new EventChallengeDivisionInternal
+      {
+        DivisionId = q.Divisionid,
+        DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}",
+        EventChallengeId = q.Eventchallengeid
+      })
+      .ToListAsync();
+  }
+  
+  protected override async Task OnInitializedAsync()
+  {
+    await FillDS();
   }
 
   #endregion
@@ -162,13 +191,6 @@
   int? _eventId;
   List<Event> _lstEvents = new();
 
-  private async Task OnEventValueChange(ChangeEventArgs<int?, Event> args)
-  {
-    await FillLstChallenges();
-    if (comboChallenges != null)
-      await comboChallenges.RefreshDataAsync();
-  }
-
   #endregion
 
   #region Challenges
@@ -176,72 +198,12 @@
   int? _eventChallengeId;
   List<EventChallengeInternal> _lstChallenges = new();
 
-  private async Task OnEventChallengeValueChange(ChangeEventArgs<int?, EventChallengeInternal> args)
-  {
-    await FillLstDivisions();
-    if (comboDivisions != null)
-      await comboDivisions.RefreshDataAsync();
-  }
-
-  private async Task FillLstChallenges()
-  {
-    _lstChallenges.Clear();
-
-    if (_eventId != null)
-    {
-      _lstChallenges = await new dbContext()
-        .Eventchallenges
-        .Include(x => x.Challenge)
-        .Where(f => f.Eventid == _eventId)
-        .OrderBy(z => z.Name)
-        .Select(y => new EventChallengeInternal
-        {
-          EventChallengeId = y.Id,
-          EventChallengeName = y.Name,
-          EventId = y.Eventid
-        })
-        .ToListAsync();
-    }
-    _eventChallengeId = _lstChallenges.FirstOrDefault()?.EventChallengeId;
-  }
-
   #endregion
 
   #region Division
 
   int? _divisionId;
   List<EventChallengeDivisionInternal> _lstDivision = new();
-
-  private async void OnDivisionValueChange(ChangeEventArgs<int?, EventChallengeDivisionInternal> args)
-  {
-  //await FillLstPoints();
-  //if (GridPoints != null)
-  //{
-  //	GridPoints.DataSource = _lstPoints;
-  //	await GridPoints.Refresh();
-  //}
-  }
-
-  private async Task FillLstDivisions()
-  {
-    _lstDivision.Clear();
-    if (_eventChallengeId != null)
-    {
-      _lstDivision = await new dbContext()
-        .Eventchallengedivisions
-        .Include(x => x.Division)
-        .ThenInclude(y => y.Competitiontype)
-        .Where(x => x.Eventchallengeid == _eventChallengeId)
-        .Select(q => new EventChallengeDivisionInternal
-        {
-          DivisionId = q.Divisionid,
-          DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}",
-          EventChallengeId = q.Eventchallengeid
-        })
-        .ToListAsync();
-    }
-    _divisionId = _lstDivision.FirstOrDefault()?.DivisionId;
-  }
 
   #endregion
 

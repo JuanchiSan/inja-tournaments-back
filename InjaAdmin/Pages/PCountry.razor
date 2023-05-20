@@ -5,11 +5,10 @@
 <div>
 	<div>
 		<SfGrid @ref="@CountryGrid" TValue="Country" ID="CountryGrid"
-						AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+						AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
 						Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
 			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal" />
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-			<GridPageSettings PageSizes="true" />
 			<SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
 			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" />
 			<GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected" />
