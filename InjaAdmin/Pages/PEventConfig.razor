@@ -13,7 +13,7 @@
           Event
         </td>
         <td width="500">
-          <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+          <SfComboBox ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
                       Width="550" PopupWidth="500"
                       DataSource="@(_lstEvents)">
             <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
@@ -47,7 +47,7 @@
           <GridSortColumn Field="@nameof(VEventchallengedivision.Challengename)"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="OnGridCommandClicked" OnActionBegin="OnGridActionBegin" TValue="VEventchallengedivision"/>
+      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="@OnGridCommandClicked" OnActionBegin="OnGridActionBegin" TValue="VEventchallengedivision"/>
       <GridColumns>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengename)" HeaderText="Event Challenge" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengestartdate)" HeaderText="Star Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
@@ -57,8 +57,8 @@
         <GridColumn Field="@nameof(VEventchallengedivision.Divisionnames)" HeaderText="Division" Width="200"/>
         <GridColumn HeaderText="Manage Records" Width="150">
           <GridCommandColumns>
-            <GridCommandColumn Type="CommandButtonType.Edit" Title="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
-            <GridCommandColumn Type="CommandButtonType.None" Title="Judges"/>
+            <GridCommandColumn Type="CommandButtonType.Edit" Title="Divisions" ButtonOption="@(new CommandButtonOptions { Content = "Divisions"})"/>
+            <GridCommandColumn Type="CommandButtonType.None" Title="Judges" ButtonOption="@(new CommandButtonOptions { Content = "Judges"})"/>
           </GridCommandColumns>
         </GridColumn>
       </GridColumns>

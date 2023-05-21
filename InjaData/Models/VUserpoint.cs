@@ -66,4 +66,8 @@ public partial class VUserpoint
     public string? Comment { get; set; }
 
     public int? Slotcant { get; set; }
+
+    public int? Hands { get; set; }
+
+    public decimal? Slotstep { get; set; }
 }

@@ -18,20 +18,22 @@
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
           <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
           <GridColumns>
-            <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderText="Judge" Width="200"/>
-            <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderText="Criteria" Width="200"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" Format="N2"  Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" Format="N2" Width="100"/>
-            <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" Format="N2" Width="100"/>
+            <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Judge" Width="200"/>
+            <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Criteria" Width="150"/>
+            <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center"  Width="30"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2"  Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+            <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+            <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100"/>
+            <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100"/>
+            <GridColumn Field="@nameof(VUserpoint.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" Width="150"/>
           </GridColumns>
         </SfGrid>
   </div>
@@ -46,6 +48,7 @@
   private int? divisionId { get; set; }
   private string? contenderName { get; set; }
   private List<VUserpoint> _lstPoints = new();
+  private string? ContenderName;
   
   private void OnGoBackClick(MouseEventArgs obj)
   {
@@ -61,13 +64,15 @@
         await GridPoints.ExportToExcelAsync();
         break;
       case $"{nameof(GridPoints)}_pdfexport":
-        await GridPoints.ExportToPdfAsync();
+        await GridPoints.ExportToPdfAsync(new PdfExportProperties { PageSize = PdfPageSize.A4, PageOrientation = PageOrientation.Landscape });
         break;
       case $"{nameof(GridPoints)}_csvexport":
         await GridPoints.ExportToCsvAsync();
         break;
     }
-  }  
+  }
+
+  private bool _cantslot10;
   
   protected override async Task OnInitializedAsync()
   {
@@ -82,6 +87,8 @@
       _lstPoints = await Helper.DB.VUserpoints
         .Where(x => x.Contenderid == contenderId && x.Eventchallengeid == eventchallengeId && x.Eventid == eventId && x.Divisionid == divisionId)
         .ToListAsync();
+
+      _cantslot10 = _lstPoints.Max(x => x.Slotcant) > 5;
     }
     catch (Exception e)
     {

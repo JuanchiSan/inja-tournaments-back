@@ -1,21 +1,20 @@
 ﻿@page "/ContenderInscription"
-
-<h3>Contender Inscription</h3>
+@using Log = Serilog.Log
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 
 <div>
   <div>
-    <SfComboBox href="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
-                Width="550" PopupWidth="500"
-                DataSource="@(_lstEvents)">
-      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
-      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
-    </SfComboBox>
+    <h2>Contender: @_contenderName</h2>
   </div>
+  <table>
+    <tr>
+      <td><SfButton Content="Go Back" @onclick="@(() => { navManager.NavigateTo("/Contenders");})"/></td>
+      <td><SfButton IsPrimary="true" Content="Save All Changes" @onclick="@OnSaveChanges"/></td>
+    </tr>
+  </table>
   <div>
-
     <SfGrid @ref="Grid" TValue="InternalEventChallengeDivision" ID="@nameof(Grid)"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true"
             AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
@@ -31,7 +30,7 @@
       </GridSortSettings>
       <GridEvents OnToolbarClick="@OnGridToolBarClick" TValue="InternalEventChallengeDivision"/>
       <GridColumns>
-        <GridColumn Field="@nameof(InternalEventChallengeDivision.Key)" IsPrimaryKey="true" Visible="false" Width="100"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.Key)" IsPrimaryKey="true" Visible="false"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.Selected)" DisplayAsCheckBox="true" HeaderText="Selected" Width="70"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Last Name" Width="150"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="First" Width="150"/>
@@ -41,17 +40,16 @@
 </div>
 
 @code {
-  SfComboBox<int?, Event>? sfComboEvent;
   SfGrid<InternalEventChallengeDivision>? Grid;
   List<InternalEventChallengeDivision>? _lstChallengesDivisions;
   int? _eventId;
   int? _contenderId;
-  List<Event>? _lstEvents;
+  string? _contenderName;
 
   private void FillDS()
   {
     _lstChallengesDivisions = null;
-    if (_lstEvents == null) return;
+
     var cosa = Helper.DB.VEventchallengedivisionPlanas.Where(x => x.Eventid == _eventId).ToList();
     var insc = Helper.DB.VUserinscriptionPlanas.Where(x => x.Eventid == _eventId && x.Userid == _contenderId).ToList();
 
@@ -86,21 +84,22 @@
     }
   }
 
-  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
-  {
-    FillDS();
-    StateHasChanged();
-  }
-
   protected override async Task OnInitializedAsync()
   {
-    _contenderId = await sessionStorage.GetItemAsync<int>("contenderId");
-    _lstEvents = Helper.DB.Events.ToList();
-    if (_lstEvents.Any())
-      _eventId = _lstEvents.First().Id;
-    FillDS();
+    try
+    {
+      var result = await sessionStorage.GetItemAsync<Tuple<int, int, string>>("ContenderInscription");
+      _eventId = result.Item1;
+      _contenderId = result.Item2;
+      _contenderName = result.Item3;
+      FillDS();
+    }
+    catch (Exception e)
+    {
+      Log.Error(e, "Error on ContenderInscription OnInitialized");
+      navManager.NavigateTo("/Contenders");
+    }
   }
-
 }
 
 @code{
@@ -113,6 +112,51 @@
     public int DivisionId { get; set; }
     public string DivisionName { get; set; } = string.Empty;
     public bool Selected { get; set; }
+  }
+
+  private void OnSaveChanges(MouseEventArgs obj)
+  {
+    if (_lstChallengesDivisions == null) return;
+    var _dbInscrip = Helper
+      .DB.Userinscriptions
+      .Where(x => x.Uuserid == _contenderId && x.Ueventid == _eventId && x.Utypeid == 1)
+      .ToList();
+    
+    foreach (var item in _lstChallengesDivisions)
+    {
+      var dbIncr = _dbInscrip.FirstOrDefault(x => x.Eventchallengeid == item.EventChallengeid && x.Divisionid == item.DivisionId);
+      switch (item.Selected)
+      {
+        // lo seleccionaron y no está
+        case true when dbIncr == null:
+        {
+          Helper.DB.Userinscriptions.Add(new Userinscription
+          {
+            Eventchallengeid = item.EventChallengeid,
+            Divisionid = item.DivisionId,
+            Wonfirstplace = 0,
+            Inscriptiondate = DateTime.Now,
+            Utypeid = 1,
+            Ueventid = Convert.ToInt32(_eventId),
+            Uuserid = Convert.ToInt32(_contenderId)
+          });
+          break;
+        }
+        // Está y lo tengo que borrar
+        case false when dbIncr != null:
+          Helper.DB.Userinscriptions.Remove(dbIncr);
+          break;
+      }
+    }
+    try
+    {
+      Helper.DB.SaveChanges();
+      navManager.NavigateTo("/Contenders");
+    }
+    catch (Exception e)
+    {
+      Log.Error(e,"Error on ContenderInscriptions");
+    }
   }
 
 }

@@ -34,4 +34,6 @@ public partial class VDeduction
     public int? Divisionid { get; set; }
 
     public string? Divisionname { get; set; }
+
+    public int? Deductionnumber { get; set; }
 }

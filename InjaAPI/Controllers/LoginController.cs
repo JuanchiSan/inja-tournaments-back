@@ -29,23 +29,27 @@ namespace InjaAPI.Controllers;
 		{
 			if (!ModelState.IsValid)
 			{
+				Serilog.Log.Warning("Bad Login: {RequestEmail} {RequestPassword} {RequestEventId}", request.Email, request.Password, request.EventId);
 				return BadRequest(ModelState);
 			}
 
 			var managedUser = await _context.Injausers.Include(x => x.Injauserusertypes).FirstOrDefaultAsync(x => x.Mail == request.Email && x.Injauserusertypes.Any(z => z.Eventid == request.EventId));
 			if (managedUser == null)
 			{
+				Serilog.Log.Warning("Bad Login: {RequestEmail} {RequestPassword} {RequestEventId}", request.Email, request.Password, request.EventId);
 				return BadRequest("Bad credentials");
 			}
 			
 			var isPasswordValid = managedUser.Pass == request.Password;
 			if (!isPasswordValid)
 			{
+				Serilog.Log.Warning("Bad Login: {RequestEmail} {RequestPassword} {RequestEventId}", request.Email, request.Password, request.EventId);
 				return Unauthorized();
 			}
 
 			var accessToken = _tokenService.CreateToken(managedUser, request.EventId);
 			await _context.SaveChangesAsync();
+			Serilog.Log.Information("GOOD Login: {RequestEmail} {RequestPassword} {RequestEventId}", request.Email, request.Password, request.EventId);
 			return Ok(new AuthResponse
 			{
 				Username = $"{managedUser.Lastname}, {managedUser.Firstname}",

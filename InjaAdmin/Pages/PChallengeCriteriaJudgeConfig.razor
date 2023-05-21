@@ -37,7 +37,7 @@
           <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
           <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
-          <GridEvents OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
+          <GridEvents CommandClicked="OnFillAll" OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
           <GridColumns>
             <GridColumn Field="@nameof(InternalInjaCriteria.CRKey)" IsPrimaryKey="true" Visible="false"/>
             <GridColumn Field="@nameof(InternalInjaCriteria.CriteriaName)" HeaderText="Criterias" Width="200" AllowEditing="false"/>
@@ -62,7 +62,11 @@
                                ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
             <GridForeignColumn Field="@nameof(InternalInjaCriteria.div_9)" HeaderText="@(GetHeader(9))" Width="200" AllowEditing="true" Visible="@(LstDivisions?.Count >= 10)"
                                ForeignDataSource="@LstJudges" ForeignKeyField="@nameof(Injauser.Id)" ForeignKeyValue="@nameof(Injauser.Name)"/>
-
+            <GridColumn HeaderText="Manage Records" Width="100">
+              <GridCommandColumns>
+                <GridCommandColumn Type="CommandButtonType.None" Title="Copy Judge" ButtonOption="@(new CommandButtonOptions { Content = "Copy Judges" })"/>
+              </GridCommandColumns>
+            </GridColumn>
           </GridColumns>
         </SfGrid>
       }
@@ -194,64 +198,6 @@
                   .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[j - 1].Item1)?.Userid);
         }
       }
-  //     #region divisiones
-  //     
-  //     var i = 1;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_0 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 2;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_1 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 3;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_2 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 4;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_3 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 5;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_4 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 6;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_5 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 7;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_6 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 8;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_7 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //     i = 9;
-  //     if (LstDivisions.Count >= i)
-  //     {
-  //       d.div_8 = LstAllCriteriasJudges
-  //         .FirstOrDefault(z => z.Criterianame == tc.Item3 && z.Divisionid == LstDivisions[i - 1].Item1)?.Userid;
-  //     }
-  //
-  // #endregion
 
       LstCriterias.Add(d);
     }
@@ -281,6 +227,20 @@
 
   SfGrid<InternalInjaCriteria>? GridCriterias { get; set; }
 
+  private void OnFillAll(CommandClickEventArgs<InternalInjaCriteria> obj)
+  {
+    if (LstDivisions == null || obj.RowData.div_0 == null) return;
+    
+    var judge = (int)obj.RowData.div_0;
+    
+    for (int i = 1; i < LstDivisions.Count; i++)
+    {
+      obj.RowData.GetType().GetProperty($"div_{i}").SetValue(obj.RowData, judge);
+    }
+    Task.Run(async () => { await GridCriterias.Refresh(); });
+    StateHasChanged();
+  }
+  
   private async Task GridToolbarClick(ClickEventArgs args)
   {
     if (GridCriterias == null) return;

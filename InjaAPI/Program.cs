@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -9,7 +8,13 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var cs = builder.Configuration["ConnectionStrings:WebApiDatabase"]!;
+var cs = builder.Configuration["ConnectionStrings:WebApiDatabase"];
+
+if (cs == null)
+{
+	Console.WriteLine("There is no CS on the Appconfig");
+	return;
+}
 
 InjaData.Helper.CS = cs;
 
@@ -19,11 +24,10 @@ builder.Host.UseSerilog((ctx, lc) => lc
 	.WriteTo.PostgreSQL(InjaData.Helper.CS, "Logs", needAutoCreateTable: true)
 	.ReadFrom.Configuration(ctx.Configuration));
 
-
-Log.Information($"Start Application {DateTime.Now}");
+Log.Information("Start Application {Now}", DateTime.Now);
 
 builder.Services.AddDbContext<InjaData.Models.dbContext>(options => options.UseNpgsql(InjaData.Helper.CS));
-Log.Information($"DB Context Setted {InjaData.Helper.CS}");
+Log.Information("DB Context Setted {Cs}", InjaData.Helper.CS);
 
 // For JWT
 builder.Services.AddScoped<TokenService, TokenService>();

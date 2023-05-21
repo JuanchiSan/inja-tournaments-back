@@ -6,7 +6,17 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <h3>Contenders</h3>
-
+<div>
+  Events
+</div>
+<div>
+<SfComboBox ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+            Width="550" PopupWidth="500"
+            DataSource="@(_lstEvents)">
+  <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+  <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+</SfComboBox>
+</div>
 <div>
   <SfGrid @ref="ContenderGrid" TValue="Injauser" ID="@nameof(ContenderGrid)"
           AllowFiltering="true" AllowReordering="true" AllowResizing="true"
@@ -21,7 +31,7 @@
         <GridSortColumn Field="@nameof(Injauser.Firstname)"/>
       </GridSortColumns>
     </GridSortSettings>
-    <GridEvents OnRecordDoubleClick="OnRecordDoubleClick" OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/>
+    <GridEvents CommandClicked="OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/>
     <GridColumns>
       <GridColumn Field="@nameof(Injauser.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
       <GridColumn Field="@nameof(Injauser.Lastname)" HeaderText="Last Name" Width="150"/>
@@ -29,24 +39,39 @@
       <GridColumn Field="@nameof(Injauser.UserNumber)" HeaderText="User Number" Width="150"/>
       <GridColumn Field="@nameof(Injauser.Mail)" HeaderText="Mail" Width="150" Visible="false"/>
       <GridColumn Field="@nameof(Injauser.Phone)" HeaderText="Phone" Width="150"/>
+      <GridColumn HeaderText="Manage Inscriptions" Width="150">
+        <GridCommandColumns>
+          <GridCommandColumn Type="CommandButtonType.None" Title="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+        </GridCommandColumns>
+      </GridColumn>
+      
     </GridColumns>
   </SfGrid>
 </div>
 
 @code {
+  SfComboBox<int?, Event>? sfComboEvent;
+  List<Event>? _lstEvents;
+  int? _eventId;
 
-  private void FillDataSources()
+  private async Task FillDSAsync()
   {
-    _lstUsers = InjaAdmin.Helper.DB
-      .Injausers
-      .Include(x => x.Injauserusertypes)
-      .Where(z => z.Injauserusertypes.Any(r => r.Typeid == 1))
-      .ToList();
+    _lstUsers = null;
+    if (_eventId != null)
+      _lstUsers = await Helper.DB
+        .Injausers
+        .Include(x => x.Injauserusertypes)
+        .Where(z => z.Injauserusertypes.Any(r => r.Typeid == 1 && r.Eventid == _eventId))
+        .ToListAsync();
   }
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
-    FillDataSources();
+    _lstEvents = Helper.DB.Events.ToList();
+    if (_lstEvents.Any())
+      _eventId = _lstEvents.First().Id;
+
+    await FillDSAsync();
     StateHasChanged();
   }
 
@@ -55,6 +80,25 @@
   SfGrid<Injauser>? ContenderGrid { get; set; }
   List<Injauser>? _lstUsers { get; set; }
 
+  private async Task OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    await FillDSAsync();
+    StateHasChanged();
+  }
+  
+  private async Task OnGridCommandClicked(CommandClickEventArgs<Injauser> obj)
+  {
+    if (_eventId == null) return;
+    
+    switch (obj.CommandColumn.Title)
+    {
+      case "Edit":
+        await sessionStorage.SetItemAsync("ContenderInscription", Tuple.Create(_eventId, obj.RowData.Id, obj.RowData.Name));
+        navManager.NavigateTo("/ContenderInscription");
+        break;
+    }
+  }
+  
   private async Task OnContenderGridToolBarClick(ClickEventArgs args)
   {
     if (ContenderGrid == null) return;

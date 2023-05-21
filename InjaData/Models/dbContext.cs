@@ -83,6 +83,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VGroupUserpoint> VGroupUserpoints { get; set; }
 
+    public virtual DbSet<VInjauser> VInjausers { get; set; }
+
     public virtual DbSet<VUserinscriptionPlana> VUserinscriptionPlanas { get; set; }
 
     public virtual DbSet<VUserpoint> VUserpoints { get; set; }
@@ -919,6 +921,7 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Creationdate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("creationdate");
+            entity.Property(e => e.Deductionnumber).HasColumnName("deductionnumber");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Divisionname)
                 .HasMaxLength(200)
@@ -1088,6 +1091,29 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Totalpoints).HasColumnName("totalpoints");
         });
 
+        modelBuilder.Entity<VInjauser>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_injauser");
+
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
+            entity.Property(e => e.Injauserid).HasColumnName("injauserid");
+            entity.Property(e => e.Injausername)
+                .HasMaxLength(200)
+                .HasColumnName("injausername");
+            entity.Property(e => e.Mail)
+                .HasMaxLength(100)
+                .HasColumnName("mail");
+            entity.Property(e => e.Typename)
+                .HasMaxLength(50)
+                .HasColumnName("typename");
+            entity.Property(e => e.Usertypeid).HasColumnName("usertypeid");
+        });
+
         modelBuilder.Entity<VUserinscriptionPlana>(entity =>
         {
             entity
@@ -1165,6 +1191,7 @@ public partial class dbContext : DbContext
                 .HasColumnName("eventchallengename");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.Eventjudgechallengedivisionid).HasColumnName("eventjudgechallengedivisionid");
+            entity.Property(e => e.Hands).HasColumnName("hands");
             entity.Property(e => e.Judgeid).HasColumnName("judgeid");
             entity.Property(e => e.Judgename).HasColumnName("judgename");
             entity.Property(e => e.Maxscore)
@@ -1202,6 +1229,9 @@ public partial class dbContext : DbContext
                 .HasPrecision(5, 2)
                 .HasColumnName("slot9");
             entity.Property(e => e.Slotcant).HasColumnName("slotcant");
+            entity.Property(e => e.Slotstep)
+                .HasPrecision(4, 2)
+                .HasColumnName("slotstep");
             entity.Property(e => e.Totalpoints)
                 .HasPrecision(8, 2)
                 .HasColumnName("totalpoints");

@@ -1,11 +1,5 @@
 ﻿@page "/Events"
 
-@using Syncfusion.Blazor;
-@using Syncfusion.Blazor.Data;
-@using Syncfusion.Blazor.Grids;
-@using InjaData.Models;
-@using InjaAdmin.Adaptors;
-
 <div>
 	<SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)" 
 		AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" 

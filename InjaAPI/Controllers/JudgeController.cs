@@ -84,7 +84,10 @@ public class JudgeController : ControllerBase
 	{
 		try
 		{
-			var dbResult = await _context.VUserschallengecriteria.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Judgeid == judgeId && x.Contenderid == contenderId).ToListAsync();
+			var dbResult = await _context
+				.VUserschallengecriteria
+				.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Judgeid == judgeId && x.Contenderid == contenderId)
+				.ToListAsync();
 
 			if (!dbResult.Any()) return NotFound("No Data with those parameters");
 			
@@ -111,7 +114,7 @@ public class JudgeController : ControllerBase
 		}
 		catch (Exception e)
 		{
-			Serilog.Log.Error("Internal Error Getting CriteriaByJudge", e);
+			Serilog.Log.Error(e,"Internal Error Getting CriteriaByJudge");
 			return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
 		}
 	}
@@ -122,7 +125,10 @@ public class JudgeController : ControllerBase
 	{
 		try
 		{
-			var dbEJCD = await _context.Eventjudgechallengedivisions.FirstOrDefaultAsync(x => x.Id == aPoint.eventJudgeChallengeDivisionId);
+			var dbEJCD = await _context
+				.Eventjudgechallengedivisions
+				.FirstOrDefaultAsync(x => x.Id == aPoint.eventJudgeChallengeDivisionId);
+			
 			if (dbEJCD == null)
 			{
 				Serilog.Log.Information("EventJudgeChallengeDivision Not Found");
@@ -133,21 +139,26 @@ public class JudgeController : ControllerBase
 			if (dbPoint == null)
 			{
 				dbPoint = _mapper.Map<Point>(aPoint);
-#pragma warning disable CS8625
-				dbPoint.Eventjudgechallenge = null;
-#pragma warning restore CS8625
+				dbPoint.Eventjudgechallenge = null!;
+
 				_context.Points.Add(dbPoint);
 			}
 			else
 			{
-				_mapper.Map(aPoint, dbPoint);
+				for (var i = 1; i <= 10; i++)
+				{
+					dbPoint.GetType().GetProperty($"Slot{i}")?.SetValue(dbPoint,aPoint.GetType().GetProperty($"Slot{i}")?.GetValue(aPoint));
+				}
+
+				dbPoint.Comment = aPoint.Comment;
+				//_mapper.Map(aPoint, dbPoint);
 			}
 
 			await _context.SaveChangesAsync();
 		}
 		catch (Exception e)
 		{
-			Serilog.Log.Error("Internal Error Getting CriteriaByJudge", e);
+			Serilog.Log.Error(e,"Internal Error Getting CriteriaByJudge");
 			return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
 		}
 	

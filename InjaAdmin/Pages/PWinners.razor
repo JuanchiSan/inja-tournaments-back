@@ -1,0 +1,57 @@
+﻿@page "/PWinners"
+@using Microsoft.EntityFrameworkCore
+<h3>Winners</h3>
+
+<div>
+  <table>
+    <tr>
+      <td width="500">
+        <SfComboBox ref="@_comboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                    Width="550" PopupWidth="500"
+                    DataSource="@(_lstEvents)">
+          <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+          <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+        </SfComboBox>
+      </td>
+      <td width="500">
+        <SfComboBox ref="@_comboChallenges" @bind-Value="@(_eventChallengeId)" TValue="int?" TItem="Eventchallenge"
+                    Width="550" PopupWidth="500"
+                    DataSource="@(_lstChallenges)"
+                    Query="@(new Query().Where("eventid","equals",_eventId))">
+          <ComboBoxFieldSettings Text="@nameof(Eventchallenge.Name)" Value="@nameof(Eventchallenge.Id)"/>
+          <ComboBoxEvents TValue="int?" TItem="Eventchallenge" ValueChange="@OnEventChallengeValueChange"/>
+        </SfComboBox>
+      </td>
+    </tr>
+  </table>
+</div>
+
+@code {
+  List<Event>? _lstEvents;
+  List<Eventchallenge>? _lstChallenges;
+  int? _eventId;
+  SfComboBox<int?, Event>? _comboEvent;
+  SfComboBox<int?, Eventchallenge>? _comboChallenges;
+  int? _eventChallengeId;
+
+  private async Task FillDS()
+  {
+    _lstEvents = await Helper.DB.Events.OrderBy(x => x.Name).ToListAsync();
+    
+  }
+  
+  protected override async Task OnInitializedAsync()
+  {
+    await FillDS();
+  }
+  
+    
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    StateHasChanged();
+  }
+  private void OnEventChallengeValueChange(ChangeEventArgs<int?, Eventchallenge> args)
+  {
+    StateHasChanged();
+  }
+}

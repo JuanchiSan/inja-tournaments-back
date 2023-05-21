@@ -93,6 +93,8 @@ public class UserController : ControllerBase
           JudgeName = x.Judgename ?? string.Empty,
           CriteriaId = Convert.ToInt32(x.Criteriaid),
           CriteriaName = x.Criterianame ?? string.Empty,
+          ChallengeId = Convert.ToInt32(x.Challengeid),
+          ChallengeName = x.Eventchallengename ?? string.Empty,
           EventJugdeChallengeDivisionId = Convert.ToInt32(x.Eventjudgechallengedivisionid),
           Round = Convert.ToInt32(x.Rounds),
           TotalPoints = Convert.ToDecimal(x.Totalpoints),
@@ -103,10 +105,12 @@ public class UserController : ControllerBase
           DivisionName = x.Divisionname ?? string.Empty,
           CompetitionId = Convert.ToInt32(x.Competitiontypeid),
           CompetitinoName = x.Competitiontypename ?? string.Empty,
-          PhotoURL = photoURL?.PhotoUrl ?? string.Empty
+          PhotoURL = photoURL?.PhotoUrl ?? string.Empty,
+          Hands = Convert.ToInt32(x.Hands),
+          SlotStep = Convert.ToInt32(x.Slotstep)
         };
 
-        for (int i = 1; i <= result.SlotCant; i++)
+        for (var i = 1; i <= result.SlotCant; i++)
         {
           result.Points.Add(Convert.ToDecimal(x.GetType().GetProperty($"Slot{i}")?.GetValue(x)));
         }

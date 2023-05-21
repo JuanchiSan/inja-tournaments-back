@@ -23,7 +23,7 @@ public class DeductionController : ControllerBase
 
   [AllowAnonymous]
   [HttpPut("AddDeduction")]
-  public async Task<ActionResult> AddDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid, decimal score, string? comment)
+  public async Task<ActionResult<int>> AddDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid, decimal score, string? comment)
   {
     var dbContender = await _context
       .Injausers.Include(x => x.Injauserusertypes)
@@ -56,16 +56,28 @@ public class DeductionController : ControllerBase
       return BadRequest("The Contender isn't enrolled in the given challenge/division");
     }
 
+    var maxDeductionNumberss = await _context
+      .Deductions
+      .Where(x => x.Suptypeid == 6 && x.Supeventid == eventId && x.Ceventid == eventId && x.Cuserid == contenderid && x.Ctypeid == 1 && x.Cdivisionid == divisionid &&
+                  x.Ceventchallengeid == dbInscription.Eventchallengeid)
+      .ToListAsync();
+    
+    int maxDeductionNumber = 0;
+    
+    if (maxDeductionNumberss.Any())          
+      maxDeductionNumber = maxDeductionNumberss.Max(x => x.Deductionid);
+    
+    var ndeductionNumber = deductionnumber == -1 ? maxDeductionNumber + 1 : maxDeductionNumber;
+  
     var dbDeduction = await _context
-      .Deductions.FirstOrDefaultAsync(x => x.Deductionid == deductionnumber && x.Suptypeid == 6 && x.Supeventid == eventId
-                                           && x.Ceventid == eventId && x.Cuserid == contenderid && x.Ctypeid == 1 && x.Cdivisionid == divisionid
-                                           && x.Ceventchallengeid == dbInscription.Eventchallengeid);
+      .Deductions
+      .FirstOrDefaultAsync(x => x.Deductionid == ndeductionNumber && x.Suptypeid == 6 && x.Supeventid == eventId && x.Ceventid == eventId && x.Cuserid == contenderid && x.Ctypeid == 1 && x.Cdivisionid == divisionid && x.Ceventchallengeid == dbInscription.Eventchallengeid);
 
     if (dbDeduction == null) // No está, hay que agregarlo
     {
       dbDeduction = new Deduction
       {
-        Deductionid = deductionnumber,
+        Deductionid = ndeductionNumber,
         Suptypeid = 6,
         Supeventid = eventId,
         Supuserid = judgeid,
@@ -97,7 +109,7 @@ public class DeductionController : ControllerBase
       return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {e}");
     }
     
-    return Ok();
+    return Ok(ndeductionNumber);
   }
 
   [AllowAnonymous]
@@ -132,7 +144,6 @@ public class DeductionController : ControllerBase
       return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {e}");
     }
   }
-  
   
   [AllowAnonymous]
   [HttpGet("ContenderDeductions")]
