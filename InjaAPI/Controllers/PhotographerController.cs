@@ -23,57 +23,39 @@ public class PhotographerController : ControllerBase
     _tokenService = tokenService;
   }
 
-  // [HttpGet("GetImageByDTO")]
-  // public IActionResult GetImage(ImageUploadDTO obj)
-  // {
-  //   try
-  //   {
-  //     if (obj == null)
-  //       return BadRequest("No info received");
-  //
-  //     var imagePath = Path.Combine("./Photos", $"{obj.EventId}_{obj.ChallengeId}_{obj.ContenderId}_{obj.PhotographerId}.png");
-  //
-  //     if (!System.IO.File.Exists(imagePath))
-  //     {
-  //       return NotFound();
-  //     }
-  //
-  //     var imageBytes = System.IO.File.ReadAllBytes(imagePath);
-  //
-  //     return File(imageBytes, "image/png");
-  //   }
-  //   catch (Exception e)
-  //   {
-  //     Serilog.Log.Error("Error Reading Photo", e);
-  //     return StatusCode(StatusCodes.Status500InternalServerError, "Error reading Image. See Internal Logs");
-  //   }
-  // }
+  [AllowAnonymous]
+  [HttpGet("GetImage")]
+  public async Task<ActionResult> GetImage(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
+  {
+    try
+    {
+      var cosa = await new dbContext().Photos
+        .Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Divisionid == divisionId && x.Contenderid == contenderId && 
+                    (photographerId == -1 || x.Photographerid == photographerId))
+        .OrderByDescending(x => x.Created)
+        .ToListAsync();
 
-  // [HttpGet("GetImage")]
-  // public IActionResult GetImage(string? param)
-  // {
-  //   try
-  //   {
-  //     if (param == null)
-  //       return BadRequest("No Image received");
-  //
-  //     var imagePath = Path.Combine("./Photos", param);
-  //
-  //     if (!System.IO.File.Exists(imagePath))
-  //     {
-  //       return NotFound();
-  //     }
-  //
-  //     var imageBytes = System.IO.File.ReadAllBytes(imagePath);
-  //
-  //     return File(imageBytes, "image/png");
-  //   }
-  //   catch (Exception e)
-  //   {
-  //     Serilog.Log.Error("Error Reading Photo", e);
-  //     return StatusCode(StatusCodes.Status500InternalServerError, "Error reading Image. See Internal Logs");
-  //   }
-  // }
+      if (!cosa.Any())
+        return NotFound();
+
+      var imagePath = Path.Combine("./Photos", cosa.First().StoredFileName);
+
+      if (!System.IO.File.Exists(imagePath))
+      {
+        return NotFound();
+      }
+
+      var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
+
+      return File(imageBytes, "image/png");
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error Reading Photo");
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error reading Image. See Internal Logs");
+    }
+  }
+
   private string GetFileName(int eventId, int challengeId, int divisionid, int contenderId, int photographerId) => $"{eventId}_{challengeId}_{divisionid}_{contenderId}_{photographerId}";
 
   private string GetPhotoURL(int eventId, int challengeId, int divisionId, int contenderId, int photographerId) =>

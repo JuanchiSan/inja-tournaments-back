@@ -25,6 +25,7 @@
 		<PackageReference Include="Syncfusion.Blazor.Buttons" Version="21.1.41" />
 		<PackageReference Include="Syncfusion.Blazor.Charts" Version="21.1.41" />
 		<PackageReference Include="Syncfusion.Blazor.Core" Version="21.1.41" />
+		<PackageReference Include="Syncfusion.Blazor.Cards" Version="21.1.41" />
 		<PackageReference Include="Syncfusion.Blazor.Data" Version="21.1.41" />
 		<PackageReference Include="Syncfusion.Blazor.Grid" Version="21.1.41" />
 		<PackageReference Include="Syncfusion.Blazor.Inputs" Version="21.1.41" />

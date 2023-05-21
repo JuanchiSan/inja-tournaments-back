@@ -86,6 +86,8 @@ public class UserChallengeCriteriaDTO
   public string? Judgementcriterianame { get; set; }
 
   public int? Divisionid { get; set; }
+  
+  public string? DivisionName { get; set; }
 
   public decimal? Maxscore { get; set; }
 

@@ -17,6 +17,10 @@ public partial class VUserschallengecriterion
 
     public int? ChallengeMinimumcontenders { get; set; }
 
+    public int? Ecdivisionid { get; set; }
+
+    public string? Ecddivisionname { get; set; }
+
     public int? Eventjudgechallengedivisionid { get; set; }
 
     public string? EventjudgechallengedivisionComment { get; set; }

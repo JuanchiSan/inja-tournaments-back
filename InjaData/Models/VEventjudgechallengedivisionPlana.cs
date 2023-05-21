@@ -29,5 +29,9 @@ public partial class VEventjudgechallengedivisionPlana
 
     public string? Divisionname { get; set; }
 
+    public int? Judgeid { get; set; }
+
     public string? Name { get; set; }
+
+    public int? Eventjudgechallengedivisionid { get; set; }
 }

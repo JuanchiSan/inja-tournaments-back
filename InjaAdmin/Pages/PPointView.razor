@@ -1,9 +1,39 @@
 ﻿@page "/PointView"
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
+@inject HttpClient httpClient
+@inject IJSRuntime JsRuntime
+
 @using Microsoft.EntityFrameworkCore
 
 <h3>PointView</h3>
+
+<SfDialog Height="600" Width="600" ResizeHandles="@(new[] { ResizeDirection.All })"
+          AllowDragging="true" EnableResize="true" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
+  <DialogTemplates>
+    <Header>
+      <table>
+        <tr>
+          <td>
+            <b>Challenge:</b>@_challengeName
+          </td>
+          <td>
+            <b>Contender:</b>@_contenderName
+          </td>
+        </tr>
+      </table>
+
+    </Header>
+    <Content>
+      <div style="height:500px;width:580px;overflow:scroll;">
+        <img src="@PhotoURL" alt="Image">
+      </div>
+    </Content>
+    <FooterTemplate>
+    </FooterTemplate>
+  </DialogTemplates>
+  <DialogEvents Closed="() => { PhotoDialogVisible = false; }"/>
+</SfDialog>
 
 <div>
   <div>
@@ -15,7 +45,7 @@
                       Width="550" PopupWidth="500"
                       DataSource="@(_lstEvents)">
             <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
-            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="() => { _eventChallengeId = null ; _divisionId = null;}" />
+            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="() => { _eventChallengeId = null; _divisionId = null;}"/>
           </SfComboBox>
         </td>
         <td>Challenge</td>
@@ -23,9 +53,9 @@
           <SfComboBox @ref="comboChallenges" @bind-Value="@_eventChallengeId" TValue="int?" TItem="EventChallengeInternal"
                       Width="550" PopupWidth="500"
                       DataSource="@(_lstChallenges)"
-                      Query="@(new Query().Where("eventid","equals",_eventId))">
+                      Query="@(new Query().Where("eventid", "equals", _eventId))">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="() => { _divisionId = null;}"/>
+            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="() => { _divisionId = null; }"/>
           </SfComboBox>
         </td>
         <td>Competition</td>
@@ -33,9 +63,9 @@
           <SfComboBox @ref="comboDivisions" @bind-Value="@_divisionId" TValue="int?" TItem="EventChallengeDivisionInternal"
                       Width="550" PopupWidth="500"
                       DataSource="@(_lstDivision)"
-                      Query="@(new Query().Where("eventchallengeid","equals", _eventChallengeId))">
+                      Query="@(new Query().Where("eventchallengeid", "equals", _eventChallengeId))">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeDivisionInternal.DivisionCompetition)" Value="@nameof(EventChallengeDivisionInternal.DivisionId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" />
+            <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal"/>
           </SfComboBox>
         </td>
       </tr>
@@ -54,8 +84,8 @@
         <GridSortColumns>
           <GridSortColumn Field="@nameof(VGroupUserpoint.Totalpoints)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
-      </GridSortSettings> 
-      <GridEvents OnActionBegin="@GridPointsActionBegin" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
+      </GridSortSettings>
+      <GridEvents CommandClicked="GridPointsCommandClick" OnActionBegin="@GridPointsActionBegin" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
       <GridColumns>
         <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
         <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderText="Not Evals" Width="150"/>
@@ -65,6 +95,7 @@
         <GridColumn HeaderText="Manage Records" Width="150">
           <GridCommandColumns>
             <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+            <GridCommandColumn Type="CommandButtonType.None" ButtonOption="@(new CommandButtonOptions { Content = "Photo" })"/>
           </GridCommandColumns>
         </GridColumn>
       </GridColumns>
@@ -73,11 +104,40 @@
 </div>
 
 @code {
+  string? _challengeName { get; set; }
+  string? _contenderName { get; set; }
+
+  bool PhotoDialogVisible { get; set; }
+  string PhotoURL { get; set; } = string.Empty;
 
   #region Grid
 
   SfGrid<VGroupUserpoint>? GridPoints { get; set; }
   List<VGroupUserpoint> _lstPoints = new();
+
+  private async Task GridPointsCommandClick(CommandClickEventArgs<VGroupUserpoint> obj)
+  {
+    var fila = await new dbContext().Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
+
+    if (fila != null)
+    {
+      var cosa = await new dbContext().Photos
+        .Where(x => x.Eventid == _eventId && x.Challengeid == 1 && x.Divisionid == _divisionId && x.Contenderid == obj.RowData.Contenderid)
+        .OrderByDescending(x => x.Created)
+        .ToListAsync();
+      if (!cosa.Any()) return; // mostrar cartel de que no hay foto
+      var elem = cosa.First();
+      PhotoURL = elem?.PhotoUrl;
+
+  //https://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId=1&challengeId=1&divisionid=1&contenderId=1&photographerId=3
+  //PhotoURL = "https://inja-api.guadcore.ar/api/Photographer/GetImage?eventId=1&challengeId=1&divisionId=1&contenderId=1";
+      PhotoURL = PhotoURL?.Replace("DownloadPhotoFile", "GetImage") ?? string.Empty;
+      _contenderName = obj.RowData.Contendername;
+      _challengeName = obj.RowData.Eventchallengename;
+      PhotoDialogVisible = true;
+  //await SetImageAsync((int)obj.RowData.Contenderid!, fila.Challengeid);
+    }
+  }
 
   private async Task GridPointsActionBegin(ActionEventArgs<VGroupUserpoint> obj)
   {
@@ -165,7 +225,7 @@
         EventId = y.Eventid
       })
       .ToListAsync();
-    
+
     _lstDivision = await new dbContext()
       .Eventchallengedivisions
       .Include(x => x.Division)
@@ -178,7 +238,7 @@
       })
       .ToListAsync();
   }
-  
+
   protected override async Task OnInitializedAsync()
   {
     await FillDS();

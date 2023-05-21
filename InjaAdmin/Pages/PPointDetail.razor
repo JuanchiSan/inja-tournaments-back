@@ -5,37 +5,49 @@
 
 <h3>@contenderName Details</h3>
 <div>
+  <table>
+    <tr>
+      <td>
+        <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>    
+      </td>
+      <td>
+        <SfButton @onclick="@OnSaveAllChanges" IsPrimary="true">Save All Changes</SfButton>
+      </td>
+    </tr>
+  </table>
   <div>
-    <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>
+    
   </div>
   <div>
-     <SfGrid @ref="@GridPoints" TValue="VUserpoint" ID="@nameof(GridPoints)"
-             AllowFiltering="true" AllowReordering="true" AllowResizing="true"  
-             AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-                Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
-                DataSource="@_lstPoints" >
-          <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-          <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
-          <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
-          <GridColumns>
-            <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Judge" Width="200"/>
-            <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Criteria" Width="150"/>
-            <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center"  Width="30"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2"  Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-            <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-            <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100"/>
-            <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100"/>
-            <GridColumn Field="@nameof(VUserpoint.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" Width="150"/>
-          </GridColumns>
-        </SfGrid>
+    <SfGrid @ref="@GridPoints" TValue="VUserpoint" ID="@nameof(GridPoints)"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true"
+            AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+            DataSource="@_lstPoints">
+      <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(VUserpoint.VupKey)" Visible="false" AllowEditing="false" IsPrimaryKey="true"/>
+        <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Judge" Width="200" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Criteria" Width="150" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Width="30" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" Width="150"/>
+        <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100" AllowEditing="false"/>
+      </GridColumns>
+    </SfGrid>
   </div>
 </div>
 
@@ -55,6 +67,56 @@
     navManager.NavigateTo("/PointView");    
   }
 
+  private void OnSaveAllChanges(MouseEventArgs obj)
+  {
+    var dbPoints = Helper.DB.Points
+      .Include(x => x.Eventjudgechallenge)
+      .Where(x => x.Userid == contenderId && x.Eventjudgechallenge.Divisionid == divisionId)
+      .ToList();
+    
+    foreach (var memItem in _lstPoints.ToArray())
+    {
+      bool itemOk = true;
+      var j = 1;
+      while (j <= memItem.Slotcant)
+      {
+        itemOk = itemOk && memItem.GetType().GetProperty($"Slot{j}")?.GetValue(memItem) != null;
+        j++;
+      }
+
+      if (!itemOk) continue;
+      
+      var dbPoint = dbPoints.FirstOrDefault(x => x.Userid == contenderId && x.Eventjudgechallengeid == memItem.Eventjudgechallengedivisionid);
+      
+      if (dbPoint == null) // es uno nuevo
+      {
+        dbPoint = new Point
+        {
+          Userid = (int)contenderId!,
+          Eventjudgechallengeid = (int)memItem.Eventjudgechallengedivisionid!
+        };
+        Helper.DB.Points.Add(dbPoint);
+      }
+      var i = 1;
+      while (i <= memItem.Slotcant)
+      {
+        dbPoint.GetType().GetProperty($"Slot{i}")?.SetValue(dbPoint, memItem.GetType().GetProperty($"Slot{i}")?.GetValue(memItem));
+        i++;
+      }
+      dbPoint.Comment = memItem.Comment;
+    }
+    
+    try
+    {
+      Helper.DB.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e,"Error Saving Points");
+    }
+    navManager.NavigateTo("/PointView");
+  }
+  
   private async Task GridToolbarClick(ClickEventArgs args)
   {
     if (GridPoints == null) return;
