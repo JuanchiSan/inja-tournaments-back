@@ -15,6 +15,8 @@ public partial class VUserpoint
 
     public int? Contenderid { get; set; }
 
+    public string? Contendernumber { get; set; }
+
     public string? Contendername { get; set; }
 
     public int? Competitiontypeid { get; set; }

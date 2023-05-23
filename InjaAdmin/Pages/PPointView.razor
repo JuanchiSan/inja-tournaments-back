@@ -5,6 +5,7 @@
 @inject IJSRuntime JsRuntime
 
 @using Microsoft.EntityFrameworkCore
+@using Blazored.SessionStorage
 
 <h3>PointView</h3>
 
@@ -55,8 +56,9 @@
                       DataSource="@(_lstChallenges)"
                       Query="@(new Query().Where("eventid", "equals", _eventId))">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="() => { _divisionId = null; }"/>
+            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="OnComboChallengeValueChange"/>
           </SfComboBox>
+          
         </td>
         <td>Competition</td>
         <td>
@@ -76,7 +78,8 @@
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true"
             AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
-            DataSource="@_lstPoints" Query="@GetPointsQuery()">
+            DataSource="@_lstPoints" 
+            Query="@GetPointsQuery()">
       <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
@@ -88,6 +91,7 @@
       <GridEvents CommandClicked="GridPointsCommandClick" OnActionBegin="@GridPointsActionBegin" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
       <GridColumns>
         <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderText="Number" Width="200"/> 
         <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderText="Not Evals" Width="150"/>
         <GridColumn Field="@nameof(VGroupUserpoint.Eval)" HeaderText="Evals" Width="150"/>
         <GridColumn Field="@nameof(VGroupUserpoint.Totalpoints)" HeaderText="Totalpoints" Width="150"/>
@@ -115,6 +119,38 @@
   SfGrid<VGroupUserpoint>? GridPoints { get; set; }
   List<VGroupUserpoint> _lstPoints = new();
 
+  private async Task FillLstDivision()
+  {
+    if (_eventChallengeId != null)
+    {
+      _lstDivision = await new dbContext()
+        .Eventchallengedivisions
+        .Include(x => x.Division)
+        .ThenInclude(y => y.Competitiontype)
+        .Where(x => x.Eventchallengeid == _eventChallengeId)
+        .Select(q => new EventChallengeDivisionInternal
+        {
+          DivisionId = q.Divisionid,
+          DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}",
+          EventChallengeId = q.Eventchallengeid
+        })
+        .ToListAsync();
+    }
+    if ((_divisionId == null && _lstDivision.Any()) || (_divisionId != null && _lstDivision.All(x => x.DivisionId != _divisionId)))
+    {
+      _divisionId = _lstDivision.First().DivisionId;
+    }
+  }
+  
+  private async Task OnComboChallengeValueChange(ChangeEventArgs<int?, EventChallengeInternal> obj)
+  {
+    await FillLstDivision();
+    if (comboDivisions != null) 
+      await comboDivisions.RefreshDataAsync();
+  //_divisionId = null;
+  }
+
+  
   private async Task GridPointsCommandClick(CommandClickEventArgs<VGroupUserpoint> obj)
   {
     var fila = await new dbContext().Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
@@ -161,9 +197,6 @@
     return new Query().Where("eventid", "equals", -1);
   }
 
-  /// <summary>
-  /// Event for Toolbar click for Grid Exporting
-  /// </summary>
   private async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
   {
     if (GridPoints == null) return;
@@ -189,20 +222,6 @@
 
   #region general
 
-  public class EventChallengeInternal
-  {
-    public int? EventChallengeId { get; set; }
-    public string? EventChallengeName { get; set; }
-    public int? EventId { get; set; }
-  }
-
-  public class EventChallengeDivisionInternal
-  {
-    public int? DivisionId { get; set; }
-    public string? DivisionCompetition { get; set; }
-    public int? EventChallengeId { get; set; }
-  }
-
   private async Task FillDS()
   {
     _lstEvents = await new dbContext()
@@ -226,17 +245,18 @@
       })
       .ToListAsync();
 
-    _lstDivision = await new dbContext()
-      .Eventchallengedivisions
-      .Include(x => x.Division)
-      .ThenInclude(y => y.Competitiontype)
-      .Select(q => new EventChallengeDivisionInternal
-      {
-        DivisionId = q.Divisionid,
-        DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}",
-        EventChallengeId = q.Eventchallengeid
-      })
-      .ToListAsync();
+    await FillLstDivision();
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (await sessionStorage.ContainKeyAsync(Helper.paramDetailPointView))
+    {
+      var tuple = await sessionStorage.GetItemAsync<Tuple<int, string, int, int, int>>(Helper.paramDetailPointView);
+      _eventId = tuple.Item3;
+      _eventChallengeId = tuple.Item4;
+      _divisionId = tuple.Item5;
+    }
   }
 
   protected override async Task OnInitializedAsync()
@@ -266,5 +286,19 @@
   List<EventChallengeDivisionInternal> _lstDivision = new();
 
   #endregion
+
+  public class EventChallengeInternal
+  {
+    public int? EventChallengeId { get; set; }
+    public string? EventChallengeName { get; set; }
+    public int? EventId { get; set; }
+  }
+
+  public class EventChallengeDivisionInternal
+  {
+    public int? DivisionId { get; set; }
+    public string? DivisionCompetition { get; set; }
+    public int? EventChallengeId { get; set; }
+  }
 
 }

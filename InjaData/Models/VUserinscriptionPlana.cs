@@ -11,6 +11,8 @@ public partial class VUserinscriptionPlana
 
     public string? Firstname { get; set; }
 
+    public string? Contendername { get; set; }
+
     public string? Phone { get; set; }
 
     public string? Mail { get; set; }
@@ -31,11 +33,13 @@ public partial class VUserinscriptionPlana
 
     public string? Divisionname { get; set; }
 
+    public int? Competitiontypeid { get; set; }
+
+    public string? Competitiontypename { get; set; }
+
     public int? Challengeid { get; set; }
 
     public string? Eventchallengename { get; set; }
 
     public int? Eventid { get; set; }
-
-    public string? Contendername { get; set; }
 }

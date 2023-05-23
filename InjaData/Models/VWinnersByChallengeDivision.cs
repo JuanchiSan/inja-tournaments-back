@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace InjaData.Models;
 
-public partial class VGroupUserpoint
+public partial class VWinnersByChallengeDivision
 {
-    public int? Eventid { get; set; }
-
     public int? Eventchallengeid { get; set; }
 
     public string? Eventchallengename { get; set; }
@@ -21,11 +19,7 @@ public partial class VGroupUserpoint
 
     public string? Contendernumber { get; set; }
 
-    public long? NotEval { get; set; }
-
-    public long? Eval { get; set; }
-
     public decimal? Totalpoints { get; set; }
 
-    public decimal? Maxscore { get; set; }
+    public long? Rank { get; set; }
 }

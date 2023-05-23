@@ -5,7 +5,7 @@
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
 
-<h3 class="print-hide">Contenders</h3>
+<h3 class="print-hide">QRs By Chanllenges</h3>
 
 <div>
   <div class="print-hide">
@@ -17,23 +17,31 @@
     </SfComboBox>
   </div>
   <div class="print-hide">
-    <span>Contender</span>
-    <SfComboBox @bind-Value="@(_eventchallengeId)" TValue="int?" TItem="VEventchallengedivisionPlana"
-                Width="350" PopupWidth="350" DataSource="@(_lstECDPlana)"
+    <span>Challenges</span>
+    <SfComboBox @bind-Value="@(_challengeDivisionKey)" TValue="string?" TItem="InternalChallengeDivision"
+                Width="350" PopupWidth="350" DataSource="@(_lstChallengeDivision)"
                 Query="@(new Query().Where("eventid", "equals", _eventId))">
-      <ComboBoxFieldSettings Text="@nameof(VEventchallengedivisionPlana.Challengename)" Value="@nameof(VEventchallengedivisionPlana.Eventchallengeid)"/>
-      <ComboBoxEvents TValue="int?" TItem="VEventchallengedivisionPlana" ValueChange="@OnEventChallengeDivisionValueChange"/>
+      <ComboBoxFieldSettings Text="@nameof(InternalChallengeDivision.ChallengeDivisionName)" Value="@nameof(InternalChallengeDivision.Key)"/>
+      <ComboBoxEvents TValue="string?" TItem="InternalChallengeDivision" ValueChange="@OnEventChallengeDivisionValueChange"/>
     </SfComboBox>
   </div>
   <div class="section">
     <h2 class="print-hide section-title">QR List</h2>
     <p class="print-hide helper">(Press Ctrl+P to print the complete listing)</p>
   </div>
+  @{
+      if (_lstUsersToPrint is {Count: > 0} && _lstUsersToPrint.Count>PageSize)
+      {
+        <div>
+          <SfPager @ref="@Page" PageSize="@PageSize" TotalItemsCount="_lstUsersToPrint.Count" ItemClick="HandleNumericClick"/>
+        </div>
+      }
+    }
   <div class="user-list">
     @{
       if (_lstUsersToPrint is {Count: > 0 })
       {
-        foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber))
+        foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber).Skip(_skipValue).Take(_takeValue))
         {
           var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}";
           <div class="user-data">
@@ -91,26 +99,45 @@
 </style>
 
 @code {
-  
+
   int? _eventId { get; set; }
-  int? _eventchallengeId { get; set; }
   List<Event>? _lstEvents { get; set; }
 
   List<VUserinscriptionPlana>? _lstUsersToPrint { get; set; }
-  List<VEventchallengedivisionPlana>? _lstECDPlana { get; set; }
+  string? _challengeDivisionKey { get; set; }
+  List<InternalChallengeDivision>? _lstChallengeDivision { get; set; }
+
+  SfPager? Page;
   
+  //public int pageSize { get; set; }
+  private readonly int PageSize = 20;
+  private int _skipValue;
+  private int _takeValue = 20;
+
+  private void HandleNumericClick(PagerItemClickEventArgs args)
+  {
+    _skipValue = (args.CurrentPage * Page!.PageSize) - Page.PageSize;
+    _takeValue = Page.PageSize;
+  }
+
   private void FillDataSources()
   {
-    _lstUsersToPrint = null;
-
+    _lstChallengeDivision = null;
     if (_eventId == null) return;
-    var temp = Helper.DB
-      .VUserinscriptionPlanas
+    _lstChallengeDivision = Helper.DB
+      .VEventchallengedivisionPlanas
       .Where(x => x.Eventid == _eventId)
-      .Select(x => Tuple.Create(x.Userid, x.Contendername))
+      .Select(y => new InternalChallengeDivision
+      {
+        EventId = (int)y.Eventid!,
+        ChallengeId = (int)y.Challengeid!,
+        DivisionId = (int)y.Divisionid!,
+        EventChallengeId = (int)y.Eventchallengeid!,
+        ChallengeDivisionName = $"{y.Eventchallengename} - {y.Divisionname}"
+      })
+      .Distinct()
       .ToList()
-      .Distinct();
-        
+      .OrderBy(z => z.ChallengeDivisionName).ToList();
   }
 
   protected override void OnInitialized()
@@ -131,29 +158,32 @@
     StateHasChanged();
   }
 
-  private void OnEventChallengeDivisionValueChange(ChangeEventArgs<int?, VEventchallengedivisionPlana> args)
+  private void OnEventChallengeDivisionValueChange(ChangeEventArgs<string?, InternalChallengeDivision> args)
   {
     _lstUsersToPrint = null;
-    // if (_contenderId != null)
-    // {
-    //   _lstUsersToPrint = Helper.DB
-    //     .VUserinscriptionPlanas
-    //     .Where(x => x.Userid == _contenderId)
-    //     .ToList();
-    // }
+    if (args.ItemData != null)
+      _lstUsersToPrint = Helper.DB.VUserinscriptionPlanas
+        .Where(x => x.Eventchallengeid == args.ItemData.EventChallengeId && x.Divisionid == args.ItemData.DivisionId)
+        .ToList();
+
     StateHasChanged();
   }
-  
+
   #endregion
 
 }
 
 @code {
 
-  public class InternalContender
+  public class InternalChallengeDivision
   {
-    public int ContenderId { get; set; }
-    public string ContenderName { get; set; } = string.Empty;
+    public string Key => $"{EventChallengeId}_{ChallengeId}_{DivisionId}";
+    public int EventId { get; set; }
+    public int EventChallengeId { get; set; }
+    public int ChallengeId { get; set; }
+    public int DivisionId { get; set; }
+
+    public string ChallengeDivisionName { get; set; } = string.Empty;
   }
 
 }

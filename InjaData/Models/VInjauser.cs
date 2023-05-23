@@ -15,6 +15,8 @@ public partial class VInjauser
 
     public string? Mail { get; set; }
 
+    public string? UserNumber { get; set; }
+
     public string? Typename { get; set; }
 
     public string? Eventname { get; set; }
