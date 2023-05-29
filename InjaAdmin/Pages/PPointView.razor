@@ -58,7 +58,7 @@
             <ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)"/>
             <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="OnComboChallengeValueChange"/>
           </SfComboBox>
-          
+
         </td>
         <td>Competition</td>
         <td>
@@ -78,7 +78,7 @@
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true"
             AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
-            DataSource="@_lstPoints" 
+            DataSource="@_lstPoints"
             Query="@GetPointsQuery()">
       <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
@@ -91,7 +91,7 @@
       <GridEvents CommandClicked="GridPointsCommandClick" OnActionBegin="@GridPointsActionBegin" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
       <GridColumns>
         <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderText="Number" Width="200"/> 
+        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderText="Number" Width="200"/>
         <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderText="Not Evals" Width="150"/>
         <GridColumn Field="@nameof(VGroupUserpoint.Eval)" HeaderText="Evals" Width="150"/>
         <GridColumn Field="@nameof(VGroupUserpoint.Totalpoints)" HeaderText="Totalpoints" Width="150"/>
@@ -141,16 +141,27 @@
       _divisionId = _lstDivision.First().DivisionId;
     }
   }
-  
+
   private async Task OnComboChallengeValueChange(ChangeEventArgs<int?, EventChallengeInternal> obj)
   {
     await FillLstDivision();
-    if (comboDivisions != null) 
+    if (comboDivisions != null)
       await comboDivisions.RefreshDataAsync();
   //_divisionId = null;
   }
 
-  
+  private bool HasPhoto(int contenderId)
+  {
+    var fila = Helper.DB.Eventchallenges.FirstOrDefault(x => x.Id == _eventChallengeId);
+    if (fila == null) return false;
+    var dbResult = Helper.DB.Photos
+      .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == contenderId)
+      .OrderByDescending(x => x.Created)
+      .ToList();
+
+    return dbResult.Any() && dbResult.First().PhotoUrl != null;
+  }
+
   private async Task GridPointsCommandClick(CommandClickEventArgs<VGroupUserpoint> obj)
   {
     var fila = await new dbContext().Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
@@ -158,20 +169,20 @@
     if (fila != null)
     {
       var cosa = await new dbContext().Photos
-        .Where(x => x.Eventid == _eventId && x.Challengeid == 1 && x.Divisionid == _divisionId && x.Contenderid == obj.RowData.Contenderid)
+        .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == obj.RowData.Contenderid)
         .OrderByDescending(x => x.Created)
         .ToListAsync();
-      if (!cosa.Any()) return; // mostrar cartel de que no hay foto
-      var elem = cosa.First();
-      PhotoURL = elem?.PhotoUrl;
-
-  //https://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId=1&challengeId=1&divisionid=1&contenderId=1&photographerId=3
-  //PhotoURL = "https://inja-api.guadcore.ar/api/Photographer/GetImage?eventId=1&challengeId=1&divisionId=1&contenderId=1";
-      PhotoURL = PhotoURL?.Replace("DownloadPhotoFile", "GetImage") ?? string.Empty;
+      
+      if (!cosa.Any()|| cosa.First().PhotoUrl == null) 
+      {
+        await JsRuntime.InvokeVoidAsync("alert", "No hay foto para este registro");
+        return; // mostrar cartel de que no hay foto
+      }
+   
+      PhotoURL = cosa.First().PhotoUrl!.Replace("DownloadPhotoFile", "GetImage") ?? string.Empty;
       _contenderName = obj.RowData.Contendername;
       _challengeName = obj.RowData.Eventchallengename;
       PhotoDialogVisible = true;
-  //await SetImageAsync((int)obj.RowData.Contenderid!, fila.Challengeid);
     }
   }
 

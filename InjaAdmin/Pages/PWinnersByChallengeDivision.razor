@@ -15,15 +15,16 @@
 				<GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Rank)"/>
 			</GridSortColumns>
 		</GridSortSettings>
+		<GridGroupSettings Columns="@(new []{nameof(VWinnersByChallengeDivision.Eventchallengename), nameof(VWinnersByChallengeDivision.Divisionname)})"/>
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
 		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="VWinnersByChallengeDivision"/>
 		<GridColumns>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)" HeaderText="Challenge" Width="150"/>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)" HeaderText="Division" Width="150"/>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendername)" HeaderText="Contender" Width="250"/>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendernumber)" HeaderText="Number" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70"/>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Totalpoints)" HeaderText="Points" Format="N2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70"/>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Rank)" HeaderText="Rank" Format="N0" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70"/>
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)" HeaderText="Challenge"	Width="150" />
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)"				HeaderText="Division"		Width="150" />
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendername)"			HeaderText="Contender"	Width="250" />
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendernumber)"		HeaderText="Number"		HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70" />
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Totalpoints)"				HeaderText="Points"		HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="70" />
+			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Rank)"								HeaderText="Rank"			HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="70" />
 		</GridColumns>
 	</SfGrid>
 </div>
@@ -36,7 +37,6 @@
 	{
 		_lstWinners = Helper.DB.VWinnersByChallengeDivisions.ToList();
 	}
-
 
 	private async Task GridToolbarClick(ClickEventArgs args)
 	{
