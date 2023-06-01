@@ -64,7 +64,7 @@
   
   private void OnGoBackClick(MouseEventArgs obj)
   {
-    navManager.NavigateTo("/PointView");    
+    navManager.NavigateTo($"/PointView?eid={eventId}&ecid={eventchallengeId}&did={divisionId}");
   }
 
   private void OnSaveAllChanges(MouseEventArgs obj)

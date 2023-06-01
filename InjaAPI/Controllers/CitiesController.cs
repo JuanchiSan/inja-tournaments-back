@@ -24,6 +24,7 @@ public class CitiesController : ControllerBase
 	}
 
 	// GET: api/Cities
+	[AllowAnonymous]
 	[HttpGet]
 	public async Task<ActionResult<IEnumerable<CityDTO>>> GetCities()
 	{
@@ -45,6 +46,7 @@ public class CitiesController : ControllerBase
 	}
 
 	// GET: api/Cities/5
+	[AllowAnonymous]
 	[HttpGet("{id}")]
 	public async Task<ActionResult<CityDTO>> GetCity(int id)
 	{

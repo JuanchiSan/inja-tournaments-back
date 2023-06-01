@@ -31,6 +31,7 @@ public class DoctypesController : ControllerBase
 
 	// GET: api/Doctypes
 	[HttpGet]
+	[AllowAnonymous]
 	public async Task<ActionResult<IEnumerable<DoctypeDTO>>> GetDoctypes()
 	{
 		return await _context.Doctypes.ProjectTo<DoctypeDTO>(_mapper.ConfigurationProvider).ToListAsync();
@@ -38,6 +39,7 @@ public class DoctypesController : ControllerBase
 
 	// GET: api/Doctypes/5
 	[HttpGet("{id}")]
+	[AllowAnonymous]
 	public async Task<ActionResult<DoctypeDTO>> GetDoctype(short id)
 	{
 		var doctype = await _context.Doctypes.FirstOrDefaultAsync(x => x.Id == id);

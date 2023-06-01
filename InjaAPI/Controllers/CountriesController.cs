@@ -25,12 +25,14 @@ public class CountriesController : ControllerBase
 
   // GET: api/Countries
   [HttpGet]
+  [AllowAnonymous]
   public async Task<ActionResult<IEnumerable<CountryDTO>>> GetCountries()
   {
     return await _context.Countries.ProjectTo<CountryDTO>(_mapper.ConfigurationProvider).ToListAsync();
   }
 
   // GET: api/Countries/5
+  [AllowAnonymous]
   [HttpGet("{id}")]
   public async Task<ActionResult<CountryDTO>> GetCountry(short id)
   {

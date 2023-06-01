@@ -33,6 +33,10 @@ public partial class Point
 
     public decimal? Totalpoints { get; set; }
 
+    public DateTime CreationDate { get; set; }
+
+    public DateTime? ModifiedDate { get; set; }
+
     public virtual Eventjudgechallengedivision Eventjudgechallenge { get; set; } = null!;
 
     public virtual Injauser User { get; set; } = null!;

@@ -28,4 +28,8 @@ public partial class VGroupUserpoint
     public decimal? Totalpoints { get; set; }
 
     public decimal? Maxscore { get; set; }
+
+    public decimal? Deductions { get; set; }
+
+    public decimal? FinalPoint { get; set; }
 }

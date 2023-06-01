@@ -100,7 +100,8 @@ public partial class dbContext : DbContext
     public virtual DbSet<VmNailCupInscription> VmNailCupInscriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(Helper.CS);
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=10.99.98.11; Database=Naily; Username=postgres; Password=Qwert.789");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -713,6 +714,13 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Comment)
                 .HasMaxLength(200)
                 .HasColumnName("comment");
+            entity.Property(e => e.CreationDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creationDate");
+            entity.Property(e => e.ModifiedDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("modifiedDate");
             entity.Property(e => e.Slot1)
                 .HasPrecision(5, 2)
                 .HasColumnName("slot1");
@@ -1118,6 +1126,7 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Contendernumber)
                 .HasMaxLength(10)
                 .HasColumnName("contendernumber");
+            entity.Property(e => e.Deductions).HasColumnName("deductions");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Divisionname)
                 .HasMaxLength(200)
@@ -1128,6 +1137,7 @@ public partial class dbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("eventchallengename");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.FinalPoint).HasColumnName("final_point");
             entity.Property(e => e.Maxscore).HasColumnName("maxscore");
             entity.Property(e => e.NotEval).HasColumnName("not_eval");
             entity.Property(e => e.Totalpoints).HasColumnName("totalpoints");

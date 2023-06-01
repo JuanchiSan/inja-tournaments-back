@@ -24,6 +24,7 @@ public class UserController : ControllerBase
   }
 
   [HttpGet("GetUsers")]
+  [AllowAnonymous]
   public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
   {
     try
@@ -38,6 +39,7 @@ public class UserController : ControllerBase
 
   // GET: api/UserByEmail/jperez@pepe
   [HttpGet("UserByEmail/{email}")]
+  [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetPersonByEmail(string email)
   {
     var person =
@@ -52,6 +54,7 @@ public class UserController : ControllerBase
   }
 
   [HttpGet("{id}")]
+  [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetUser(int id)
   {
     var dbItem = await _context.Injausers.FirstOrDefaultAsync(x => x.Id == id);
@@ -64,8 +67,8 @@ public class UserController : ControllerBase
     return _mapper.Map<UserDTO>(dbItem);
   }
 
-  [AllowAnonymous]
   [HttpGet("GetContenderPoints")]
+  [AllowAnonymous]
   public async Task<ActionResult<List<ContenderPointsResponseDTO>>> GetContenderPoints(int eventId, int challengeid, int divisionId, int contenderId)
   {
     try
@@ -134,27 +137,27 @@ public class UserController : ControllerBase
   //   return Ok();
   // }
 
-  [HttpPost("AddUser")]
-  public async Task<ActionResult<UserDTO>> AddUser(UserDTO? aUser)
-  {
-    if (aUser == null)
-    {
-      return BadRequest("Empty User received");
-    }
-
-    var userdb = _mapper.Map<Injauser>(aUser);
-
-    _context.Injausers.Add(userdb);
-    try
-    {
-      await _context.SaveChangesAsync();
-    }
-    catch (Exception e)
-    {
-      Serilog.Log.Error(e, "Error Adding User");
-      return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
-    }
-
-    return CreatedAtAction("AddUser", new { id = aUser.Id }, aUser);
-  }
+  // [HttpPost("AddUser")]
+  // public async Task<ActionResult<UserDTO>> AddUser(UserDTO? aUser)
+  // {
+  //   if (aUser == null)
+  //   {
+  //     return BadRequest("Empty User received");
+  //   }
+  //
+  //   var userdb = _mapper.Map<Injauser>(aUser);
+  //
+  //   _context.Injausers.Add(userdb);
+  //   try
+  //   {
+  //     await _context.SaveChangesAsync();
+  //   }
+  //   catch (Exception e)
+  //   {
+  //     Serilog.Log.Error(e, "Error Adding User");
+  //     return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+  //   }
+  //
+  //   return CreatedAtAction("AddUser", new { id = aUser.Id }, aUser);
+  // }
 }
