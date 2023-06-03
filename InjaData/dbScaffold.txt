@@ -1,2 +1,2 @@
 ﻿Scaffold-DbContext "Host=10.99.98.11; Database=Naily; Username=postgres; Password=Qwert.789" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -context dbContext -force
-dotnet ef dbcontext scaffold "Host=10.99.98.11; Database=Naily; Username=postgres; Password=Qwert.789" Npgsql.EntityFrameworkCore.PostgreSQL --output-dir Models --context dbContext --force
+dotnet ef dbcontext scaffold "Host=10.10.12.11; Database=Naily; Username=postgres; Password=Qwert.789" Npgsql.EntityFrameworkCore.PostgreSQL --output-dir Models --context dbContext --force

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace InjaData.Models;
 
@@ -100,8 +98,7 @@ public partial class dbContext : DbContext
     public virtual DbSet<VmNailCupInscription> VmNailCupInscriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=10.99.98.11; Database=Naily; Username=postgres; Password=Qwert.789");
+        => optionsBuilder.UseNpgsql(Helper.CS);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1119,6 +1116,8 @@ public partial class dbContext : DbContext
                 .HasNoKey()
                 .ToView("v_group_userpoint");
 
+            entity.Property(e => e.CantPhotos).HasColumnName("cant_photos");
+            entity.Property(e => e.Challengeid).HasColumnName("challengeid");
             entity.Property(e => e.Contenderid).HasColumnName("contenderid");
             entity.Property(e => e.Contendername)
                 .HasMaxLength(200)

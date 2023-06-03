@@ -71,11 +71,10 @@
   </div>
   <div>
     <SfGrid @ref="@GridPoints" TValue="VGroupUserpoint" ID="@nameof(GridPoints)"
-            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true"
             AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
             DataSource="@_lstPoints">
-      <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
       <GridSortSettings>
@@ -83,26 +82,32 @@
           <GridSortColumn Field="@nameof(VGroupUserpoint.Totalpoints)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents CommandClicked="GridPointsCommandClick" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
+      <GridEvents CommandClicked="GridPointsCommandClick" RowDataBound="Callback" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
       <GridColumns>
         <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderText="Number" Width="200"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderText="Not Evals" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Eval)" HeaderText="Evals" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Totalpoints)" HeaderText="Total Points" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Deductions)" HeaderText="Deductions" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.FinalPoint)" HeaderText="Final Points" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Maxscore)" HeaderText="Maxscore" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Number" Width="200"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Not Evals" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Eval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Evals" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Totalpoints)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Total Points" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Deductions)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Deductions" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.FinalPoint)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Final Points" Width="150"/>
+        <GridColumn Field="@nameof(VGroupUserpoint.Maxscore)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Maxscore" Width="150"/>
         <GridColumn HeaderText="Manage Records" Width="150">
           <GridCommandColumns>
             <GridCommandColumn Type="CommandButtonType.None" ID="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
-            <GridCommandColumn Type="CommandButtonType.None" ID="Photo" ButtonOption="@(new CommandButtonOptions { Content = "Photo" })"/>
+            <GridCommandColumn Type="CommandButtonType.None" ID="Photo" ButtonOption="@(new CommandButtonOptions { Content = "Photo", CssClass = "e-photo" })"/>
           </GridCommandColumns>
         </GridColumn>
       </GridColumns>
     </SfGrid>
   </div>
 </div>
+
+<style>
+    .e-removeEditcommand .e-unboundcell .e-unboundcelldiv button.e-photo {
+        display: none;
+    }
+</style>
 
 @code {
   string? _challengeName { get; set; }
@@ -115,6 +120,14 @@
 
   SfGrid<VGroupUserpoint>? GridPoints { get; set; }
   List<VGroupUserpoint> _lstPoints = new();
+
+  private void Callback(RowDataBoundEventArgs<VGroupUserpoint> obj)
+  {
+    if (obj.Data.CantPhotos == 0)
+    {
+      obj.Row.AddClass(new [] { "e-removeEditcommand" });
+    }
+  }
 
   private bool HasPhoto(int contenderId)
   {
@@ -292,6 +305,8 @@
   {
     if (_eventChallengeId == null) return;
 
+    var oldDivId = _divisionId;
+    
     _lstDivision = await new dbContext()
       .Eventchallengedivisions
       .Include(x => x.Division)
@@ -309,6 +324,8 @@
     {
       _divisionId = _lstDivision.First().DivisionId;
     }
+    if (oldDivId != null && oldDivId == _divisionId) // tengo que refrescar la lista de puntos;
+      await FillPoints();
   }
 
   #endregion

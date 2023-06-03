@@ -1,5 +1,6 @@
 ﻿@page "/PointDetail"
 @using Microsoft.EntityFrameworkCore
+@using Action = Syncfusion.Blazor.Grids.Action
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 
@@ -8,7 +9,7 @@
   <table>
     <tr>
       <td>
-        <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>    
+        <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>
       </td>
       <td>
         <SfButton @onclick="@OnSaveAllChanges" IsPrimary="true">Save All Changes</SfButton>
@@ -16,7 +17,10 @@
     </tr>
   </table>
   <div>
-    
+
+  </div>
+  <div>
+    <span>Points</span>
   </div>
   <div>
     <SfGrid @ref="@GridPoints" TValue="VUserpoint" ID="@nameof(GridPoints)"
@@ -49,10 +53,88 @@
       </GridColumns>
     </SfGrid>
   </div>
+  <div>
+    <span>Deductions</span>
+  </div>
+  <div>
+    <SfGrid @ref="@GridDeductions" TValue="Deduction" ID="@nameof(GridDeductions)"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+            DataSource="@_lstDeductions">
+      <GridEditSettings AllowEditing="true" AllowDeleting="true" AllowAdding="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridEvents OnActionBegin="@GridDeductionActionBegin" OnToolbarClick="@GridDeductionsToolbarClick" TValue="Deduction"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(Deduction.Deductionid)" HeaderText="Deduction" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N0" Width="100" AllowEditing="false" IsPrimaryKey="true" AllowAdding="false"/>
+        <GridColumn Field="@nameof(Deduction.Score)" HeaderText="Deduction" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="120" AllowEditing="true"/>
+        <GridForeignColumn TValue="VInjauser" Field="@nameof(Deduction.Supuserid)" HeaderText="Judge" Width="200"
+                           ForeignDataSource="@_lstJudges" ForeignKeyField="@nameof(VInjauser.Injauserid)" ForeignKeyValue="@nameof(VInjauser.Injausername)"/>
+        <GridColumn Field="@nameof(VDeduction.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" MinWidth="350" AutoFit="true"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
 </div>
 
 
 @code {
+
+  #region Deductions
+
+  SfGrid<Deduction>? GridDeductions { get; set; }
+  List<Deduction>? _lstDeductions { get; set; }
+  List<VInjauser>? _lstJudges { get; set; }
+
+  private void FillLstDeductions()
+  {
+    _lstJudges = Helper.DB.VInjausers.Where(x => x.Eventid == eventId && x.Usertypeid == 6).ToList();
+    _lstDeductions = Helper.DB
+      .Deductions
+      .Where(x => x.Cuserid == contenderId && x.Cdivisionid == divisionId && x.Ceventid == eventId && x.Ceventchallengeid == eventchallengeId)
+      .ToList();
+  }
+
+  private void GridDeductionActionBegin(ActionEventArgs<Deduction> obj)
+  {
+    if (_lstDeductions == null || _lstJudges == null || !_lstJudges.Any()) return;
+    switch (obj.RequestType)
+    {
+      case Action.Add:
+        var nro = !_lstDeductions.Any() ? 1 : _lstDeductions.Max(x => x.Deductionid) + 1;
+        obj.RowData.Deductionid = nro;
+        obj.RowData.Cdivisionid = Convert.ToInt32(divisionId);
+        obj.RowData.Ceventchallengeid = Convert.ToInt32(eventchallengeId);
+        obj.RowData.Cuserid = Convert.ToInt32(contenderId);
+        obj.RowData.Ceventid = Convert.ToInt32(eventId);
+        obj.RowData.Ctypeid = 1;
+        obj.RowData.Supeventid = Convert.ToInt32(eventId);
+        obj.RowData.Score = 5;
+        obj.RowData.Supuserid = Convert.ToInt32(_lstJudges.FirstOrDefault()!.Injauserid);
+        obj.RowData.Suptypeid = 6;
+        break;
+      case Action.Delete:
+        break;
+    }
+  }
+
+  private async Task GridDeductionsToolbarClick(ClickEventArgs args)
+  {
+    if (GridPoints == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GridDeductions)}_excelexport":
+        await GridPoints.ExportToExcelAsync();
+        break;
+      case $"{nameof(GridDeductions)}_pdfexport":
+        await GridPoints.ExportToPdfAsync(new PdfExportProperties { PageSize = PdfPageSize.A4, PageOrientation = PageOrientation.Landscape });
+        break;
+      case $"{nameof(GridDeductions)}_csvexport":
+        await GridPoints.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  #endregion
+
   SfGrid<VUserpoint>? GridPoints { get; set; }
   private int? contenderId { get; set; }
   private int? eventId { get; set; }
@@ -61,7 +143,7 @@
   private string? contenderName { get; set; }
   private List<VUserpoint> _lstPoints = new();
   private string? ContenderName;
-  
+
   private void OnGoBackClick(MouseEventArgs obj)
   {
     navManager.NavigateTo($"/PointView?eid={eventId}&ecid={eventchallengeId}&did={divisionId}");
@@ -73,7 +155,7 @@
       .Include(x => x.Eventjudgechallenge)
       .Where(x => x.Userid == contenderId && x.Eventjudgechallenge.Divisionid == divisionId)
       .ToList();
-    
+
     foreach (var memItem in _lstPoints.ToArray())
     {
       bool itemOk = true;
@@ -85,9 +167,9 @@
       }
 
       if (!itemOk) continue;
-      
+
       var dbPoint = dbPoints.FirstOrDefault(x => x.Userid == contenderId && x.Eventjudgechallengeid == memItem.Eventjudgechallengedivisionid);
-      
+
       if (dbPoint == null) // es uno nuevo
       {
         dbPoint = new Point
@@ -105,18 +187,39 @@
       }
       dbPoint.Comment = memItem.Comment;
     }
-    
+
     try
     {
+      Helper.DB.Deductions.RemoveRange(
+        Helper.DB
+          .Deductions
+          .Where(x => x.Cuserid == contenderId && x.Cdivisionid == divisionId && x.Ceventid == eventId && x.Ceventchallengeid == eventchallengeId)
+        );
+      _lstDeductions?.ForEach(x => Helper.DB
+        .Deductions.Add(new Deduction
+        {
+          Ceventid = x.Ceventid,
+          Cdivisionid = x.Cdivisionid,
+          Cuserid = x.Cuserid,
+          Ceventchallengeid = x.Ceventchallengeid,
+          Ctypeid = x.Ctypeid,
+          Comment = x.Comment,
+          Creationdate = DateTime.Now,
+          Deductionid = x.Deductionid,
+          Score = x.Score,
+          Supeventid = x.Supeventid,
+          Supuserid = x.Supuserid,
+          Suptypeid = x.Suptypeid
+        }));
       Helper.DB.SaveChanges();
     }
     catch (Exception e)
     {
-      Serilog.Log.Error(e,"Error Saving Points");
+      Serilog.Log.Error(e, "Error Saving Points");
     }
-    navManager.NavigateTo("/PointView");
+    OnGoBackClick(obj);
   }
-  
+
   private async Task GridToolbarClick(ClickEventArgs args)
   {
     if (GridPoints == null) return;
@@ -135,7 +238,7 @@
   }
 
   private bool _cantslot10;
-  
+
   protected override async Task OnInitializedAsync()
   {
     try
@@ -151,6 +254,8 @@
         .ToListAsync();
 
       _cantslot10 = _lstPoints.Max(x => x.Slotcant) > 5;
+
+      FillLstDeductions();
     }
     catch (Exception e)
     {
@@ -158,4 +263,5 @@
       navManager.NavigateTo("/PointView");
     }
   }
+
 }

@@ -7,6 +7,8 @@ public partial class VGroupUserpoint
 {
     public int? Eventid { get; set; }
 
+    public int? Challengeid { get; set; }
+
     public int? Eventchallengeid { get; set; }
 
     public string? Eventchallengename { get; set; }
@@ -32,4 +34,6 @@ public partial class VGroupUserpoint
     public decimal? Deductions { get; set; }
 
     public decimal? FinalPoint { get; set; }
+
+    public long? CantPhotos { get; set; }
 }
