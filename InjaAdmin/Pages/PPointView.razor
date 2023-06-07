@@ -1,7 +1,7 @@
 ﻿@page "/PointView"
+
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
-@inject HttpClient httpClient
 @inject IJSRuntime JsRuntime
 
 @using Microsoft.EntityFrameworkCore
@@ -70,7 +70,7 @@
     </table>
   </div>
   <div>
-    <SfGrid @ref="@GridPoints" TValue="VGroupUserpoint" ID="@nameof(GridPoints)"
+    <SfGrid @ref="@GridPoints" TValue="VUserpointGroup" ID="@nameof(GridPoints)"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true"
             AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
@@ -79,19 +79,19 @@
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
       <GridSortSettings>
         <GridSortColumns>
-          <GridSortColumn Field="@nameof(VGroupUserpoint.Totalpoints)" Direction="SortDirection.Descending"/>
+          <GridSortColumn Field="@nameof(VUserpointGroup.Totalpoints)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents CommandClicked="GridPointsCommandClick" RowDataBound="Callback" OnToolbarClick="@GridToolbarClick" TValue="VGroupUserpoint"/>
+      <GridEvents CommandClicked="GridPointsCommandClick" RowDataBound="Callback" OnToolbarClick="@GridToolbarClick" TValue="VUserpointGroup"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VGroupUserpoint.Contendername)" HeaderText="Contender" Width="200"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Contendernumber)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Number" Width="200"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.NotEval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Not Evals" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Eval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Evals" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Totalpoints)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Total Points" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Deductions)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Deductions" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.FinalPoint)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Final Points" Width="150"/>
-        <GridColumn Field="@nameof(VGroupUserpoint.Maxscore)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Maxscore" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Contendername)" HeaderText="Contender" Width="200"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Contendernumber)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Number" Width="200"/>
+        <GridColumn Field="@nameof(VUserpointGroup.NotEval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Not Evals" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Eval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Evals" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Totalpoints)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Total Points" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Deductions)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Deductions" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.FinalPoint)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Final Points" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Maxscore)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Maxscore" Width="150"/>
         <GridColumn HeaderText="Manage Records" Width="150">
           <GridCommandColumns>
             <GridCommandColumn Type="CommandButtonType.None" ID="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
@@ -118,10 +118,10 @@
 
   #region Grid
 
-  SfGrid<VGroupUserpoint>? GridPoints { get; set; }
-  List<VGroupUserpoint> _lstPoints = new();
+  SfGrid<VUserpointGroup>? GridPoints { get; set; }
+  List<VUserpointGroup> _lstPoints = new();
 
-  private void Callback(RowDataBoundEventArgs<VGroupUserpoint> obj)
+  private void Callback(RowDataBoundEventArgs<VUserpointGroup> obj)
   {
     if (obj.Data.CantPhotos == 0)
     {
@@ -141,7 +141,7 @@
     return dbResult.Any() && dbResult.First().PhotoUrl != null;
   }
 
-  private async Task GridPointsCommandClick(CommandClickEventArgs<VGroupUserpoint> obj)
+  private async Task GridPointsCommandClick(CommandClickEventArgs<VUserpointGroup> obj)
   {
     var fila = await new dbContext().Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
 
@@ -199,7 +199,7 @@
     if (_eventChallengeId != null && _divisionId != null)
     {
       _lstPoints = await new dbContext()
-        .VGroupUserpoints
+        .VUserpointGroups
         .Where(x => x.Eventchallengeid == _eventChallengeId && x.Divisionid == _divisionId)
         .ToListAsync();
     }

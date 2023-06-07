@@ -3,55 +3,59 @@
 <h3>Winners By Challenge Division</h3>
 
 <div>
-	<SfGrid @ref="@DataGrid" TValue="VWinnersByChallengeDivision" ID="@nameof(DataGrid)"
-	        AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true"
-	        AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
-	        Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport" })"
-	        DataSource="@_lstWinners">
-		<GridSortSettings>
-			<GridSortColumns>
-				<GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)"/>
-				<GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)"/>
-				<GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Rank)"/>
-			</GridSortColumns>
-		</GridSortSettings>
-		<GridGroupSettings Columns="@(new []{nameof(VWinnersByChallengeDivision.Eventchallengename), nameof(VWinnersByChallengeDivision.Divisionname)})"/>
-		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="VWinnersByChallengeDivision"/>
-		<GridColumns>
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)" HeaderText="Challenge"	Width="150" />
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)"				HeaderText="Division"		Width="150" />
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendername)"			HeaderText="Contender"	Width="250" />
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendernumber)"		HeaderText="Number"		HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70" />
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Totalpoints)"				HeaderText="Points"		HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="70" />
-			<GridColumn Field="@nameof(VWinnersByChallengeDivision.Rank)"								HeaderText="Rank"			HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="70" />
-		</GridColumns>
-	</SfGrid>
+  <SfGrid @ref="@DataGrid" TValue="VWinnersByChallengeDivision" ID="@nameof(DataGrid)"
+          AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true"
+          AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
+          Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport" })"
+          DataSource="@_lstWinners">
+    <GridSortSettings>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)"/>
+        <GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)"/>
+        <GridSortColumn Field="@nameof(VWinnersByChallengeDivision.Rank)"/>
+      </GridSortColumns>
+    </GridSortSettings>
+    <GridGroupSettings Columns="@(new[] { nameof(VWinnersByChallengeDivision.Eventchallengename), nameof(VWinnersByChallengeDivision.Divisionname) })"/>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <GridEditSettings AllowAdding="false" AllowEditing="false"/>
+    <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VWinnersByChallengeDivision"/>
+    <GridColumns>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Eventchallengename)" HeaderText="Challenge" Width="150"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Divisionname)" HeaderText="Division" Width="150"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendername)" HeaderText="Contender" Width="250"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Contendernumber)" HeaderText="Number" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Width="70"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Totalpoints)" HeaderText="Points" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="70"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Deductions)" HeaderText="Deductions" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="70"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.FinalPoint)" HeaderText="Final" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="70"/>
+      <GridColumn Field="@nameof(VWinnersByChallengeDivision.Rank)" HeaderText="Rank" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="70"/>
+    </GridColumns>
+  </SfGrid>
 </div>
 
 @code {
-	SfGrid<VWinnersByChallengeDivision>? DataGrid { get; set; }
-	List<VWinnersByChallengeDivision>? _lstWinners { get; set; }
+  SfGrid<VWinnersByChallengeDivision>? DataGrid { get; set; }
+  List<VWinnersByChallengeDivision>? _lstWinners { get; set; }
 
-	protected override void OnInitialized()
-	{
-		_lstWinners = Helper.DB.VWinnersByChallengeDivisions.ToList();
-	}
+  protected override void OnInitialized()
+  {
+    _lstWinners = Helper.DB.VWinnersByChallengeDivisions.Where(x => x.Eventid == 1).ToList();
+  }
 
-	private async Task GridToolbarClick(ClickEventArgs args)
-	{
-		if (DataGrid == null) return;
-		switch (args.Item.Id)
-		{
-			case $"{nameof(DataGrid)}_excelexport":
-				await DataGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(DataGrid)}_pdfexport":
-				await DataGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(DataGrid)}_csvexport":
-				await DataGrid.ExportToCsvAsync();
-				break;
-		}
-	}
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (DataGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DataGrid)}_excelexport":
+        await DataGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DataGrid)}_pdfexport":
+        await DataGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DataGrid)}_csvexport":
+        await DataGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
 }

@@ -117,7 +117,7 @@ public class UserController : ControllerBase
         {
           result.Points.Add(Convert.ToDecimal(x.GetType().GetProperty($"Slot{i}")?.GetValue(x)));
         }
-        
+
         lstResult.Add(result);
       }
 
@@ -130,34 +130,119 @@ public class UserController : ControllerBase
     }
   }
 
-  // [AllowAnonymous]
-  // [HttpPost("RecoverUser")]
-  // public async Task<ActionResult> RecoverUser(string anEmail)
-  // {
-  //   return Ok();
-  // }
+  [HttpGet("GetContenderParticipation")]
+  [AllowAnonymous]
+  public async Task<ActionResult<UserParticipationDTO>> GetContenderParticipation(int contenderId)
+  {
+    var dbData = await _context.VUserpoints.Where(x => x.Contenderid == contenderId).ToListAsync();
 
-  // [HttpPost("AddUser")]
-  // public async Task<ActionResult<UserDTO>> AddUser(UserDTO? aUser)
-  // {
-  //   if (aUser == null)
-  //   {
-  //     return BadRequest("Empty User received");
-  //   }
-  //
-  //   var userdb = _mapper.Map<Injauser>(aUser);
-  //
-  //   _context.Injausers.Add(userdb);
-  //   try
-  //   {
-  //     await _context.SaveChangesAsync();
-  //   }
-  //   catch (Exception e)
-  //   {
-  //     Serilog.Log.Error(e, "Error Adding User");
-  //     return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
-  //   }
-  //
-  //   return CreatedAtAction("AddUser", new { id = aUser.Id }, aUser);
-  // }
+    var userPart = new UserParticipationDTO
+    {
+      ContenderId = contenderId,
+      ContenderNumber = Convert.ToInt32(dbData.First().Contendernumber),
+      Name = dbData.First().Contendername!
+    };
+
+    userPart.Events?.AddRange(dbData
+      .Select(x => new UserEventDTO
+      {
+        EventId = (int)x.Eventid!,
+        EventName = x.Eventname!
+      }).DistinctBy(y => y.EventId));
+
+    userPart.Events?.ForEach(ue =>
+    {
+      ue.UserCompetitions?
+        .AddRange(dbData
+          .Where(y => y.Eventid == ue.EventId)
+          .Select(z => new UserCompetitionsDTO
+          {
+            CompetitionId = (int)z.Competitiontypeid!,
+            CompetitionName = z.Competitiontypename!
+          })
+          .DistinctBy(d => d.CompetitionId)
+        );
+      foreach (var userCompetitionsDto in ue.UserCompetitions!)
+      {
+        userCompetitionsDto.Challenges?.AddRange(dbData
+          .Where(c => c.Eventid == ue.EventId && c.Competitiontypeid == userCompetitionsDto.CompetitionId)
+          .Select(c => new UserEventChallengesDTO
+          {
+            ChallengeId = (int)c.Challengeid!,
+            EventChallengeId = (int)c.Eventchallengeid!,
+            EventChallengeName = c.Eventchallengename ?? string.Empty
+          })
+          .DistinctBy(d => d.EventChallengeId)
+        );
+        foreach (var challengesDto in userCompetitionsDto.Challenges!)
+        {
+          challengesDto.Division?.AddRange(dbData
+            .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId && d.Eventchallengeid == challengesDto.EventChallengeId)
+            .Select(c => new UserEventChallengeDivisionDTO
+            {
+              DivisionId = (int)c.Divisionid!,
+              DivisionName = c.Divisionname!,
+              MaxPoints = (decimal)c.Maxscore!,
+              UserPoints = c.Totalpoints
+            })
+            .DistinctBy(d => d.DivisionId));
+
+          foreach (var divisionDto in challengesDto.Division!)
+          {
+            #region Deducciones
+
+            divisionDto.Deductions?.AddRange(
+              _context
+                .VDeductions
+                .Where(dbd => dbd.Contenderid == contenderId && dbd.Eventid == ue.EventId && dbd.Challengeid == challengesDto.ChallengeId)
+                .Select(s => new UserPointsDeductionsDTO
+                {
+                  DeductionId = (int)s.Deductionnumber!,
+                  JudgeId = (int)s.Judgeid!,
+                  JudgeName = s.Judgename!,
+                  Comment = s.Comment ?? string.Empty,
+                  Points = (decimal)s.Score!
+                }).ToList());
+
+            #endregion
+
+            #region Criterios
+
+            divisionDto.Points?.AddRange(dbData
+              .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId && d.Eventchallengeid == challengesDto.EventChallengeId &&
+                          d.Divisionid == divisionDto.DivisionId)
+              .Select(s => new UserEventChallengeCriteriasDTO
+              {
+                CriteriaId = (int)s.Criteriaid!,
+                CantSlots = (int)s.Slotcant!,
+                CriteriaName = s.Criterianame ?? string.Empty,
+                JudgeId = s.Judgeid,
+                JudgeName = s.Judgename,
+                UserPoints = s.Totalpoints,
+                MaxPoints = (int)s.Maxscore!
+              }).ToList());
+            foreach (var dtoPoint in divisionDto.Points!)
+            {
+              var dbFinalPoint = dbData
+                .FirstOrDefault(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId
+                                                             && d.Eventchallengeid == challengesDto.EventChallengeId && d.Divisionid == divisionDto.DivisionId && d.Criteriaid == dtoPoint.CriteriaId);
+              for (var i = 1; i <= dtoPoint.CantSlots; i++)
+              {
+                var value = dbFinalPoint?.GetType().GetProperty($"Slot{i}")?.GetValue(dbFinalPoint);
+                dtoPoint.Points?.Add(new UserPointsDTO
+                {
+                  SlotId = i,
+                  Points = (decimal?)value
+                });
+              }
+            }
+
+            #endregion
+          }
+        }
+      }
+    });
+
+    return userPart;
+  }
 }

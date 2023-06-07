@@ -72,4 +72,6 @@ public partial class VUserpoint
     public int? Hands { get; set; }
 
     public decimal? Slotstep { get; set; }
+
+    public string? Eventname { get; set; }
 }

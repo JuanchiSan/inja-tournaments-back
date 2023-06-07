@@ -1,44 +1,64 @@
 ﻿@page "/Challenge"
 
-<h3>Challenge</h3>
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+@inject HttpClient httpClient
+@inject IJSRuntime JsRuntime
+
+<h3>Challenge Types</h3>
 
 <div>
-	<SfGrid @ref="@DataGrid" TValue="Challengetype" ID="@nameof(DataGrid)"
-	        AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true" 
-	        AllowExcelExport="true" AllowPdfExport="true" 
-					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
-		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-		<SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
-		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
-		<GridColumns>
-			<GridColumn Field="@nameof(Challengetype.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
-			<GridColumn Field="@nameof(Challengetype.Name)" HeaderText="Name" Width="150"/>
-			<GridColumn Field="@nameof(Challengetype.Comment)" HeaderText="Comment" Width="250"/>
-			<GridColumn Field="@nameof(Challengetype.Isforteam)" HeaderText="Team" DisplayAsCheckBox="true" Width="70"/>
-			<GridColumn Field="@nameof(Challengetype.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="70"/>
-		</GridColumns>
-	</SfGrid>
+  <SfGrid @ref="@DataGrid" TValue="Challengetype" ID="@nameof(DataGrid)"
+          AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true"
+          AllowExcelExport="true" AllowPdfExport="true"
+          Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+    <GridEvents CommandClicked="CommandColumnClicked" OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
+    <GridColumns>
+      <GridColumn Field="@nameof(Challengetype.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
+      <GridColumn Field="@nameof(Challengetype.Name)" HeaderText="Name" Width="150"/>
+      <GridColumn Field="@nameof(Challengetype.Comment)" HeaderText="Comment" Width="250"/>
+      <GridColumn Field="@nameof(Challengetype.Isforteam)" HeaderText="Team" DisplayAsCheckBox="true" Width="70"/>
+      <GridColumn Field="@nameof(Challengetype.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="70"/>
+      <GridColumn HeaderText="Edit Criterias" Width="150">
+        <GridCommandColumns>
+          <GridCommandColumn Type="CommandButtonType.None" ID="Criterias" ButtonOption="@(new CommandButtonOptions { Content="Criterias", IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+        </GridCommandColumns>
+      </GridColumn>
+    </GridColumns>
+  </SfGrid>
 </div>
 
 
 @code {
-	SfGrid<Challengetype>? DataGrid { get; set; }
+  SfGrid<Challengetype>? DataGrid { get; set; }
 
-	private async Task GridToolbarClick(ClickEventArgs args)
-	{
-		if (DataGrid == null) return;
-		switch (args.Item.Id)
-		{
-			case $"{nameof(DataGrid)}_excelexport":
-				await DataGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(DataGrid)}_pdfexport":
-				await DataGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(DataGrid)}_csvexport":
-				await DataGrid.ExportToCsvAsync();
-				break;
-		}
-	}
+  private void CommandColumnClicked(CommandClickEventArgs<Challengetype> obj)
+  {
+    switch (obj.CommandColumn.ID)
+    {
+      case "Criterias":
+        navManager.NavigateTo($"/ChallengeCriterias/{obj.RowData.Id}");
+        break;
+    }
+  }
+  
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (DataGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DataGrid)}_excelexport":
+        await DataGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DataGrid)}_pdfexport":
+        await DataGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DataGrid)}_csvexport":
+        await DataGrid.ExportToCsvAsync();
+        break;
+    }
+  }
 }

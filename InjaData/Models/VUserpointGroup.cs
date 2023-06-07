@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace InjaData.Models;
 
-public partial class VGroupUserpoint
+public partial class VUserpointGroup
 {
     public int? Eventid { get; set; }
 
@@ -34,6 +34,18 @@ public partial class VGroupUserpoint
     public decimal? Deductions { get; set; }
 
     public decimal? FinalPoint { get; set; }
+
+    public decimal? Desempate1 { get; set; }
+
+    public long? Desempate10 { get; set; }
+
+    public long? Desempate9 { get; set; }
+
+    public long? Desempate8 { get; set; }
+
+    public long? Desempate7 { get; set; }
+
+    public long? Desempate6 { get; set; }
 
     public long? CantPhotos { get; set; }
 }

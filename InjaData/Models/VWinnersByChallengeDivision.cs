@@ -5,6 +5,8 @@ namespace InjaData.Models;
 
 public partial class VWinnersByChallengeDivision
 {
+    public int? Eventid { get; set; }
+
     public int? Eventchallengeid { get; set; }
 
     public string? Eventchallengename { get; set; }
@@ -20,6 +22,10 @@ public partial class VWinnersByChallengeDivision
     public string? Contendernumber { get; set; }
 
     public decimal? Totalpoints { get; set; }
+
+    public decimal? Deductions { get; set; }
+
+    public decimal? FinalPoint { get; set; }
 
     public long? Rank { get; set; }
 }

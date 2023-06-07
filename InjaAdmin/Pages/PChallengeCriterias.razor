@@ -1,0 +1,168 @@
+﻿@page "/ChallengeCriterias/{cid:int}"
+@using Action = Syncfusion.Blazor.Grids.Action
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject NavigationManager navManager
+
+
+<h3>Config Criterias in <b>@ChallengeName</b></h3>
+<div>
+  <div>
+    <table>
+      <tr>
+        <td>
+          <SfButton @onclick="@OnGoBackClick">Go Back</SfButton>
+        </td>
+        <td>
+          <SfButton @onclick="@OnSaveAllChanges" IsPrimary="true">Save All Changes</SfButton>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div>
+    <SfGrid @ref="@GridCriterias" TValue="Challengejuzmentcriterion" ID="@nameof(GridCriterias)"
+            AllowFiltering="true" AllowResizing="true" AllowSorting="true"
+            AllowExcelExport="true" AllowPdfExport="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })"
+            DataSource="@_lstData">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridEvents OnToolbarClick="@GridToolbarClick" OnActionBegin="OnGridActionBegin" TValue="Challengejuzmentcriterion"/>
+      <GridSortSettings>
+              <GridSortColumns>
+                <GridSortColumn Field="@nameof(Challengejuzmentcriterion.Criteriaid)" Direction="SortDirection.Ascending"/>
+              </GridSortColumns>
+            </GridSortSettings>
+      <GridColumns>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
+        <GridForeignColumn TValue="Judgmentcriterion" Field="@nameof(Challengejuzmentcriterion.Criteriaid)" HeaderText="Criteria" Width="150"
+                           ForeignDataSource="@_lstCriterias" ForeignKeyField="@nameof(Judgmentcriterion.Id)" ForeignKeyValue="@nameof(Judgmentcriterion.Name)"/>
+        <GridForeignColumn TValue="Division" Field="@nameof(Challengejuzmentcriterion.Divisionid)" HeaderText="Division" Width="150"
+                           ForeignDataSource="@_lstDivisions" ForeignKeyField="@nameof(Division.Id)" ForeignKeyValue="@nameof(Division.Name)"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Hands)" HeaderText="Hands" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotcant)" HeaderText="Slot Cant" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotstep)" HeaderText="Slot Step" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Maxscore)" HeaderText="Max Score" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+
+  </div>
+</div>
+
+
+@code {
+
+  [Parameter]
+  public int cid { get; set; }
+
+  private int CriteriaId { get; set; } = -1;
+  private SfGrid<Challengejuzmentcriterion>? GridCriterias { get; set; }
+  private List<Judgmentcriterion>? _lstCriterias { get; set; }
+  private List<Division>? _lstDivisions { get; set; }
+  private List<Challengejuzmentcriterion>? _lstData { get; set; }
+  private List<Challengejuzmentcriterion> _lstDataDeleted { get; set; } = new();
+
+  private void OnGoBackClick(MouseEventArgs obj)
+  {
+    navManager.NavigateTo($"/Challenge");
+  }
+
+  private void OnSaveAllChanges(MouseEventArgs obj)
+  {
+    var db = new InjaData.Models.dbContext();
+    var dbItems = db.Challengejuzmentcriteria.Where(x => x.Challengeid == cid).ToList();
+  // Primero los que hay que borrar
+    foreach (var item in _lstDataDeleted.Where(x => x.Id > 0))
+    {
+      db.Challengejuzmentcriteria.Remove(dbItems.Single(x => x.Id == item.Id));
+    }
+
+  // Luego Edito
+    foreach (var item in _lstData!)
+    {
+      Challengejuzmentcriterion? dbItem;
+      if (item.Id > 0)
+      {
+        dbItem = dbItems.Single(x => x.Id == item.Id);
+      }
+      else
+      {
+        dbItem = new Challengejuzmentcriterion
+        {
+          Challengeid = cid
+        };
+        db.Challengejuzmentcriteria.Add(dbItem);
+      }
+      dbItem.Criteriaid = item.Criteriaid;
+      dbItem.Divisionid = item.Divisionid;
+      dbItem.Maxscore = item.Maxscore;
+      dbItem.Hands = item.Hands;
+      dbItem.Rounds = item.Rounds;
+      dbItem.Slotcant = item.Slotcant;
+      dbItem.Slotstep = item.Slotstep;
+    }
+
+    try
+    {
+      db.SaveChanges();
+      navManager.NavigateTo($"/Challenge");
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error Saving Criterias");
+    }
+  }
+
+  private string ChallengeName { get; set; } = string.Empty;
+
+  private void FillDS()
+  {
+    ChallengeName = Helper.DB.Challengetypes.FirstOrDefault(x => x.Id == cid)?.Name!;
+    _lstCriterias = Helper.DB.Judgmentcriteria.OrderBy(x=>x.Name).ToList();
+    _lstDivisions = Helper.DB.Divisions.ToList();
+    _lstData = Helper.DB.Challengejuzmentcriteria.Where(x => x.Challengeid == cid).ToList();
+  }
+
+  protected override void OnInitialized()
+  {
+    FillDS();
+  }
+
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (GridCriterias == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GridCriterias)}_excelexport":
+        await GridCriterias.ExportToExcelAsync();
+        break;
+      case $"{nameof(GridCriterias)}_pdfexport":
+        await GridCriterias.ExportToPdfAsync(new PdfExportProperties { PageSize = PdfPageSize.A4, PageOrientation = PageOrientation.Landscape });
+        break;
+      case $"{nameof(GridCriterias)}_csvexport":
+        await GridCriterias.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void OnGridActionBegin(ActionEventArgs<Challengejuzmentcriterion> obj)
+  {
+    switch (obj.RequestType)
+    {
+      case Action.Add:
+        obj.RowData.Id = CriteriaId--;
+        obj.RowData.Challengeid = cid;
+        obj.RowData.Maxscore = 10;
+        obj.RowData.Slotcant = 5;
+        obj.RowData.Slotstep = 1;
+        obj.RowData.Hands = 1;
+        obj.RowData.Rounds = 1;
+        break;
+        
+      case Action.Delete:
+        _lstDataDeleted.Add(obj.RowData);
+        break;
+    }
+  }
+
+}
