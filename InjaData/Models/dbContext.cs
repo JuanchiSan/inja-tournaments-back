@@ -513,12 +513,6 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Urlphoto)
                 .HasMaxLength(200)
                 .HasColumnName("urlphoto");
-            entity.Property(e => e.UserNumber)
-                .HasMaxLength(10)
-                .HasColumnName("user_number");
-            entity.Property(e => e.Usertype)
-                .HasMaxLength(20)
-                .HasColumnName("usertype");
 
             entity.HasOne(d => d.City).WithMany(p => p.Injausers)
                 .HasForeignKey(d => d.Cityid)
@@ -540,6 +534,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Typeid).HasColumnName("typeid");
             entity.Property(e => e.Userid).HasColumnName("userid");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.UserNumber)
+                .HasMaxLength(10)
+                .HasColumnName("user_number");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Injauserusertypes)
                 .HasForeignKey(d => d.Eventid)
@@ -1118,17 +1115,31 @@ public partial class dbContext : DbContext
                 .HasNoKey()
                 .ToView("v_injauser");
 
+            entity.Property(e => e.Cityid).HasColumnName("cityid");
+            entity.Property(e => e.Docid).HasColumnName("docid");
+            entity.Property(e => e.Docnumber)
+                .HasMaxLength(20)
+                .HasColumnName("docnumber");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.Eventname)
                 .HasMaxLength(50)
                 .HasColumnName("eventname");
+            entity.Property(e => e.Firstname)
+                .HasMaxLength(80)
+                .HasColumnName("firstname");
             entity.Property(e => e.Injauserid).HasColumnName("injauserid");
             entity.Property(e => e.Injausername)
                 .HasMaxLength(200)
                 .HasColumnName("injausername");
+            entity.Property(e => e.Lastname)
+                .HasMaxLength(80)
+                .HasColumnName("lastname");
             entity.Property(e => e.Mail)
                 .HasMaxLength(100)
                 .HasColumnName("mail");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .HasColumnName("phone");
             entity.Property(e => e.Typename)
                 .HasMaxLength(50)
                 .HasColumnName("typename");

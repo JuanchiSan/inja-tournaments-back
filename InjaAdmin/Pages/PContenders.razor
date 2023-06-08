@@ -1,104 +1,233 @@
 ﻿@page "/Contenders"
 @using Microsoft.EntityFrameworkCore
+@using InjaDTO
+@using Microsoft.AspNetCore.WebUtilities
+@using Log = Serilog.Log
 
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <h3>Contenders</h3>
+
 <div>
-  Events
+  <table>
+    <tr>
+      <td style="width: 150px">
+        <span>Event:</span>
+      </td>
+      <td style="width: 400px">
+        <SfComboBox @ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                    PopupWidth="400" DataSource="@(_lstEvents)">
+          <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+          <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+        </SfComboBox>
+      </td>
+      @if (_eventId != null)
+      {
+        <td>
+          <span>Add User</span>
+        </td>
+        <td>
+          <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search" DataSource="@_lstDistinctUsers">
+            <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="Callback"/>
+            <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
+          </SfAutoComplete>
+        </td>
+        <td>
+          <SfButton Content="Add User" @onclick="@OnAddUserClick"></SfButton>
+        </td>
+      }
+    </tr>
+  </table>
 </div>
 <div>
-<SfComboBox ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
-            Width="550" PopupWidth="500"
-            DataSource="@(_lstEvents)">
-  <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
-  <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
-</SfComboBox>
-</div>
-<div>
-  <SfGrid @ref="ContenderGrid" TValue="Injauser" ID="@nameof(ContenderGrid)"
-          AllowFiltering="true" AllowReordering="true" AllowResizing="true"
-          AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+  <SfGrid @ref="ContenderGrid" TValue="UserDTO" ID="@nameof(ContenderGrid)"
+          AllowFiltering="true" AllowResizing="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
           Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
           DataSource="_lstUsers">
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
     <GridSortSettings>
       <GridSortColumns>
-        <GridSortColumn Field="@nameof(Injauser.Lastname)"/>
-        <GridSortColumn Field="@nameof(Injauser.Firstname)"/>
+        <GridSortColumn Field="@nameof(UserDTO.Lastname)"/>
+        <GridSortColumn Field="@nameof(UserDTO.Firstname)"/>
       </GridSortColumns>
     </GridSortSettings>
-    <GridEvents CommandClicked="OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="Injauser"/>
+    <GridEvents CommandClicked="OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
     <GridColumns>
-      <GridColumn Field="@nameof(Injauser.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
-      <GridColumn Field="@nameof(Injauser.Lastname)" HeaderText="Last Name" Width="150"/>
-      <GridColumn Field="@nameof(Injauser.Firstname)" HeaderText="First" Width="150"/>
-      <GridColumn Field="@nameof(Injauser.UserNumber)" HeaderText="User Number" Width="150"/>
-      <GridColumn Field="@nameof(Injauser.Mail)" HeaderText="Mail" Width="150" Visible="false"/>
-      <GridColumn Field="@nameof(Injauser.Phone)" HeaderText="Phone" Width="150"/>
-      <GridColumn HeaderText="Manage Inscriptions" Width="150">
+      <GridColumn Field="@nameof(UserDTO.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
+      <GridColumn Field="@nameof(UserDTO.Lastname)" HeaderText="Last Name" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Firstname)" HeaderText="First Name" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.User_Number)" HeaderText="Number" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Mail)" HeaderText="Mail" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Phone)" HeaderText="Phone" Width="150"/>
+      <GridColumn HeaderText="Manage Inscriptions" Width="150" Visible="@(_eventId != null)">
         <GridCommandColumns>
-          <GridCommandColumn Type="CommandButtonType.None" Title="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+          <GridCommandColumn Type="CommandButtonType.None" Title="Types" ID="Types" ButtonOption="@(new CommandButtonOptions { Content = "Types" })"/>
+          <GridCommandColumn Type="CommandButtonType.None" Title="Inscriptions" ID="Inscriptions" ButtonOption="@(new CommandButtonOptions { Content = "Inscriptions" })"/>
         </GridCommandColumns>
       </GridColumn>
-      
+
     </GridColumns>
   </SfGrid>
 </div>
 
 @code {
-  SfComboBox<int?, Event>? sfComboEvent;
-  List<Event>? _lstEvents;
-  int? _eventId;
 
-  private async Task FillDSAsync()
+  #region Page
+
+  List<VInjauser>? _dbUsers;
+  //List<UserDTO> _availableUsers = new();
+  List<UserDTO> _lstDistinctUsers = new();
+  UserDTO? _userToAdd;
+
+  private void OnAddUserClick(MouseEventArgs obj)
   {
-    _lstUsers = null;
-    if (_eventId != null)
-      _lstUsers = await Helper.DB
-        .Injausers
-        .Include(x => x.Injauserusertypes)
-        .Where(z => z.Injauserusertypes.Any(r => r.Typeid == 1 && r.Eventid == _eventId))
-        .ToListAsync();
+    if (_userToAdd == null || _lstUsers == null || _eventId == null) return;
+    if (_lstUsers.FirstOrDefault(x => x.Id == _userToAdd.Id) != null)
+    {
+      Task.Run(async() => await JsRuntime.InvokeVoidAsync("alert", "The user already Exists"));
+      _userToAdd = null;
+    }
+    else
+    {
+      var db = new dbContext();
+      db.Injauserusertypes.Add(new Injauserusertype
+      {
+        Eventid = (int)_eventId!,
+        Userid = _userToAdd.Id,
+        Typeid = 1
+      });
+      try
+      {
+        db.SaveChanges();
+        FillDS2();
+        FillDS();
+      }
+      catch (Exception e)
+      {
+        Log.Logger.Error(e, "Error al agregar un usuario a un evento");
+      }
+    }
+  }
+
+  private void Callback(SelectEventArgs<UserDTO> obj)
+  {
+    _userToAdd = obj.ItemData;
+  }
+
+  private void FillDS2()
+  {
+    var db = new dbContext();
+    _dbUsers = db
+      .VInjausers
+      .ToList();
+
+    _dbUsers.ForEach(x =>
+    {
+      var memUser = _lstDistinctUsers.FirstOrDefault(du => du.Id == x.Injauserid);
+      if (memUser == null) // no sestá y lo tengo que agregar
+      {
+        _lstDistinctUsers.Add(new UserDTO
+        {
+          Id = (int)x.Injauserid!,
+          Lastname = x.Lastname ?? string.Empty,
+          Firstname = x.Firstname ?? string.Empty,
+          Phone = x.Phone,
+          Mail = x.Mail ?? string.Empty,
+          Docid = (short)x.Docid!,
+          Docnumber = x.Docnumber ?? string.Empty
+        });
+      }
+    });
+  }
+  
+  private void FillDS()
+  {
+    _lstUsers = new List<UserDTO>();
+    //_availableUsers.Clear();
+
+    _dbUsers?
+      .Where(db => _eventId == null || db.Eventid == _eventId)
+      .ToList()
+      .ForEach(x =>
+      {
+        var memItem = _lstUsers.FirstOrDefault(u => u.Id == (int)x.Injauserid!);
+        if (memItem == null) // Hay que agregarlo
+        {
+          _lstUsers.Add(new UserDTO
+          {
+            Id = (int)x.Injauserid!,
+            Lastname = x.Lastname ?? string.Empty,
+            Firstname = x.Firstname ?? string.Empty,
+            Phone = x.Phone,
+            Mail = x.Mail ?? string.Empty,
+            User_Number = _eventId == null ? null : x.UserNumber,
+            Docid = (short)x.Docid!,
+            Docnumber = x.Docnumber ?? string.Empty
+          });
+        }
+      });
   }
 
   protected override async Task OnInitializedAsync()
   {
-    _lstEvents = Helper.DB.Events.ToList();
-    if (_lstEvents.Any())
-      _eventId = _lstEvents.First().Id;
+    var db = new dbContext();
+    _lstEvents = await db
+      .Events
+      .ToListAsync();
 
-    await FillDSAsync();
+    FillDS2();    
+
+    var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
+
+    if (foundQueryParameter.TryGetValue("eid", out var eid))
+    {
+      _eventId = Convert.ToInt32(eid);
+    }
+
+    FillDS();
     StateHasChanged();
   }
+
+  #endregion
+
+  #region Combo Event
+
+  List<Event>? _lstEvents;
+  SfComboBox<int?, Event>? sfComboEvent;
+  int? _eventId;
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDS();
+    Task.Run(async () => await ContenderGrid?.Refresh()!);
+    StateHasChanged();
+  }
+
+  #endregion
 
   #region Grid
 
-  SfGrid<Injauser>? ContenderGrid { get; set; }
-  List<Injauser>? _lstUsers { get; set; }
+  SfGrid<UserDTO>? ContenderGrid { get; set; }
+  List<UserDTO>? _lstUsers { get; set; }
 
-  private async Task OnEventValueChange(ChangeEventArgs<int?, Event> args)
-  {
-    await FillDSAsync();
-    StateHasChanged();
-  }
-  
-  private async Task OnGridCommandClicked(CommandClickEventArgs<Injauser> obj)
+  private async Task OnGridCommandClicked(CommandClickEventArgs<UserDTO> obj)
   {
     if (_eventId == null) return;
-    
-    switch (obj.CommandColumn.Title)
+
+    switch (obj.CommandColumn.ID)
     {
-      case "Edit":
-        await sessionStorage.SetItemAsync("ContenderInscription", Tuple.Create(_eventId, obj.RowData.Id, obj.RowData.Name));
+      case "Inscriptions":
+        await sessionStorage.SetItemAsync("ContenderInscription", Tuple.Create(_eventId, obj.RowData.Id, $"{obj.RowData.Lastname}, {obj.RowData.Firstname}"));
         navManager.NavigateTo("/ContenderInscription");
+        break;
+      case "Types":
         break;
     }
   }
-  
+
   private async Task OnContenderGridToolBarClick(ClickEventArgs args)
   {
     if (ContenderGrid == null) return;
@@ -115,11 +244,12 @@
         break;
     }
   }
-  private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
-  {
-    await sessionStorage.SetItemAsStringAsync("contenderId", obj.RowData.Id.ToString());
-    navManager.NavigateTo("/ContenderInscription");
-  }
-  
+
+  // private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
+  // {
+  //   await sessionStorage.SetItemAsStringAsync("contenderId", obj.RowData.Id.ToString());
+  //   navManager.NavigateTo("/ContenderInscription");
+  // }
+
   #endregion
 }

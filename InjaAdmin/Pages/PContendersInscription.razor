@@ -6,11 +6,15 @@
 
 <div>
   <div>
-    <h2>Contender: @_contenderName</h2>
+    <h2><span>Contender:</span> @_contenderName on <span>Event:</span> @_eventName</h2>
   </div>
   <table>
     <tr>
-      <td><SfButton Content="Go Back" @onclick="@(() => { navManager.NavigateTo("/Contenders");})"/></td>
+      <td>Contender Number</td>
+      <td><SfTextBox @bind-Value="@_contenderNumber" Type="InputType.Text"></SfTextBox></td>
+    </tr>
+    <tr>
+      <td><SfButton Content="Go Back" @onclick="@(() => { navManager.NavigateTo($"/Contenders?eid={_eventId}"); })"/></td>
       <td><SfButton IsPrimary="true" Content="Save All Changes" @onclick="@OnSaveChanges"/></td>
     </tr>
   </table>
@@ -32,8 +36,8 @@
       <GridColumns>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.Key)" IsPrimaryKey="true" Visible="false"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.Selected)" DisplayAsCheckBox="true" HeaderText="Selected" Width="70"/>
-        <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Last Name" Width="150"/>
-        <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="First" Width="150"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Challenge" Width="150" AllowEditing="false" />
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="Division" Width="150" AllowEditing="false"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -45,14 +49,92 @@
   int? _eventId;
   int? _contenderId;
   string? _contenderName;
+  string? _eventName;
+  string? _contenderNumber;
+  
+  private void OnSaveChanges(MouseEventArgs obj)
+  {
+    if (_lstChallengesDivisions == null) return;
 
+    var db = new InjaData.Models.dbContext();
+    
+    var _dbInscrip = db.Userinscriptions
+      .Where(x => x.Uuserid == _contenderId && x.Ueventid == _eventId && x.Utypeid == 1)
+      .ToList();
+    
+    foreach (var item in _lstChallengesDivisions)
+    {
+      var dbIncr = _dbInscrip.FirstOrDefault(x => x.Eventchallengeid == item.EventChallengeid && x.Divisionid == item.DivisionId);
+      switch (item.Selected)
+      {
+  // lo seleccionaron y no está
+        case true when dbIncr == null:
+        {
+          db.Userinscriptions.Add(new Userinscription
+          {
+            Eventchallengeid = item.EventChallengeid,
+            Divisionid = item.DivisionId,
+            Wonfirstplace = 0,
+            Inscriptiondate = DateTime.Now,
+            Utypeid = 1,
+            Ueventid = Convert.ToInt32(_eventId),
+            Uuserid = Convert.ToInt32(_contenderId)
+          });
+          break;
+        }
+  // Está y lo tengo que borrar
+        case false when dbIncr != null:
+          db.Userinscriptions.Remove(dbIncr);
+          break;
+      }
+    }
+
+    var dbUserType = db
+      .Injauserusertypes
+      .FirstOrDefault(x => x.Eventid == _eventId && x.Userid == _contenderId && x.Typeid == 1);
+
+    if (dbUserType == null)
+    {
+      dbUserType = new Injauserusertype
+      {
+        Eventid = (int)_eventId!,
+        Typeid = 1,
+        Userid = (int)_contenderId!
+      };
+      db.Injauserusertypes.Add(dbUserType);
+    }
+  
+    dbUserType.UserNumber = _contenderNumber;
+          
+    try
+    {
+      db.SaveChanges();
+      navManager.NavigateTo($"/Contenders?eid={_eventId}");
+    }
+    catch (Exception e)
+    {
+      Log.Error(e,"Error on ContenderInscriptions");
+    }
+  }
+  
   private void FillDS()
   {
+    var db = new InjaData.Models.dbContext();
     _lstChallengesDivisions = null;
 
-    var cosa = Helper.DB.VEventchallengedivisionPlanas.Where(x => x.Eventid == _eventId).ToList();
-    var insc = Helper.DB.VUserinscriptionPlanas.Where(x => x.Eventid == _eventId && x.Userid == _contenderId).ToList();
+    var cosa = db.VEventchallengedivisionPlanas.Where(x => x.Eventid == _eventId).ToList();
+    var insc = db.VUserinscriptionPlanas.Where(x => x.Eventid == _eventId && x.Userid == _contenderId).ToList();
 
+    _contenderNumber = db
+      .Injauserusertypes
+      .FirstOrDefault(x => x.Eventid == _eventId && x.Userid == _contenderId && x.Typeid == 1)?
+      .UserNumber;    
+    
+    _eventName = db
+      .Events
+      .FirstOrDefault(x => x.Id == _eventId)?
+      .Name;
+    
     _lstChallengesDivisions = new List<InternalEventChallengeDivision>();
     foreach (var item in cosa)
     {
@@ -113,50 +195,4 @@
     public string DivisionName { get; set; } = string.Empty;
     public bool Selected { get; set; }
   }
-
-  private void OnSaveChanges(MouseEventArgs obj)
-  {
-    if (_lstChallengesDivisions == null) return;
-    var _dbInscrip = Helper
-      .DB.Userinscriptions
-      .Where(x => x.Uuserid == _contenderId && x.Ueventid == _eventId && x.Utypeid == 1)
-      .ToList();
-    
-    foreach (var item in _lstChallengesDivisions)
-    {
-      var dbIncr = _dbInscrip.FirstOrDefault(x => x.Eventchallengeid == item.EventChallengeid && x.Divisionid == item.DivisionId);
-      switch (item.Selected)
-      {
-        // lo seleccionaron y no está
-        case true when dbIncr == null:
-        {
-          Helper.DB.Userinscriptions.Add(new Userinscription
-          {
-            Eventchallengeid = item.EventChallengeid,
-            Divisionid = item.DivisionId,
-            Wonfirstplace = 0,
-            Inscriptiondate = DateTime.Now,
-            Utypeid = 1,
-            Ueventid = Convert.ToInt32(_eventId),
-            Uuserid = Convert.ToInt32(_contenderId)
-          });
-          break;
-        }
-        // Está y lo tengo que borrar
-        case false when dbIncr != null:
-          Helper.DB.Userinscriptions.Remove(dbIncr);
-          break;
-      }
-    }
-    try
-    {
-      Helper.DB.SaveChanges();
-      navManager.NavigateTo("/Contenders");
-    }
-    catch (Exception e)
-    {
-      Log.Error(e,"Error on ContenderInscriptions");
-    }
-  }
-
 }

@@ -19,8 +19,6 @@ public partial class Injauser
 
     public short Docid { get; set; }
 
-    public string Usertype { get; set; } = null!;
-
     public string? Street { get; set; }
 
     public string? Number { get; set; }
@@ -34,8 +32,6 @@ public partial class Injauser
     public string? Urlphoto { get; set; }
 
     public string? Name { get; set; }
-
-    public string? UserNumber { get; set; }
 
     public string? Nickname { get; set; }
 

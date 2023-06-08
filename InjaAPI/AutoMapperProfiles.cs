@@ -22,7 +22,7 @@ public class AutoMapperProfiles : Profile
 			.ForMember(x => x.eventJudgeChallengeDivisionId, y => y.MapFrom(z => z.Eventjudgechallengeid))
 			.ForMember(x => x.contenderId, y => y.MapFrom(z => z.Userid))
 			.ReverseMap();
-		CreateMap<InjaData.Models.Usertype, InjaDTO.UsertypeDTO>();
+		// CreateMap<InjaData.Models.Usertype, InjaDTO.UsertypeDTO>();
 		CreateMap<InjaData.Models.Persongroup, InjaDTO.UserGroupDTO>();
 		CreateMap<InjaData.Models.VUserschallengecriterion, InjaDTO.UserChallengeCriteriaDTO>()
 			.ForMember(x => x.contenderId, y => y.MapFrom(z => z.Contenderid))

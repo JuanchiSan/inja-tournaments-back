@@ -11,6 +11,8 @@ public partial class Injauserusertype
 
     public int Eventid { get; set; }
 
+    public string? UserNumber { get; set; }
+
     public virtual ICollection<Deduction> Deductions { get; set; } = new List<Deduction>();
 
     public virtual Event Event { get; set; } = null!;

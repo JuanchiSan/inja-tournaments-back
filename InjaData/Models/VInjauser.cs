@@ -20,4 +20,16 @@ public partial class VInjauser
     public string? Typename { get; set; }
 
     public string? Eventname { get; set; }
+
+    public string? Lastname { get; set; }
+
+    public string? Firstname { get; set; }
+
+    public string? Phone { get; set; }
+
+    public int? Cityid { get; set; }
+
+    public short? Docid { get; set; }
+
+    public string? Docnumber { get; set; }
 }

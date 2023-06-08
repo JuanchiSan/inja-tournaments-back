@@ -14,18 +14,17 @@ public class UserDTO
 
 	public string Docnumber { get; set; } = null!;
 
+	public string Name => $"{Lastname}, {Firstname}";
+	
 	public short Docid { get; set; }
 
 	public string? Street { get; set; }
 
-	public string? Number { get; set; }
+	public string? User_Number { get; set; }
 
 	public string? Phone { get; set; }
 
 	public int? Cityid { get; set; }
 
 	public short Enabled { get; set; }
-
-	public virtual ICollection<UsertypeDTO> Types { get; set; } = new List<UsertypeDTO>();
-
 }

@@ -1,46 +1,59 @@
 ﻿@page "/Events"
 
 <div>
-	<SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)" 
-		AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" 
-		Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="Syncfusion.Blazor.Grids.EditMode.Normal"></GridEditSettings>
-		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-		<SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
-		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Event"/>
-		<GridColumns>
-			<GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
-			<GridColumn Field="@nameof(Event.Name)" HeaderText="Name" Width="150"/>
-			<GridColumn Field="@nameof(Event.Creatoruserid)" HeaderText="Creatoruserid" Width="150"/>
-			<GridColumn Field="@nameof(Event.Startdate)" HeaderText="Startdate" EditType="EditType.DateTimePickerEdit" Width="150"/>
-			<GridColumn Field="@nameof(Event.Enddate)" HeaderText="Enddate" EditType="EditType.DateTimePickerEdit" Width="150"/>
-			<GridColumn Field="@nameof(Event.Startinscription)" HeaderText="Startinscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
-			<GridColumn Field="@nameof(Event.Endinscription)" HeaderText="Endinscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
-			<GridColumn Field="@nameof(Event.Comment)" HeaderText="Comment" Width="150" />
-			<GridColumn Field="@nameof(Event.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
-		</GridColumns>
-	</SfGrid>
+  <SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)"
+          AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+          Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+    <GridEvents OnActionBegin="OnGridEventActionBegin" OnToolbarClick="@GridToolbarClick" TValue="Event"/>
+    <GridColumns>
+      <GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" AllowAdding="false" IsIdentity="true" IsPrimaryKey="true" Width="150"/>
+      <GridColumn Field="@nameof(Event.Name)" HeaderText="Name" Width="150"/>
+      <GridColumn Field="@nameof(Event.Startdate)" HeaderText="Start Date" EditType="EditType.DateTimePickerEdit" Width="150"/>
+      <GridColumn Field="@nameof(Event.Enddate)" HeaderText="End Date" EditType="EditType.DateTimePickerEdit" Width="150"/>
+      <GridColumn Field="@nameof(Event.Startinscription)" HeaderText="Start Inscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
+      <GridColumn Field="@nameof(Event.Endinscription)" HeaderText="End Inscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
+      <GridColumn Field="@nameof(Event.Comment)" HeaderText="Comment" Width="150"/>
+      <GridColumn Field="@nameof(Event.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+    </GridColumns>
+  </SfGrid>
 </div>
 
 
 @code {
-	SfGrid<Event>? DataGrid { get; set; }
+  SfGrid<Event>? DataGrid { get; set; }
 
-	private async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (DataGrid == null) return;
-		switch (args.Item.Id)
-		{
-			case $"{nameof(DataGrid)}_excelexport":
-				await DataGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(DataGrid)}_pdfexport":
-				await this.DataGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(DataGrid)}_csvexport":
-				await this.DataGrid.ExportToCsvAsync();
-				break;
-		}
-	}
+  private async Task GridToolbarClick(ClickEventArgs args)
+  {
+    if (DataGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DataGrid)}_excelexport":
+        await DataGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DataGrid)}_pdfexport":
+        await this.DataGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DataGrid)}_csvexport":
+        await this.DataGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void OnGridEventActionBegin(ActionEventArgs<Event> obj)
+  {
+    switch (obj.RequestType)
+    {
+      case Syncfusion.Blazor.Grids.Action.Add:
+        obj.RowData.Startdate = DateTime.Today;
+        obj.RowData.Enddate = DateTime.Today;
+        obj.RowData.Startinscription = DateTime.Today;
+        obj.RowData.Endinscription = DateTime.Today;
+        obj.RowData.Active = true;
+        break;
+    }
+  }
 
 }
