@@ -34,7 +34,7 @@
       {
         foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber))
         {
-          var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
+          var strFinal = $"{Helper.strURL}eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
           <div class="user-data">
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>

@@ -6,7 +6,7 @@
   <table>
     <tr>
       <td width="500">
-        <SfComboBox ref="@_comboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+        <SfComboBox @ref="@_comboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
                     Width="550" PopupWidth="500"
                     DataSource="@(_lstEvents)">
           <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
@@ -14,7 +14,7 @@
         </SfComboBox>
       </td>
       <td width="500">
-        <SfComboBox ref="@_comboChallenges" @bind-Value="@(_eventChallengeId)" TValue="int?" TItem="Eventchallenge"
+        <SfComboBox @ref="@_comboChallenges" @bind-Value="@(_eventChallengeId)" TValue="int?" TItem="Eventchallenge"
                     Width="550" PopupWidth="500"
                     DataSource="@(_lstChallenges)"
                     Query="@(new Query().Where("eventid","equals",_eventId))">
@@ -37,7 +37,6 @@
   private async Task FillDS()
   {
     _lstEvents = await Helper.DB.Events.OrderBy(x => x.Name).ToListAsync();
-    
   }
   
   protected override async Task OnInitializedAsync()

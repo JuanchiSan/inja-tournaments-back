@@ -12,10 +12,9 @@
         <td>
           Event
         </td>
-        <td width="500">
-          <SfComboBox ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
-                      Width="550" PopupWidth="500"
-                      DataSource="@(_lstEvents)">
+        <td style="width: 500px">
+          <SfComboBox @ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                      PopupWidth="500" DataSource="@(_lstEvents)">
             <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
             <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
           </SfComboBox>
@@ -47,7 +46,7 @@
           <GridSortColumn Field="@nameof(VEventchallengedivision.Challengename)"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="@OnGridCommandClicked" OnActionBegin="OnGridActionBegin" TValue="VEventchallengedivision"/>
+      <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="@OnGridCommandClicked" OnActionBegin="@OnGridActionBegin" TValue="VEventchallengedivision"/>
       <GridColumns>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengename)" HeaderText="Event Challenge" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengestartdate)" HeaderText="Star Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
@@ -57,15 +56,13 @@
         <GridColumn Field="@nameof(VEventchallengedivision.Divisionnames)" HeaderText="Division" Width="200"/>
         <GridColumn HeaderText="Manage Records" Width="150">
           <GridCommandColumns>
-            <GridCommandColumn Type="CommandButtonType.Edit" Title="Divisions" ButtonOption="@(new CommandButtonOptions { Content = "Divisions"})"/>
-            <GridCommandColumn Type="CommandButtonType.None" Title="Judges" ButtonOption="@(new CommandButtonOptions { Content = "Judges"})"/>
+            <GridCommandColumn Type="CommandButtonType.Edit" ID="Divisions" Title="Divisions" ButtonOption="@(new CommandButtonOptions { Content = "Divisions"})"/>
+            <GridCommandColumn Type="CommandButtonType.None" ID="Judges" Title="Judges" ButtonOption="@(new CommandButtonOptions { Content = "Judges"})"/>
           </GridCommandColumns>
         </GridColumn>
       </GridColumns>
     </SfGrid>
   </div>
-
-  @* --OnRecordDoubleClick="@OnGridRowDoubleClick" *@
 </div>
 
 
@@ -90,13 +87,13 @@
     if (_eventId == null) return;
     
     var tuple = Tuple.Create(_eventId, obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename);
-    switch (obj.CommandColumn.Title)
+    switch (obj.CommandColumn.ID)
     {
       case "Judges":
         await sessionStorage.SetItemAsync(Helper.paramJudgeChellengeName, tuple);
         navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
         break;
-      case "Edit":
+      case "Divisions":
         await sessionStorage.SetItemAsync(Helper.paramChellengeName, tuple);
         navManager.NavigateTo("/EventChallengeConfig");
         break;

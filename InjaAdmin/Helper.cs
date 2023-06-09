@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using Syncfusion.Blazor;
 using Syncfusion.Blazor.Data;
+using Syncfusion.Blazor.Grids;
+using Syncfusion.Blazor.Inputs;
 
 namespace InjaAdmin;
 
@@ -16,12 +18,24 @@ public static class Helper
 			return _db;
 		}
 	}
-
+	public static NumericEditCellParams DFNumericEditCell => new()
+	{
+		Params = new NumericTextBoxModel<object>
+			{ CssClass = "rightalign-numeric-class", ShowClearButton = true, ShowSpinButton = false }
+	};
+	
+	public static NumericEditCellParams DFNumericEditCell2 => new()
+	{
+		Params = new NumericTextBoxModel<object>
+			{ CssClass = "rightalign-numeric-class", ShowClearButton = true, ShowSpinButton = false, Decimals = 2}
+	};
+	
 	public static string paramDetailPointView => "paramdetailview";
 	public static string paramChellengeName => "paramChallengeName";
 	public static string paramJudgeChellengeName => "paramJudgeChallengeName";
 
-	public static string strURL => "https://inja-app.guadcore.ar/qr-handler?";
+	public static string strURL { get; set; } = string.Empty;
+
 	public static void ResetContext()
 	{
 		_db = new InjaData.Models.dbContext();

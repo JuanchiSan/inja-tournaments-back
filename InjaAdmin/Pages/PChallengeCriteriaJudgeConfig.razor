@@ -235,9 +235,9 @@
     
     for (int i = 1; i < LstDivisions.Count; i++)
     {
-      obj.RowData.GetType().GetProperty($"div_{i}").SetValue(obj.RowData, judge);
+      obj.RowData.GetType().GetProperty($"div_{i}")?.SetValue(obj.RowData, judge);
     }
-    Task.Run(async () => { await GridCriterias.Refresh(); });
+    Task.Run(async () => { await GridCriterias?.Refresh()!; });
     StateHasChanged();
   }
   

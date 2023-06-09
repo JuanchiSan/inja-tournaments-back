@@ -10,17 +10,19 @@
 <div>
   <div class="print-hide">
     <span>Event</span>
-    <SfComboBox @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
-                Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
-      <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
-      <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
-    </SfComboBox>
+    <div style="width: 350px">
+      <SfComboBox @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                  Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
+        <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+        <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+      </SfComboBox>
+    </div>
   </div>
   @{
     if (_lstUsers is {Count: > 0})
     {
       <div>
-        <SfPager @ref="@Page" PageSize="@PageSize" TotalItemsCount="_lstUsers.Count" ItemClick="HandleNumericClick"/>
+        <SfPager @ref="@Page" PageSize="@PageSize" TotalItemsCount="@(_lstUsers.Count)" ItemClick="@HandleNumericClick"/>
       </div>
     }
   }
@@ -34,13 +36,13 @@
       {
         foreach (var user in _lstUsers.OrderBy(x => x.Usernumber).Skip(_skipValue).Take(_takeValue))
         {
-          var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
+          var strFinal = $"{Helper.strURL}eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
           <div class="user-data">
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>
             <div class="user-qr">
-              <SfQRCodeGenerator Width="150px" Height="150px"  Value="@(strFinal)">
-                <QRCodeGeneratorDisplayText Text="@user.Usernumber"/>
+              <SfQRCodeGenerator Width="150px" Height="150px" Value="@(strFinal)">
+                <QRCodeGeneratorDisplayText Text="@(user.Usernumber ?? "-")"/>
               </SfQRCodeGenerator>
             </div>
           </div>
@@ -93,7 +95,7 @@
   List<VUserinscriptionPlana>? _lstUsers { get; set; }
   List<Event>? _lstEvents { get; set; }
   SfPager? Page;
-  
+
   //public int pageSize { get; set; }
   private readonly int PageSize = 20;
   private int _skipValue;
@@ -107,6 +109,7 @@
 
   private void FillDataSources()
   {
+    _lstUsers?.Clear();
     if (_eventId != null)
       _lstUsers = Helper.DB
         .VUserinscriptionPlanas.Where(x => x.Eventid == _eventId).ToList();
@@ -115,8 +118,6 @@
   protected override void OnInitialized()
   {
     _lstEvents = Helper.DB.Events.ToList();
-    if (_lstEvents is {Count: > 0 })
-      _eventId = _lstEvents.FirstOrDefault()?.Id;
 
     FillDataSources();
     StateHasChanged();
@@ -128,6 +129,7 @@
 
   private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
+    _skipValue = 0;
     FillDataSources();
     StateHasChanged();
   }

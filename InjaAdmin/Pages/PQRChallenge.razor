@@ -43,7 +43,7 @@
       {
         foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber).Skip(_skipValue).Take(_takeValue))
         {
-          var strFinal = $"https://inja-app.guadcore.ar/qr-handler?eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
+          var strFinal = $"{Helper.strURL}eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
           <div class="user-data">
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>
@@ -143,9 +143,7 @@
   protected override void OnInitialized()
   {
     _lstEvents = Helper.DB.Events.ToList();
-    if (_lstEvents is {Count: > 0 })
-      _eventId = _lstEvents.FirstOrDefault()?.Id;
-
+    
     FillDataSources();
     StateHasChanged();
   }

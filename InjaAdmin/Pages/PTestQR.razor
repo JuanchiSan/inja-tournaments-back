@@ -1,9 +1,5 @@
 ﻿@page "/PTestQR"
 
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Buttons
-@using Syncfusion.Pdf.Barcode
 @using Syncfusion.Pdf
 @using Syncfusion.Pdf.Grid
 @using Syncfusion.Blazor.BarcodeGenerator
@@ -29,7 +25,7 @@
         <Template>
           @{
             var user = context as MyTestUser;
-            var strFinal = $"User:{user.Id} - Name:{user.Name}";
+            var strFinal = $"User:{user?.Id} - Name:{user?.Name}";
             <SfQRCodeGenerator Width="210px" Height="210px" Value="@(strFinal)" @ref="@QRcode">
               <QRCodeGeneratorDisplayText Text=" "/>
             </SfQRCodeGenerator>
@@ -43,7 +39,7 @@
 @code {
   SfGrid<MyTestUser>? ContenderGrid { get; set; }
   List<MyTestUser>? LstUsers;
-  SfQRCodeGenerator QRcode;
+  SfQRCodeGenerator? QRcode;
 
   private void FillDS()
   {
@@ -73,13 +69,13 @@
   }
 
   //Add a page
-  static Syncfusion.Pdf.PdfPage page = null;
+  static PdfPage? page;
 
-  private async Task OnContenderGridToolBarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  private async Task OnContenderGridToolBarClick(ClickEventArgs args)
   {
   //Create a new PDF document
 
-    Syncfusion.Pdf.PdfDocument pdfDocument = new Syncfusion.Pdf.PdfDocument();
+    PdfDocument pdfDocument = new PdfDocument();
     pdfDocument.Pages.PageAdded += Pages_PageAdded;
     page = pdfDocument.Pages.Add();
     if (args.Item.Id == $"{nameof(ContenderGrid)}_pdfexport") //Id is combination of Grid's ID and itemname
@@ -100,7 +96,7 @@
       //pdfGrid.BeginCellLayout += PdfGrid_BeginCellLayout;
 
   //Draw grid to the page of PDF document
-      pdfGrid.Draw(page, new Syncfusion.Drawing.PointF(10, 10));
+      pdfGrid.Draw(page, new PointF(10, 10));
 
       MemoryStream ms = new MemoryStream();
   //Save the document
@@ -115,18 +111,18 @@
     page = args.Page;
   }
 
-  private void PdfGrid_BeginCellLayout(object sender, PdfGridBeginCellLayoutEventArgs args)
-  {
-    if (args.CellIndex != 0 || args.IsHeaderRow) return;
-    var barcode = new PdfQRBarcode
-    {
-      Size = new SizeF(200, 200),
-      Text = LstUsers[args.RowIndex].Name
-    };
-
-  //Draw barcode with respect to grid cell bounds
-    barcode.Draw(page, new Syncfusion.Drawing.PointF(args.Bounds.X + 5, args.Bounds.Y + 5));
-  }
+  // private void PdfGrid_BeginCellLayout(object sender, PdfGridBeginCellLayoutEventArgs args)
+  // {
+  //   if (args.CellIndex != 0 || args.IsHeaderRow) return;
+  //   var barcode = new PdfQRBarcode
+  //   {
+  //     Size = new SizeF(200, 200),
+  //     Text = LstUsers[args.RowIndex].Name
+  //   };
+  //
+  // //Draw barcode with respect to grid cell bounds
+  //   barcode.Draw(page, new Syncfusion.Drawing.PointF(args.Bounds.X + 5, args.Bounds.Y + 5));
+  // }
 
 }
 
@@ -135,7 +131,7 @@
   public class MyTestUser
   {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
   }
 
 }

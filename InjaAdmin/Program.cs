@@ -8,12 +8,6 @@ using Blazored.SessionStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// SetUp Serilog
-builder.Host.UseSerilog((ctx, lc) => lc
-	.WriteTo.Console()
-	.WriteTo.PostgreSQL(InjaData.Helper.CS, "Logs", needAutoCreateTable: true)
-	.ReadFrom.Configuration(ctx.Configuration));
-
 #region Set the Corrent Database Connection String
 try
 {
@@ -34,7 +28,6 @@ try
 	var strMainConn = jsonObject["DB"]!.ToString();
 	//var strLogConn =
 	//	$"Server={jsonObject["Server"]};Initial Catalog={jsonObject["LogDatabase"]};User ID={jsonObject["User"]};Password={jsonObject["Password"]};{jsonObject["AdditionalConfig"]}";
-
 	Log.Information(jsonObject.ToJsonString());
 
 	InjaData.Helper.CS = strMainConn;
@@ -49,6 +42,15 @@ catch (Exception e)
 	return;
 }
 #endregion
+
+// Setup QR App
+InjaAdmin.Helper.strURL = builder.Configuration.GetValue<string>("QR_URL") ?? string.Empty;
+
+// SetUp Serilog
+builder.Host.UseSerilog((ctx, lc) => lc
+	.WriteTo.Console()
+	.WriteTo.PostgreSQL(InjaData.Helper.CS, "Logs", needAutoCreateTable: true)
+	.ReadFrom.Configuration(ctx.Configuration));
 
 // Add services to the container.
 builder.Services.AddSyncfusionBlazor();

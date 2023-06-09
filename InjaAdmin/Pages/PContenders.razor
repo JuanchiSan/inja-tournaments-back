@@ -122,6 +122,7 @@
     var db = new dbContext();
     _dbUsers = db
       .VInjausers
+      .Where(x=>x.Usertypeid == 1)
       .ToList();
 
     _dbUsers.ForEach(x =>
@@ -149,7 +150,7 @@
     //_availableUsers.Clear();
 
     _dbUsers?
-      .Where(db => _eventId == null || db.Eventid == _eventId)
+      .Where(db => (_eventId == null || db.Eventid == _eventId) && db.Usertypeid == 1)
       .ToList()
       .ForEach(x =>
       {

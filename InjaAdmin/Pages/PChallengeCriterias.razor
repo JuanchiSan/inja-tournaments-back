@@ -38,11 +38,11 @@
                            ForeignDataSource="@_lstCriterias" ForeignKeyField="@nameof(Judgmentcriterion.Id)" ForeignKeyValue="@nameof(Judgmentcriterion.Name)"/>
         <GridForeignColumn TValue="Division" Field="@nameof(Challengejuzmentcriterion.Divisionid)" HeaderText="Division" Width="150"
                            ForeignDataSource="@_lstDivisions" ForeignKeyField="@nameof(Division.Id)" ForeignKeyValue="@nameof(Division.Name)"/>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Hands)" HeaderText="Hands" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotcant)" HeaderText="Slot Cant" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotstep)" HeaderText="Slot Step" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="150"/>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Maxscore)" HeaderText="Max Score" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N2" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Hands)" HeaderText="Hands" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotcant)" HeaderText="Slot Cant" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotstep)" HeaderText="Slot Step" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell2" Format="N2" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Maxscore)" HeaderText="Max Score" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell2" Format="N2" Width="150"/>
       </GridColumns>
     </SfGrid>
 

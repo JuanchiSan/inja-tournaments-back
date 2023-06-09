@@ -61,7 +61,8 @@ public class DivisionAdaptor : DataAdaptor
 		try
 		{
 			var ord = _db.Divisions.Find((int)value);
-			_db.Divisions.Remove(ord);
+			if (ord != null)
+				_db.Divisions.Remove(ord);
 			_db.SaveChanges();
 		}
 		catch (Exception e)

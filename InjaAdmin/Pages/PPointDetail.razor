@@ -36,20 +36,20 @@
         <GridColumn Field="@nameof(VUserpoint.VupKey)" Visible="false" AllowEditing="false" IsPrimaryKey="true"/>
         <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Judge" Width="200" AllowEditing="false"/>
         <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Criteria" Width="150" AllowEditing="false"/>
-        <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Width="30" AllowEditing="false"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
-        <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Width="30" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot1)" HeaderText="Slot 1" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot2)" HeaderText="Slot 2" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot3)" HeaderText="Slot 3" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot4)" HeaderText="Slot 4" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot5)" HeaderText="Slot 5" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot6)" HeaderText="Slot 6" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot7)" HeaderText="Slot 7" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot8)" HeaderText="Slot 8" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
+        <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
         <GridColumn Field="@nameof(VUserpoint.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" Width="150"/>
-        <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100" AllowEditing="false"/>
-        <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N2" Width="100" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -66,7 +66,7 @@
       <GridEvents OnActionBegin="@GridDeductionActionBegin" OnToolbarClick="@GridDeductionsToolbarClick" TValue="Deduction"/>
       <GridColumns>
         <GridColumn Field="@nameof(Deduction.Deductionid)" HeaderText="Deduction" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Format="N0" Width="100" AllowEditing="false" IsPrimaryKey="true" AllowAdding="false"/>
-        <GridColumn Field="@nameof(Deduction.Score)" HeaderText="Deduction" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" Width="120" AllowEditing="true"/>
+        <GridColumn Field="@nameof(Deduction.Score)" HeaderText="Deduction" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" Format="N0" EditorSettings="@(Helper.DFNumericEditCell)" Width="120" AllowEditing="true"/>
         <GridForeignColumn TValue="VInjauser" Field="@nameof(Deduction.Supuserid)" HeaderText="Judge" Width="200"
                            ForeignDataSource="@_lstJudges" ForeignKeyField="@nameof(VInjauser.Injauserid)" ForeignKeyValue="@nameof(VInjauser.Injausername)"/>
         <GridColumn Field="@nameof(VDeduction.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" MinWidth="350" AutoFit="true"/>
@@ -142,7 +142,6 @@
   private int? divisionId { get; set; }
   private string? contenderName { get; set; }
   private List<VUserpoint> _lstPoints = new();
-  private string? ContenderName;
 
   private void OnGoBackClick(MouseEventArgs obj)
   {

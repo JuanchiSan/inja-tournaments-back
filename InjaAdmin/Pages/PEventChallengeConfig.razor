@@ -189,29 +189,33 @@
     Eventchallenge? dbEC;
     dbEC = db.Eventchallenges
       .Include(z => z.Eventchallengedivisions)
-      .FirstOrDefault(x => x.Id == Model.EventChallengeId);
-    dbEC.Startdate = Model.StartDate;
-    dbEC.Enddate = Model.EndDate;
-    dbEC.Name = Model.EventChallengeName;
-    
-    // borro los deseleccionados
-    foreach (var memitem in _lstModelDivision.ToList())
+      .FirstOrDefault(x => Model != null && x.Id == Model.EventChallengeId);
+    if (dbEC != null)
     {
-      var dbECD = dbEC.Eventchallengedivisions.FirstOrDefault(x => x.Divisionid == memitem.DivisionId);
-      switch (memitem.Checked)
-      {
-        // No está en la base, hay que agregarlo
-        case true when dbECD == null:
-          dbEC.Eventchallengedivisions.Add(new Eventchallengedivision
+      dbEC.Startdate = Model?.StartDate;
+      dbEC.Enddate = Model?.EndDate;
+      if (Model?.EventChallengeName != null) dbEC.Name = Model.EventChallengeName;
+
+  // borro los deseleccionados
+      if (_lstModelDivision != null)
+        foreach (var memitem in _lstModelDivision.ToList())
+        {
+          var dbECD = dbEC.Eventchallengedivisions.FirstOrDefault(x => x.Divisionid == memitem.DivisionId);
+          switch (memitem.Checked)
           {
-            Divisionid = memitem.DivisionId
-          });
-          break;
-        // Está en la base y hay que borrarlo
-        case false when dbECD != null:
-          dbEC.Eventchallengedivisions.Remove(dbECD);
-          break;
-      }
+  // No está en la base, hay que agregarlo
+            case true when dbECD == null:
+              dbEC.Eventchallengedivisions.Add(new Eventchallengedivision
+              {
+                Divisionid = memitem.DivisionId
+              });
+              break;
+  // Está en la base y hay que borrarlo
+            case false when dbECD != null:
+              dbEC.Eventchallengedivisions.Remove(dbECD);
+              break;
+          }
+        }
     }
 
     try
