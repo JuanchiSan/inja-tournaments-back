@@ -2,11 +2,13 @@
 @using Microsoft.EntityFrameworkCore
 @using InjaDTO
 @using Microsoft.AspNetCore.WebUtilities
+@using Action = Syncfusion.Blazor.Grids.Action
 @using Log = Serilog.Log
 
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject SfDialogService dialogService
 
 <h3>Contenders</h3>
 
@@ -44,17 +46,18 @@
 <div>
   <SfGrid @ref="ContenderGrid" TValue="UserDTO" ID="@nameof(ContenderGrid)"
           AllowFiltering="true" AllowResizing="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-          Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
+          Toolbar="@(new List<string> { "Delete", "PdfExport", "Print", "Search" })"
           DataSource="_lstUsers">
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+    <GridEditSettings AllowDeleting="true"/>
     <GridSortSettings>
       <GridSortColumns>
         <GridSortColumn Field="@nameof(UserDTO.Lastname)"/>
         <GridSortColumn Field="@nameof(UserDTO.Firstname)"/>
       </GridSortColumns>
     </GridSortSettings>
-    <GridEvents CommandClicked="OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
+    <GridEvents OnActionBegin="OnGridContendersActionBegin" CommandClicked="@OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
     <GridColumns>
       <GridColumn Field="@nameof(UserDTO.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
       <GridColumn Field="@nameof(UserDTO.Lastname)" HeaderText="Last Name" Width="150"/>
@@ -86,7 +89,7 @@
     if (_userToAdd == null || _lstUsers == null || _eventId == null) return;
     if (_lstUsers.FirstOrDefault(x => x.Id == _userToAdd.Id) != null)
     {
-      Task.Run(async() => await JsRuntime.InvokeVoidAsync("alert", "The user already Exists"));
+      Task.Run(async () => await JsRuntime.InvokeVoidAsync("alert", "The user already Exists"));
       _userToAdd = null;
     }
     else
@@ -121,7 +124,7 @@
     var db = new dbContext();
     _dbUsers = db
       .VInjausers
-      .Where(x=>x.Usertypeid == 1)
+      .Where(x => x.Usertypeid == 1)
       .ToList();
 
     _dbUsers.ForEach(x =>
@@ -142,11 +145,11 @@
       }
     });
   }
-  
+
   private void FillDS()
   {
     _lstUsers = new List<UserDTO>();
-    //_availableUsers.Clear();
+  //_availableUsers.Clear();
 
     _dbUsers?
       .Where(db => (_eventId == null || db.Eventid == _eventId) && db.Usertypeid == 1)
@@ -178,7 +181,7 @@
       .Events
       .ToListAsync();
 
-    FillDS2();    
+    FillDS2();
 
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
 
@@ -245,6 +248,54 @@
     }
   }
 
+  private async Task OnGridContendersActionBegin(ActionEventArgs<UserDTO> obj)
+  {
+    if (_eventId == null) return;
+    switch (obj.RequestType)
+    {
+      case Action.Delete:
+        var t = await dialogService.ConfirmAsync(null, "Confirm Delete", new DialogOptions()
+        {
+          ChildContent = @<div>
+                           Are you sure you want to delete <b>@obj.RowData.Name</b> from this Event?<br>
+                           All Point (In case if any) will be deleted.
+                         </div>
+        });
+        if (!t)
+        {
+          obj.Cancel = true;
+          return;
+        }
+        var db = new dbContext();
+        var dbUserType = db.Injauserusertypes
+          .FirstOrDefault(x => x.Eventid == _eventId && x.Userid == obj.Data.Id && x.Typeid == 1);
+
+        if (dbUserType == null) return;
+
+        var dbUserInscs = db.Userinscriptions
+          .Where(x => x.Ueventid == _eventId && x.Ueventid == obj.Data.Id && x.Utypeid == 1);
+        var dbUserGroups = db.Persongroups
+          .Include(x => x.Group)
+          .Where(p => p.Userid == obj.RowData.Id && p.Group.Eventid == _eventId);
+        db.Persongroups.RemoveRange(dbUserGroups);
+        db.Injauserusertypes.Remove(dbUserType);
+        db.Userinscriptions.RemoveRange(dbUserInscs);
+        try
+        {
+          await db.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+          Log.Logger.Error(e, $"Error borrando un usuario {obj.RowData.Id} Event {_eventId}");
+        }
+
+        FillDS();
+        FillDS2();
+        StateHasChanged();
+        break;
+    }
+  }
+
   // private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
   // {
   //   await sessionStorage.SetItemAsStringAsync("contenderId", obj.RowData.Id.ToString());
@@ -252,4 +303,5 @@
   // }
 
   #endregion
+
 }

@@ -1,31 +1,35 @@
 ﻿@inherits LayoutComponentBase
-@inject IJSRuntime JS
-@using Syncfusion.Blazor.Navigations
+
+@inject IJSRuntime jsRunTime
 
 <PageTitle>Inja Admin</PageTitle>
 
 <SfSidebar class="print-hide" ID="Sidebar" Type="SidebarType.Push" Width="300px" DockSize="65px" EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
-	<div class="sidebar print-hide" style="position:fixed;z-index:1200">
-		<div class="topnav navbar navbar-dark">
-			<button class="navbar-toggler" @onclick="ToggleNavMenu" />
-			<a class="navbar-brand" href=""><span class="displayText" style="margin-right:30px">InjaAdmin</span></a>
-		</div>
-		<div class="print-hide" @onmouseover="MouseIn" @onmouseout="MouseOut">
-			<NavMenu />
-		</div>
-	</div>
+  <div class="sidebar print-hide" style="position:fixed;z-index:1200">
+    <div class="topnav navbar navbar-dark">
+      <button class="navbar-toggler" @onclick="@ToggleNavMenu"></button>
+      <a class="navbar-brand" href="">
+        <span class="displayText" style="margin-right:30px">Inja Admin</span>
+      </a>
+    </div>
+    <div class="print-hide" @onmouseover="@MouseIn" @onmouseout="@MouseOut">
+      <NavMenu/>
+    </div>
+  </div>
 </SfSidebar>
 
 <div class="main">
-	<div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0px">
-		<div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
-		<CultureSwitcher />
-	</div>
+  <div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0">
+    <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
+    <CultureSwitcher/>
+  </div>
 
-	<div class="content px-4">
-		@Body
-	</div>
+  <div class="content px-4">
+    @Body
+    <Syncfusion.Blazor.Popups.SfDialogProvider/>
+  </div>
 </div>
+
 <style>
 	.sidebar {
 		width: 300px;
@@ -116,9 +120,7 @@
 		border: 1px solid #FFFFFF;
 		opacity: 0.14;
 		width: 45px;
-		margin: 1rem;
-		margin-top: 0px;
-		margin-left: 0.5rem;
+		margin: 0 1rem 1rem 0.5rem;
 	}
 
 	.e-sidebar.e-dock.e-close .oi.oi-home {
@@ -188,32 +190,35 @@
 #if NETCOREAPP3_1 || NETSTANDARD2_1
 			SfSidebar Sidebar;
 #else
-	SfSidebar? Sidebar;
+  SfSidebar? Sidebar;
 #endif
-	public bool SidebarToggle = false;
-	public bool SidebarToggleFixed = false;
-	public void ToggleNavMenu()
-	{
-		SidebarToggle = !SidebarToggle;
-		SidebarToggleFixed = !SidebarToggleFixed;
-	}
-	public async Task MouseIn(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
-	{
-		var isSidebar = await JS.InvokeAsync<bool>("isSidebar", args.ClientX, args.ClientY);
-		if (!SidebarToggle && isSidebar)
-		{
-			SidebarToggle = true;
-		}
-	}
-	public async Task MouseOut(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
-	{
-		var isSidebar = await JS.InvokeAsync<bool>("isSidebar", args.ClientX, args.ClientY);
-		if (SidebarToggle && !isSidebar)
-		{
-			if (!SidebarToggleFixed)
-			{
-				SidebarToggle = false;
-			}
-		}
-	}
+  private bool SidebarToggle = false;
+  private bool SidebarToggleFixed = false;
+
+  private void ToggleNavMenu()
+  {
+    SidebarToggle = !SidebarToggle;
+    SidebarToggleFixed = !SidebarToggleFixed;
+  }
+
+  private async Task MouseIn(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    var isSidebar = await jsRunTime.InvokeAsync<bool>("isSidebar", args.ClientX, args.ClientY);
+    if (!SidebarToggle && isSidebar)
+    {
+      SidebarToggle = true;
+    }
+  }
+
+  private async Task MouseOut(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    var isSidebar = await jsRunTime.InvokeAsync<bool>("isSidebar", args.ClientX, args.ClientY);
+    if (SidebarToggle && !isSidebar)
+    {
+      if (!SidebarToggleFixed)
+      {
+        SidebarToggle = false;
+      }
+    }
+  }
 }

@@ -141,11 +141,11 @@
   private void OnContenderValueChange(ChangeEventArgs<int?, InternalContender> args)
   {
     _lstUsersToPrint = null;
-    if (_contenderId != null)
+    if (_contenderId != null && _eventId != null)
     {
       _lstUsersToPrint = Helper.DB
         .VUserinscriptionPlanas
-        .Where(x => x.Userid == _contenderId)
+        .Where(x => x.Eventid == _eventId && x.Userid == _contenderId)
         .ToList();
     }
     StateHasChanged();

@@ -38,6 +38,7 @@
         <GridColumn Field="@nameof(InternalEventChallengeDivision.Selected)" DisplayAsCheckBox="true" HeaderText="Selected" Width="70"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Challenge" Width="150" AllowEditing="false" />
         <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="Division" Width="150" AllowEditing="false"/>
+        <GridColumn Field="@nameof(InternalEventChallengeDivision.CompetitionName)" HeaderText="Competition" Width="150" AllowEditing="false"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -144,6 +145,8 @@
         DivisionName = Convert.ToString(item.Divisionname) ?? string.Empty,
         EventChallengeid = Convert.ToInt32(item.Eventchallengeid),
         EventChallengeName = Convert.ToString(item.Eventchallengename) ?? string.Empty,
+        CompetitionName = Convert.ToString(item.Competitiontypename) ?? string.Empty,
+        CompetitionId = Convert.ToInt32(item.Competitiontypeid),
         Selected = insc.Any(x => x.Eventchallengeid == item.Eventchallengeid && x.Divisionid == item.Divisionid)
       });
     }
@@ -193,6 +196,8 @@
     public string EventChallengeName { get; set; } = string.Empty;
     public int DivisionId { get; set; }
     public string DivisionName { get; set; } = string.Empty;
+    public int CompetitionId { get; set; }
+    public string CompetitionName { get; set; } = string.Empty;
     public bool Selected { get; set; }
   }
 }
