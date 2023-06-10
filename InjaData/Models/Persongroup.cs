@@ -11,7 +11,7 @@ public partial class Persongroup
 
     public DateTime Added { get; set; }
 
-    public int Enabled { get; set; }
+    public bool? Enabled { get; set; }
 
     public virtual Injagroup Group { get; set; } = null!;
 

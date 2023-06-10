@@ -34,8 +34,8 @@
             <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
           </SfAutoComplete>
         </td>
-        <td>
-          <SfButton Content="Add User" @onclick="@OnAddUserClick"></SfButton>
+        <td style="width: 120px">
+          <SfButton Content="Add User" @onclick="@OnAddUserClick" IsPrimary="true"/>
         </td>
       }
     </tr>
@@ -64,7 +64,6 @@
       <GridColumn Field="@nameof(UserDTO.Phone)" HeaderText="Phone" Width="150"/>
       <GridColumn HeaderText="Manage Inscriptions" Width="150" Visible="@(_eventId != null)">
         <GridCommandColumns>
-          <GridCommandColumn Type="CommandButtonType.None" Title="Types" ID="Types" ButtonOption="@(new CommandButtonOptions { Content = "Types" })"/>
           <GridCommandColumn Type="CommandButtonType.None" Title="Inscriptions" ID="Inscriptions" ButtonOption="@(new CommandButtonOptions { Content = "Inscriptions" })"/>
         </GridCommandColumns>
       </GridColumn>
@@ -79,7 +78,7 @@
 
   List<VInjauser>? _dbUsers;
   //List<UserDTO> _availableUsers = new();
-  List<UserDTO> _lstDistinctUsers = new();
+  readonly List<UserDTO> _lstDistinctUsers = new();
   UserDTO? _userToAdd;
 
   private void OnAddUserClick(MouseEventArgs obj)

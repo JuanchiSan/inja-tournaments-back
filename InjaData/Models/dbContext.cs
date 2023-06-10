@@ -83,6 +83,10 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VEventjudgechallengedivisionPlana> VEventjudgechallengedivisionPlanas { get; set; }
 
+    public virtual DbSet<VInjagroup> VInjagroups { get; set; }
+
+    public virtual DbSet<VInjagroupPlana> VInjagroupPlanas { get; set; }
+
     public virtual DbSet<VInjauser> VInjausers { get; set; }
 
     public virtual DbSet<VNailCupPoint> VNailCupPoints { get; set; }
@@ -452,7 +456,7 @@ public partial class dbContext : DbContext
             entity.ToTable("injagroup");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                .HasDefaultValueSql("nextval('injagroup_id2_seq'::regclass)")
                 .HasColumnName("id");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.Isstudent).HasColumnName("isstudent");
@@ -637,14 +641,17 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Userid).HasColumnName("userid");
             entity.Property(e => e.Groupid).HasColumnName("groupid");
             entity.Property(e => e.Added)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("added");
-            entity.Property(e => e.Enabled).HasColumnName("enabled");
+            entity.Property(e => e.Enabled)
+                .IsRequired()
+                .HasDefaultValueSql("true")
+                .HasColumnName("enabled");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Persongroups)
                 .HasForeignKey(d => d.Groupid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_persongroup_group");
+                .HasConstraintName("persongroup_injagroup_id_fk");
 
             entity.HasOne(d => d.User).WithMany(p => p.Persongroups)
                 .HasForeignKey(d => d.Userid)
@@ -1107,6 +1114,43 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<VInjagroup>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_injagroup");
+
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Groupid).HasColumnName("groupid");
+            entity.Property(e => e.Groupname)
+                .HasMaxLength(200)
+                .HasColumnName("groupname");
+            entity.Property(e => e.Participants).HasColumnName("participants");
+        });
+
+        modelBuilder.Entity<VInjagroupPlana>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_injagroup_plana");
+
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Firstname)
+                .HasMaxLength(80)
+                .HasColumnName("firstname");
+            entity.Property(e => e.Groupid).HasColumnName("groupid");
+            entity.Property(e => e.Groupname)
+                .HasMaxLength(200)
+                .HasColumnName("groupname");
+            entity.Property(e => e.Lastname)
+                .HasMaxLength(80)
+                .HasColumnName("lastname");
+            entity.Property(e => e.UserNumber)
+                .HasMaxLength(10)
+                .HasColumnName("user_number");
         });
 
         modelBuilder.Entity<VInjauser>(entity =>

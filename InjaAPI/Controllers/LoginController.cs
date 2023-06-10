@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using InjaData.Models;
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;

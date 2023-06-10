@@ -1,0 +1,376 @@
+﻿@page "/Groups"
+
+@using Microsoft.EntityFrameworkCore
+@using InjaDTO
+@using Action = Syncfusion.Blazor.Grids.Action
+
+<h3>Groups</h3>
+
+<div>
+  <div>
+    <table>
+      <tr>
+        <td style="width: 150px">
+          <span>Event:</span>
+        </td>
+        <td style="width: 400px">
+          <SfComboBox @ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                      PopupWidth="400" DataSource="@(_lstEvents)">
+            <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+            <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+          </SfComboBox>
+        </td>
+        <td>
+          <SfButton Content="Add Group" @onclick="@OnNewGroupButtonClick"/>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div>
+    <SfGrid @ref="GroupsGrid" TValue="VInjagroup" ID="@nameof(GroupsGrid)"
+            AllowFiltering="true" AllowResizing="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "PdfExport", "Print", "Search" })"
+            DataSource="_lstGroups">
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridSortSettings>
+        <GridSortColumns>
+          <GridSortColumn Field="@nameof(VInjagroup.Groupname)"/>
+        </GridSortColumns>
+      </GridSortSettings>
+      <GridEditSettings AllowAdding="false" AllowEditing="false" AllowDeleting="false"/>
+      <GridEvents CommandClicked="@OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="VInjagroup"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(VInjagroup.Groupid)" HeaderText="Id" AllowEditing="false" AllowAdding="false" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
+        <GridColumn Field="@nameof(VInjagroup.Groupname)" HeaderText="Last Name" Width="150"/>
+        <GridColumn Field="@nameof(VInjagroup.Participants)" HeaderText="Participants" Width="400"/>
+        <GridColumn HeaderText="Manage Inscriptions" Width="150" Visible="@(_eventId != null)">
+          <GridCommandColumns>
+            <GridCommandColumn Type="CommandButtonType.None" Title="Edit" ID="Edit" ButtonOption="@(new CommandButtonOptions { Content = "Edit" })"/>
+          </GridCommandColumns>
+        </GridColumn>
+      </GridColumns>
+    </SfGrid>
+  </div>
+</div>
+
+<SfDialog @bind-Visible="@_dialogVisible" Width="650px" ShowCloseIcon="true" AllowPrerender="true" IsModal="true">
+  <DialogEvents OnOpen="@OnDialogOpen"/>
+  <DialogTemplates>
+    <Header>Edit Group</Header>
+    <Content>
+      <div>
+        <div>
+          <table>
+            <tr>
+              <td style="width: 150px">
+                Group Name:
+              </td>
+              <td style="width: 200px">
+                <SfTextBox @bind-Value="@_groupName"/>
+              </td>
+            </tr>
+          </table>
+          <table>
+            <tr>
+              <td style="width: 250px">
+                <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search a User" DataSource="@_lstUsers">
+                  <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="@OnSelectUser"/>
+                  <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
+                </SfAutoComplete>
+              </td>
+              <td style="width: 120px">
+                <SfButton Content="Add User" @onclick="@OnAddUserClick" IsPrimary="true"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div>Contenders</div>
+          <div>
+            <SfGrid @ref="ParticipantsGrid" TValue="VInjagroupPlana" ID="@nameof(ParticipantsGrid)"
+                    AllowSelection="true" AllowTextWrap="true"
+                    Toolbar="@(new List<string> { "Delete" })"
+                    DataSource="_lstParticipants">
+              <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+              <GridEvents OnActionBegin="OnParticipantGridActionBegin" TValue="VInjagroupPlana"/>
+              <GridEditSettings AllowDeleting="true"/>
+              <GridSortSettings>
+                <GridSortColumns>
+                  <GridSortColumn Field="@nameof(VInjagroupPlana.Lastname)"/>
+                </GridSortColumns>
+              </GridSortSettings>
+              <GridColumns>
+                <GridColumn Field="@nameof(VInjagroupPlana.UserNumber)" HeaderText="Number" Width="100"/>
+                <GridColumn Field="@nameof(VInjagroupPlana.Lastname)" HeaderText="Last Name" Width="150"/>
+                <GridColumn Field="@nameof(VInjagroupPlana.Firstname)" HeaderText="First Name" Width="400"/>
+              </GridColumns>
+            </SfGrid>
+          </div>
+        </div>
+      </div>
+    </Content>
+    <FooterTemplate>
+      <div>
+        <table>
+          <tr>
+            <td>
+              <SfButton Content="Cancel" @onclick="@(_ => { _dialogVisible = false; })"/>
+            </td>
+            <td>
+              <SfButton Content="Save all Changes" @onclick="@OnSaveClick"/>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </FooterTemplate>
+  </DialogTemplates>
+</SfDialog>
+
+@code {
+
+  private bool _dialogVisible { get; set; }
+
+  private string _groupName { get; set; } = string.Empty;
+  private int? _groupId { get; set; }
+
+  #region Page
+
+  private async Task LoadData()
+  {
+    _lstEvents = await new dbContext()
+      .Events
+      .OrderBy(x => x.Name)
+      .ToListAsync();
+
+    StateHasChanged();
+  }
+
+  private async Task FillDS()
+  {
+    _lstGroups = null;
+    if (_eventId != null)
+    {
+      _lstGroups = await new dbContext()
+        .VInjagroups
+        .Where(x => x.Eventid == _eventId)
+        .OrderBy(x => x.Groupname)
+        .ToListAsync();
+    }
+    StateHasChanged();
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadData();
+    await FillDS();
+  //await base.OnInitializedAsync();
+  }
+
+  private void OnNewGroupButtonClick(MouseEventArgs obj)
+  {
+    if (_eventId == null) return;
+    _groupId = null;
+    _dialogVisible = true;
+  }
+
+  #endregion
+
+  #region Events
+
+  List<Event>? _lstEvents;
+  SfComboBox<int?, Event>? sfComboEvent { get; set; }
+  private int? _eventId { get; set; }
+
+  private async Task OnEventValueChange(ChangeEventArgs<int?, Event> arg)
+  {
+    await FillDS();
+  }
+
+  #endregion
+
+  #region Participants
+
+  List<VInjagroupPlana>? _lstParticipants;
+  public SfGrid<VInjagroupPlana>? ParticipantsGrid { get; set; }
+
+  #endregion
+
+  #region Grid
+
+  public SfGrid<VInjagroup>? GroupsGrid { get; set; }
+
+
+  private List<VInjagroup>? _lstGroups;
+
+  private async Task OnContenderGridToolBarClick(ClickEventArgs args)
+  {
+    if (GroupsGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(GroupsGrid)}_excelexport":
+        await GroupsGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(GroupsGrid)}_pdfexport":
+        await GroupsGrid.ExportToPdfAsync(new PdfExportProperties { IncludeTemplateColumn = true });
+        break;
+      case $"{nameof(GroupsGrid)}_csvexport":
+        await GroupsGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void OnGridCommandClicked(CommandClickEventArgs<VInjagroup> obj)
+  {
+    switch (obj.CommandColumn.ID)
+    {
+      case "Edit":
+        _groupId = obj.RowData.Groupid;
+        _groupName = obj.RowData.Groupname ?? string.Empty;
+        _dialogVisible = true;
+        break;
+    }
+  }
+
+  #endregion
+
+  #region Dialog
+
+  private List<UserDTO>? _lstUsers;
+
+  private void OnSaveClick(MouseEventArgs obj)
+  {
+  // Acá tendría que grabar y toda la bola
+    var db = new dbContext();
+    Injagroup? dbGroup;
+    if (_groupId == null) // es nuevo
+    {
+      dbGroup = new Injagroup
+      {
+        Eventid = (int)_eventId!,
+        Name = _groupName,
+      };
+      db.Injagroups.Add(dbGroup);
+    }
+    else
+    {
+      dbGroup = db.Injagroups.FirstOrDefault(x => x.Id == _groupId);
+      if (dbGroup == null) return;
+      dbGroup.Name = _groupName;
+    }
+    
+    foreach (var participant in _lstParticipants!.Where(x=>x.Groupid== null))
+    {
+      if (participant.Groupid == null) // es nuevo
+      {
+        db.Persongroups.Add(new Persongroup
+        {
+          Group = dbGroup,
+          Userid = (int)participant.Contenderid!
+        });
+      }
+    }
+    foreach (var participant in LstDeletedParticipants!.Where(x=>x.Groupid!= null))
+    {
+      db.Persongroups.Remove(db.Persongroups.Single(x => participant.Groupid == x.Groupid && participant.Contenderid == x.Userid));
+    }
+
+    try
+    {
+      db.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "error grabando los grupos");
+    }
+    _lstParticipants?.Clear();
+    LstDeletedParticipants?.Clear();
+    _groupId = null;
+    _groupName = string.Empty;
+
+    InvokeAsync(async () => await FillDS());
+    //Task.Run(async () => await FillDS());
+    StateHasChanged();
+    
+    _dialogVisible = false;
+  }
+
+  private void OnDialogOpen(Syncfusion.Blazor.Popups.BeforeOpenEventArgs obj)
+  {
+  // Tengo que inicializar todos los datos
+    _lstUsers = new List<UserDTO>();
+    new dbContext().VInjausers.Where(x => x.Eventid == _eventId && x.Usertypeid == 1)
+      .ToList()
+      .ForEach(x =>
+      {
+        if (_lstUsers.FirstOrDefault(u => u.Id == x.Injauserid) == null)
+        {
+          _lstUsers.Add(new UserDTO
+          {
+            Id = (int)x.Injauserid!,
+            Firstname = x.Firstname ?? string.Empty,
+            Lastname = x.Lastname ?? string.Empty,
+            User_Number = x.UserNumber ?? string.Empty
+          });
+        }
+      });
+    _lstParticipants = new List<VInjagroupPlana>();
+    LstDeletedParticipants?.Clear();
+
+    if (_groupId == null)
+    {
+      _groupName = "New Group";
+    }
+    else
+    {
+      _lstParticipants = new dbContext().VInjagroupPlanas.Where(x => x.Groupid == _groupId).ToList();
+    }
+    obj.MaxHeight = "800px";
+    StateHasChanged();
+  }
+
+  UserDTO? selectedUser { get; set; }
+
+  private void OnSelectUser(SelectEventArgs<UserDTO> obj)
+  {
+    selectedUser = obj.ItemData;
+  }
+
+  private void OnAddUserClick(MouseEventArgs obj)
+  {
+    if (selectedUser == null) return;
+    if (_lstParticipants != null && _lstParticipants.FirstOrDefault(x => x.Contenderid == selectedUser.Id) == null)
+    {
+      _lstParticipants.Add(new VInjagroupPlana
+      {
+        Groupid = _groupId,
+        Eventid = _eventId,
+        Contenderid = selectedUser.Id,
+        Firstname = selectedUser.Firstname,
+        Lastname = selectedUser.Lastname,
+        UserNumber = selectedUser.User_Number
+      });
+    }
+
+    Task.Run(async () => await ParticipantsGrid?.Refresh()!);
+    StateHasChanged();
+  }
+
+  #endregion
+
+  private List<VInjagroupPlana>? LstDeletedParticipants { get; } = new();
+
+  private void OnParticipantGridActionBegin(ActionEventArgs<VInjagroupPlana> obj)
+  {
+    switch (obj.RequestType)
+    {
+      case Action.Delete:
+        LstDeletedParticipants?.Add(obj.RowData);
+        _lstParticipants?.Remove(obj.RowData);
+        InvokeAsync(async () => await ParticipantsGrid?.Refresh());
+        StateHasChanged();
+        break;
+    }
+  }
+
+}
