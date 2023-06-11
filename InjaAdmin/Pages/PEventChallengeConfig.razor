@@ -41,7 +41,7 @@
       <br/>
       <span>Competitions</span>
       @{
-        foreach (var dbItem in Helper.DB.Competitiontypes)
+        foreach (var dbItem in _db.Competitiontypes)
         {
           <SfRadioButton Name="ctype" TChecked="int?" Value="@(dbItem.Id.ToString())" Label="@dbItem.Name" @bind-Checked="@_bId" ValueChange="OnRadioButtonValueChange"/>
         }
@@ -80,6 +80,8 @@
 @* <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/> *@
 
 @code {
+  private readonly dbContext _db = new();
+  
   int? _comboChallengeTypeId;
   int? _bId;
   List<Challengetype>? _lstChallengeTypes;
@@ -93,14 +95,14 @@
 
   private void FillDataSources()
   {
-    _lstCompetitions = Helper.DB.Competitiontypes.ToList();
+    _lstCompetitions = _db.Competitiontypes.ToList();
     _bId = _lstCompetitions.FirstOrDefault()?.Id;
     _divisionQuery = GetQueryRadioButton(Convert.ToInt32(_bId));
-    _lstDivisions = Helper.DB.Divisions
+    _lstDivisions = _db.Divisions
       .Include(x => x.Competitiontype)
       .ToList();
-    _lstChallengeTypes = Helper.DB.Challengetypes.ToList();
-    _lstEventChallengeDivision = Helper.DB.Eventchallengedivisions
+    _lstChallengeTypes = _db.Challengetypes.ToList();
+    _lstEventChallengeDivision = _db.Eventchallengedivisions
       .Where(x => Model != null && x.Eventchallengeid == Model.EventChallengeId)
       .ToList();
     if (Model == null) return;
@@ -127,7 +129,7 @@
       };
       if (Model.EventChallengeId != -1)
       {
-        var dbItem = Helper.DB.Eventchallenges.FirstOrDefault(x => x.Id == Model.EventChallengeId);
+        var dbItem = _db.Eventchallenges.FirstOrDefault(x => x.Id == Model.EventChallengeId);
         if (dbItem != null) // debería ser siempre, peeeeero
         {
           Model.ChallengeTypeId = dbItem.Challengeid;
@@ -153,7 +155,7 @@
 
   private Tuple<int,string> SaveNew()
   {
-    var db = Helper.DB;
+    var db = _db;
     var dbEC = new Eventchallenge
     {
       Challengeid = Convert.ToInt32(_comboChallengeTypeId),
@@ -185,7 +187,7 @@
 
   private Tuple<int,string> SaveOld()
   {
-    var db = Helper.DB;
+    var db = _db;
     Eventchallenge? dbEC;
     dbEC = db.Eventchallenges
       .Include(z => z.Eventchallengedivisions)

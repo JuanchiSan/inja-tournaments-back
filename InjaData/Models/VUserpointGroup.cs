@@ -48,4 +48,8 @@ public partial class VUserpointGroup
     public long? Desempate6 { get; set; }
 
     public long? CantPhotos { get; set; }
+
+    public int? Competitiontypeid { get; set; }
+
+    public string? Competitiontypename { get; set; }
 }

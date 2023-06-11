@@ -3,7 +3,6 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 
-
 <h3>Config Criterias in <b>@ChallengeName</b></h3>
 <div>
   <div>
@@ -55,6 +54,8 @@
   [Parameter]
   public int cid { get; set; }
 
+  private readonly dbContext _db = new();
+  
   private int CriteriaId { get; set; } = -1;
   private SfGrid<Challengejuzmentcriterion>? GridCriterias { get; set; }
   private List<Judgmentcriterion>? _lstCriterias { get; set; }
@@ -117,10 +118,10 @@
 
   private void FillDS()
   {
-    ChallengeName = Helper.DB.Challengetypes.FirstOrDefault(x => x.Id == cid)?.Name!;
-    _lstCriterias = Helper.DB.Judgmentcriteria.OrderBy(x=>x.Name).ToList();
-    _lstDivisions = Helper.DB.Divisions.ToList();
-    _lstData = Helper.DB.Challengejuzmentcriteria.Where(x => x.Challengeid == cid).ToList();
+    ChallengeName = _db.Challengetypes.FirstOrDefault(x => x.Id == cid)?.Name!;
+    _lstCriterias = _db.Judgmentcriteria.OrderBy(x=>x.Name).ToList();
+    _lstDivisions = _db.Divisions.ToList();
+    _lstData = _db.Challengejuzmentcriteria.Where(x => x.Challengeid == cid).ToList();
   }
 
   protected override void OnInitialized()

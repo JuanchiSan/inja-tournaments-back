@@ -69,6 +69,10 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VChallengejudgementcriterion> VChallengejudgementcriteria { get; set; }
 
+    public virtual DbSet<VContenderInscriptionCountByDivision> VContenderInscriptionCountByDivisions { get; set; }
+
+    public virtual DbSet<VContenderInscriptionsCount> VContenderInscriptionsCounts { get; set; }
+
     public virtual DbSet<VCriteriasJudge> VCriteriasJudges { get; set; }
 
     public virtual DbSet<VCriteriasJudgesPlana> VCriteriasJudgesPlanas { get; set; }
@@ -82,6 +86,8 @@ public partial class dbContext : DbContext
     public virtual DbSet<VEventchallengedivisionPlana> VEventchallengedivisionPlanas { get; set; }
 
     public virtual DbSet<VEventjudgechallengedivisionPlana> VEventjudgechallengedivisionPlanas { get; set; }
+
+    public virtual DbSet<VGrandChampion> VGrandChampions { get; set; }
 
     public virtual DbSet<VInjagroup> VInjagroups { get; set; }
 
@@ -98,6 +104,8 @@ public partial class dbContext : DbContext
     public virtual DbSet<VUserpointGroup> VUserpointGroups { get; set; }
 
     public virtual DbSet<VUserschallengecriterion> VUserschallengecriteria { get; set; }
+
+    public virtual DbSet<VWinnerOfWinner> VWinnerOfWinners { get; set; }
 
     public virtual DbSet<VWinnersByChallengeDivision> VWinnersByChallengeDivisions { get; set; }
 
@@ -895,6 +903,32 @@ public partial class dbContext : DbContext
                 .HasColumnName("slotstep");
         });
 
+        modelBuilder.Entity<VContenderInscriptionCountByDivision>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_contender_inscription_count_by_division");
+
+            entity.Property(e => e.Cant).HasColumnName("cant");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+        });
+
+        modelBuilder.Entity<VContenderInscriptionsCount>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_contender_inscriptions_count");
+
+            entity.Property(e => e.ContenderInscriptionWithPoints).HasColumnName("contender_inscription_with_points");
+            entity.Property(e => e.ContenderInscriptions).HasColumnName("contender_inscriptions");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.TotalChallenges).HasColumnName("total_challenges");
+        });
+
         modelBuilder.Entity<VCriteriasJudge>(entity =>
         {
             entity
@@ -1114,6 +1148,31 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<VGrandChampion>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_grand_champion");
+
+            entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
+            entity.Property(e => e.Competitiontypename)
+                .HasMaxLength(50)
+                .HasColumnName("competitiontypename");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Contendername)
+                .HasMaxLength(200)
+                .HasColumnName("contendername");
+            entity.Property(e => e.Contendernumber)
+                .HasMaxLength(10)
+                .HasColumnName("contendernumber");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Finalpoints).HasColumnName("finalpoints");
         });
 
         modelBuilder.Entity<VInjagroup>(entity =>
@@ -1369,6 +1428,10 @@ public partial class dbContext : DbContext
 
             entity.Property(e => e.CantPhotos).HasColumnName("cant_photos");
             entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
+            entity.Property(e => e.Competitiontypename)
+                .HasMaxLength(50)
+                .HasColumnName("competitiontypename");
             entity.Property(e => e.Contenderid).HasColumnName("contenderid");
             entity.Property(e => e.Contendername)
                 .HasMaxLength(200)
@@ -1464,6 +1527,31 @@ public partial class dbContext : DbContext
                 .HasColumnName("slotstep");
             entity.Property(e => e.Ueventid).HasColumnName("ueventid");
             entity.Property(e => e.Utypeid).HasColumnName("utypeid");
+        });
+
+        modelBuilder.Entity<VWinnerOfWinner>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_winner_of_winners");
+
+            entity.Property(e => e.Competitiontypeid).HasColumnName("competitiontypeid");
+            entity.Property(e => e.Competitiontypename)
+                .HasMaxLength(50)
+                .HasColumnName("competitiontypename");
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Contendername)
+                .HasMaxLength(200)
+                .HasColumnName("contendername");
+            entity.Property(e => e.Contendernumber)
+                .HasMaxLength(10)
+                .HasColumnName("contendernumber");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Finalpoints).HasColumnName("finalpoints");
         });
 
         modelBuilder.Entity<VWinnersByChallengeDivision>(entity =>

@@ -5,7 +5,7 @@ namespace InjaAdmin.Adaptors;
 
 public class EventChallengeDivisionAdaptor : DataAdaptor
 {
-  private readonly dbContext _db = Helper.DB;
+  private readonly dbContext _db = new();
 
   public override object Read(DataManagerRequest dataManagerRequest, string? additionalParam = null)
   {

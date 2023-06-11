@@ -99,7 +99,8 @@
 </style>
 
 @code {
-
+  private readonly dbContext _db = new();
+  
   int? _eventId { get; set; }
   List<Event>? _lstEvents { get; set; }
 
@@ -124,7 +125,7 @@
   {
     _lstChallengeDivision = null;
     if (_eventId == null) return;
-    _lstChallengeDivision = Helper.DB
+    _lstChallengeDivision = _db
       .VEventchallengedivisionPlanas
       .Where(x => x.Eventid == _eventId)
       .Select(y => new InternalChallengeDivision
@@ -142,7 +143,7 @@
 
   protected override void OnInitialized()
   {
-    _lstEvents = Helper.DB.Events.ToList();
+    _lstEvents = _db.Events.ToList();
 
     FillDataSources();
     StateHasChanged();
@@ -160,15 +161,17 @@
   {
     _lstUsersToPrint = null;
     if (args.ItemData != null)
-      _lstUsersToPrint = Helper.DB.VUserinscriptionPlanas
+      _lstUsersToPrint = _db.VUserinscriptionPlanas
         .Where(x => x.Eventchallengeid == args.ItemData.EventChallengeId && x.Divisionid == args.ItemData.DivisionId)
         .OrderBy(x => x.Usernumber)
         .ThenBy(y => y.Eventchallengeid)
         .ToList();
 
     _skipValue = 0;
+#pragma warning disable BL0005
     if (Page != null)
       Page.CurrentPage = 1;
+#pragma warning restore BL0005
 
     StateHasChanged();
   }

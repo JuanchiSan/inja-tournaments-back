@@ -67,7 +67,8 @@
 
 
 @code {
-
+  private readonly dbContext _db = new();
+  
   #region MyRegion
 
   private async Task OnAddChallengeClick(MouseEventArgs obj)
@@ -145,7 +146,7 @@
 
   protected override Task OnInitializedAsync()
   {
-    _lstEvents = Helper.DB.Events.OrderBy(x => x.Name).ToList();
+    _lstEvents = _db.Events.OrderBy(x => x.Name).ToList();
     if (_lstEvents.Any())
       SetEventInternalValues(_lstEvents.First());
 
@@ -174,7 +175,7 @@
     Event? dbEvent = null;
     if (args.Value != null)
     {
-      dbEvent = Helper.DB.Events.Find(args.Value);
+      dbEvent = _db.Events.Find(args.Value);
     }
     SetEventInternalValues(dbEvent);
     StateHasChanged();

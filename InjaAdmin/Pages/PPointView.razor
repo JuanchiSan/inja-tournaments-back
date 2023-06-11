@@ -110,6 +110,8 @@
 </style>
 
 @code {
+  private dbContext _db = new();
+  
   string? _challengeName { get; set; }
   string? _contenderName { get; set; }
 
@@ -131,9 +133,9 @@
 
   private bool HasPhoto(int contenderId)
   {
-    var fila = Helper.DB.Eventchallenges.FirstOrDefault(x => x.Id == _eventChallengeId);
+    var fila = _db.Eventchallenges.FirstOrDefault(x => x.Id == _eventChallengeId);
     if (fila == null) return false;
-    var dbResult = Helper.DB.Photos
+    var dbResult = _db.Photos
       .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == contenderId)
       .OrderByDescending(x => x.Created)
       .ToList();

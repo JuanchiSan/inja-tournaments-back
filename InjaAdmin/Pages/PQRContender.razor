@@ -91,7 +91,8 @@
 </style>
 
 @code {
-
+  private readonly dbContext _db = new();
+  
   int? _eventId { get; set; }
   int? _contenderId { get; set; }
   List<Event>? _lstEvents { get; set; }
@@ -105,7 +106,7 @@
     _lstUsersToPrint = null;
 
     if (_eventId == null) return;
-    var temp = Helper.DB
+    var temp = _db
       .VUserinscriptionPlanas
       .Where(x => x.Eventid == _eventId)
       .Select(x => Tuple.Create(x.Userid, x.Contendername))
@@ -123,7 +124,7 @@
 
   protected override void OnInitialized()
   {
-    _lstEvents = Helper.DB.Events.ToList();
+    _lstEvents = _db.Events.ToList();
     if (_lstEvents is {Count: > 0 })
       _eventId = _lstEvents.FirstOrDefault()?.Id;
 
@@ -144,7 +145,7 @@
     _lstUsersToPrint = null;
     if (_contenderId != null && _eventId != null)
     {
-      _lstUsersToPrint = Helper.DB
+      _lstUsersToPrint = _db
         .VUserinscriptionPlanas
         .Where(x => x.Eventid == _eventId && x.Userid == _contenderId)
         .ToList();

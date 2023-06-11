@@ -1,5 +1,9 @@
 ﻿@page "/WinByChallengeDivision"
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
 
 <h3>Winners By Challenge Division</h3>
 
@@ -16,6 +20,12 @@
             <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
             <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
           </SfComboBox>
+        </td>
+        <td>
+          <SfButton Content="Winners of Winners" @onclick="@(() => navManager.NavigateTo($"WinnersOfWinners{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+        </td>
+        <td>
+          <SfButton Content="Grand Champion" @onclick="@(() => navManager.NavigateTo($"GrandChampion{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
       </tr>
     </table>
@@ -52,6 +62,8 @@
 </div>
 
 @code {
+  private readonly dbContext _db = new();
+  
   SfGrid<VWinnersByChallengeDivision>? DataGrid { get; set; }
   List<VWinnersByChallengeDivision>? _lstWinners { get; set; }
 
@@ -59,10 +71,10 @@
   private async Task FillDS()
   {
     _lstWinners?.Clear();
-    _lstEvents = await Helper.DB.Events.ToListAsync();
+    _lstEvents = await _db.Events.ToListAsync();
     if (_eventId != null)
     {
-      _lstWinners = Helper.DB.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();
+      _lstWinners = _db.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();
     }
     await InvokeAsync(StateHasChanged);
   }
@@ -82,6 +94,12 @@
   
   protected override void OnInitialized()
   {
+    var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
+
+    if (foundQueryParameter.TryGetValue("eid", out var eid))
+    {
+      _eventId = Convert.ToInt32(eid);
+    }
     InvokeAsync(FillDS);
  }
 

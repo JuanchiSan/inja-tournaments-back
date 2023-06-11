@@ -367,7 +367,7 @@
       case Action.Delete:
         LstDeletedParticipants?.Add(obj.RowData);
         _lstParticipants?.Remove(obj.RowData);
-        InvokeAsync(async () => await ParticipantsGrid?.Refresh());
+        InvokeAsync(async () => await ParticipantsGrid?.Refresh()!);
         StateHasChanged();
         break;
     }

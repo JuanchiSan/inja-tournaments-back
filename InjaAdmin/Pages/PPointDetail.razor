@@ -80,14 +80,15 @@
 
   #region Deductions
 
+  private dbContext _db = new ();
   SfGrid<Deduction>? GridDeductions { get; set; }
   List<Deduction>? _lstDeductions { get; set; }
   List<VInjauser>? _lstJudges { get; set; }
 
   private void FillLstDeductions()
   {
-    _lstJudges = Helper.DB.VInjausers.Where(x => x.Eventid == eventId && x.Usertypeid == 6).ToList();
-    _lstDeductions = Helper.DB
+    _lstJudges = _db.VInjausers.Where(x => x.Eventid == eventId && x.Usertypeid == 6).ToList();
+    _lstDeductions = _db
       .Deductions
       .Where(x => x.Cuserid == contenderId && x.Cdivisionid == divisionId && x.Ceventid == eventId && x.Ceventchallengeid == eventchallengeId)
       .ToList();
@@ -150,7 +151,7 @@
 
   private void OnSaveAllChanges(MouseEventArgs obj)
   {
-    var dbPoints = Helper.DB.Points
+    var dbPoints = _db.Points
       .Include(x => x.Eventjudgechallenge)
       .Where(x => x.Userid == contenderId && x.Eventjudgechallenge.Divisionid == divisionId)
       .ToList();
@@ -176,7 +177,7 @@
           Userid = (int)contenderId!,
           Eventjudgechallengeid = (int)memItem.Eventjudgechallengedivisionid!
         };
-        Helper.DB.Points.Add(dbPoint);
+        _db.Points.Add(dbPoint);
       }
       var i = 1;
       while (i <= memItem.Slotcant)
@@ -189,12 +190,12 @@
 
     try
     {
-      Helper.DB.Deductions.RemoveRange(
-        Helper.DB
+      _db.Deductions.RemoveRange(
+        _db
           .Deductions
           .Where(x => x.Cuserid == contenderId && x.Cdivisionid == divisionId && x.Ceventid == eventId && x.Ceventchallengeid == eventchallengeId)
         );
-      _lstDeductions?.ForEach(x => Helper.DB
+      _lstDeductions?.ForEach(x => _db
         .Deductions.Add(new Deduction
         {
           Ceventid = x.Ceventid,
@@ -210,7 +211,7 @@
           Supuserid = x.Supuserid,
           Suptypeid = x.Suptypeid
         }));
-      Helper.DB.SaveChanges();
+      _db.SaveChanges();
     }
     catch (Exception e)
     {
@@ -248,7 +249,7 @@
       eventId = tuple.Item3;
       eventchallengeId = tuple.Item4;
       divisionId = tuple.Item5;
-      _lstPoints = await Helper.DB.VUserpoints
+      _lstPoints = await _db.VUserpoints
         .Where(x => x.Contenderid == contenderId && x.Eventchallengeid == eventchallengeId && x.Eventid == eventId && x.Divisionid == divisionId)
         .ToListAsync();
 

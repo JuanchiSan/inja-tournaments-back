@@ -1,5 +1,4 @@
 ﻿@page "/ChallengeCriteriaJudgeConfig"
-
 @using Microsoft.EntityFrameworkCore
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
@@ -82,7 +81,8 @@
 @code {
 
   #region general
-
+  private dbContext _db = new();
+  
   private List<Tuple<int?, string?>>? LstDivisions;
   private List<Injauser> LstJudges = new();
   private List<InternalInjaCriteria>? LstCriterias;
@@ -123,12 +123,12 @@
 
         if (ejcd?.Userid != null && judgeid == null) // existe ejcd y sacaron el juez, hay que borrar
         {
-          db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
-          Helper.DB.Eventjudgechallengedivisions.Remove(db_ejcd!);
+          db_ejcd = _db.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
+          _db.Eventjudgechallengedivisions.Remove(db_ejcd!);
         }
         if (ejcd?.Userid != null && judgeid != null && ejcd.Userid != judgeid) // Existe y le cambiaron el juez
         {
-          db_ejcd = Helper.DB.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
+          db_ejcd = _db.Eventjudgechallengedivisions.FirstOrDefault(x => x.Divisionid == divisionid && x.Eventchallengeid == _eventchallengeId && x.Challengejuzmentcriteria == challengejudgementcriteriaid);
           if (db_ejcd != null) db_ejcd.Judgeid = Convert.ToInt32(judgeid);
         }
         if (ejcd?.Userid == null && judgeid != null) // No existe y lo tengo que agregar
@@ -142,10 +142,10 @@
             Active = true,
             Creationdate = DateTime.Now
           };
-          Helper.DB.Eventjudgechallengedivisions.Add(db_ejcd);
+          _db.Eventjudgechallengedivisions.Add(db_ejcd);
         }
         if (db_ejcd != null)
-          Helper.DB.SaveChanges();
+          _db.SaveChanges();
       }
     }
     navManager.NavigateTo("/EventConfig");
@@ -154,13 +154,12 @@
   private async Task FillDataSources()
   {
   // Fill Judges
-    LstJudges = await Helper.DB.Injausers
-      .Include(q=>q.Injauserusertypes)
+    LstJudges = await _db.Injausers.Include(q=>q.Injauserusertypes)
       .Where(x => x.Injauserusertypes.Any(g=>g.Typeid == 3 && g.Eventid == _eventId))
       .OrderBy(x=>x.Name)
       .ToListAsync();
 
-    LstAllCriteriasJudges = await Helper.DB.VCriteriasJudgesPlanas
+    LstAllCriteriasJudges = await _db.VCriteriasJudgesPlanas
       .Where(x => x.Eventchallengeid == _eventchallengeId)
       .OrderBy(x=>x.Divisionname)
       .ToListAsync();

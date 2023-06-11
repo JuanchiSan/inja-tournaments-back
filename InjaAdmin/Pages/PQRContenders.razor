@@ -92,6 +92,7 @@
 </style>
 
 @code {
+  private readonly dbContext _db = new();
   List<VUserinscriptionPlana>? _lstUsers { get; set; }
   List<Event>? _lstEvents { get; set; }
   SfPager? Page;
@@ -110,7 +111,7 @@
   {
     _lstUsers?.Clear();
     if (_eventId != null)
-      _lstUsers = Helper.DB
+      _lstUsers = _db
         .VUserinscriptionPlanas
         .Where(x => x.Eventid == _eventId)
         .OrderBy(x => x.Usernumber)
@@ -122,7 +123,7 @@
 
   protected override void OnInitialized()
   {
-    _lstEvents = Helper.DB.Events.ToList();
+    _lstEvents = _db.Events.ToList();
 
     FillDataSources();
     StateHasChanged();
@@ -135,8 +136,12 @@
   private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
     _skipValue = 0;
+    
+    #pragma warning disable BL0005
     if (Page != null)
       Page.CurrentPage = 1;
+    #pragma warning restore BL0005
+    
     FillDataSources();
     StateHasChanged();
   }
