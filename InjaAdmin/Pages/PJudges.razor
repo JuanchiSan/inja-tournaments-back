@@ -1,0 +1,276 @@
+﻿@page "/Judges"
+@using Microsoft.EntityFrameworkCore
+@using InjaDTO
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject SfDialogService dialogService
+
+<h3>Judges</h3>
+
+<div>
+  <table>
+    <tr>
+      <td style="width: 150px">
+        <span>Event:</span>
+      </td>
+      <td style="width: 400px">
+        <SfComboBox @ref="@sfComboEvent" @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                    PopupWidth="400" DataSource="@(_lstEvents)">
+          <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)"/>
+          <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange"/>
+        </SfComboBox>
+      </td>
+      @if (_eventId != null)
+      {
+        <td>
+          <span>Add Judge</span>
+        </td>
+        <td>
+          <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search" DataSource="@_lstDistinctUsers">
+            <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="OnJudgeValueSelect"/>
+            <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
+          </SfAutoComplete>
+        </td>
+        <td style="width: 120px">
+          <SfButton Content="Add User" @onclick="@OnAddUserClick" IsPrimary="true"/>
+        </td>
+      }
+    </tr>
+  </table>
+</div>
+<div>
+  <SfGrid @ref="JudgesGrid" TValue="UserDTO" ID="@nameof(JudgesGrid)"
+          AllowFiltering="true" AllowResizing="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+          Toolbar="@(new List<string> { "Delete", "PdfExport", "Print", "Search" })"
+          DataSource="_lstUsers">
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+    <GridEditSettings AllowDeleting="true"/>
+    <GridSortSettings>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(UserDTO.Lastname)"/>
+        <GridSortColumn Field="@nameof(UserDTO.Firstname)"/>
+      </GridSortColumns>
+    </GridSortSettings>
+    <GridEvents OnActionBegin="OnJudgesGridActionBegin" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
+    <GridColumns>
+      <GridColumn Field="@nameof(UserDTO.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
+      <GridColumn Field="@nameof(UserDTO.Lastname)" HeaderText="Last Name" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Firstname)" HeaderText="First Name" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.User_Number)" HeaderText="Number" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Mail)" HeaderText="Mail" Width="150"/>
+      <GridColumn Field="@nameof(UserDTO.Phone)" HeaderText="Phone" Width="150"/>
+    </GridColumns>
+  </SfGrid>
+</div>
+
+@code {
+
+  #region Page
+
+  List<VInjauser>? _dbUsers;
+  
+  readonly List<UserDTO> _lstDistinctUsers = new();
+  UserDTO? _userToAdd;
+
+  private void OnAddUserClick(MouseEventArgs obj)
+  {
+    if (_userToAdd == null || _lstUsers == null || _eventId == null) return;
+    if (_lstUsers.FirstOrDefault(x => x.Id == _userToAdd.Id) != null)
+    {
+      InvokeAsync(async() => await dialogService.AlertAsync("User already added", "Error"));
+      _userToAdd = null;
+    }
+    else
+    {
+      var db = new dbContext();
+      db.Injauserusertypes.Add(new Injauserusertype
+      {
+        Eventid = (int)_eventId!,
+        Userid = _userToAdd.Id,
+        Typeid = 3
+      });
+      try
+      {
+        db.SaveChanges();
+        FillDS2();
+        FillDS();
+      }
+      catch (Exception e)
+      {
+        Serilog.Log.Logger.Error(e, "Error al agregar un usuario a un evento");
+      }
+    }
+  }
+
+  private void OnJudgeValueSelect(SelectEventArgs<UserDTO> obj)
+  {
+    _userToAdd = obj.ItemData;
+  }
+
+  private void FillDS2()
+  {
+    var db = new dbContext();
+    _dbUsers = db
+      .VInjausers
+      .Where(x => x.Usertypeid == 3)
+      .ToList();
+
+    _dbUsers.ForEach(x =>
+    {
+      var memUser = _lstDistinctUsers.FirstOrDefault(du => du.Id == x.Injauserid);
+      if (memUser == null) // no sestá y lo tengo que agregar
+      {
+        _lstDistinctUsers.Add(new UserDTO
+        {
+          Id = (int)x.Injauserid!,
+          Lastname = x.Lastname ?? string.Empty,
+          Firstname = x.Firstname ?? string.Empty,
+          Phone = x.Phone,
+          Mail = x.Mail ?? string.Empty,
+          Docid = (short)x.Docid!,
+          Docnumber = x.Docnumber ?? string.Empty
+        });
+      }
+    });
+  }
+
+  private void FillDS()
+  {
+    _lstUsers = new List<UserDTO>();
+  //_availableUsers.Clear();
+
+    _dbUsers?
+      .Where(db => (_eventId == null || db.Eventid == _eventId) && db.Usertypeid == 3)
+      .ToList()
+      .ForEach(x =>
+      {
+        var memItem = _lstUsers.FirstOrDefault(u => u.Id == (int)x.Injauserid!);
+        if (memItem == null) // Hay que agregarlo
+        {
+          _lstUsers.Add(new UserDTO
+          {
+            Id = (int)x.Injauserid!,
+            Lastname = x.Lastname ?? string.Empty,
+            Firstname = x.Firstname ?? string.Empty,
+            Phone = x.Phone,
+            Mail = x.Mail ?? string.Empty,
+            User_Number = _eventId == null ? null : x.UserNumber,
+            Docid = (short)x.Docid!,
+            Docnumber = x.Docnumber ?? string.Empty
+          });
+        }
+      });
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var db = new dbContext();
+    _lstEvents = await db
+      .Events
+      .ToListAsync();
+
+    FillDS2();
+
+    var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
+
+    if (foundQueryParameter.TryGetValue("eid", out var eid))
+    {
+      _eventId = Convert.ToInt32(eid);
+    }
+
+    FillDS();
+    StateHasChanged();
+  }
+
+  #endregion
+
+  #region Combo Event
+
+  List<Event>? _lstEvents;
+  SfComboBox<int?, Event>? sfComboEvent;
+  int? _eventId;
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDS();
+    Task.Run(async () => await JudgesGrid?.Refresh()!);
+    StateHasChanged();
+  }
+
+  #endregion
+
+  #region Grid
+
+  SfGrid<UserDTO>? JudgesGrid { get; set; }
+  List<UserDTO>? _lstUsers { get; set; }
+
+  private async Task OnContenderGridToolBarClick(ClickEventArgs args)
+  {
+    if (JudgesGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(JudgesGrid)}_excelexport":
+        await JudgesGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(JudgesGrid)}_pdfexport":
+        await JudgesGrid.ExportToPdfAsync(new PdfExportProperties { IncludeTemplateColumn = true });
+        break;
+      case $"{nameof(JudgesGrid)}_csvexport":
+        await JudgesGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private async Task OnJudgesGridActionBegin(ActionEventArgs<UserDTO> obj)
+  {
+    if (_eventId == null) return;
+    switch (obj.RequestType)
+    {
+      case Syncfusion.Blazor.Grids.Action.Delete:
+        var t = await dialogService.ConfirmAsync(null, "Confirm Delete", new DialogOptions()
+        {
+          ChildContent = @<div>
+                           Are you sure you want to delete the Judge <b>@obj.RowData.Name</b> from this Event?<br>
+                         </div>
+        });
+        if (!t)
+        {
+          obj.Cancel = true;
+          return;
+        }
+        var db = new dbContext();
+        var dbUserType = db.Injauserusertypes
+          .FirstOrDefault(x => x.Eventid == _eventId && x.Userid == obj.Data.Id && x.Typeid == 3);
+
+        if (dbUserType == null) return;
+
+        var dbUserInscs = db.Userinscriptions
+          .Where(x => x.Ueventid == _eventId && x.Ueventid == obj.Data.Id && x.Utypeid == 3);
+        var dbUserGroups = db.Persongroups
+          .Include(x => x.Group)
+          .Where(p => p.Userid == obj.RowData.Id && p.Group.Eventid == _eventId);
+        db.Persongroups.RemoveRange(dbUserGroups);
+        db.Injauserusertypes.Remove(dbUserType);
+        db.Userinscriptions.RemoveRange(dbUserInscs);
+        try
+        {
+          await db.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+          Serilog.Log.Logger.Error(e, "Error borrando un Juez {RowDataId} Event {EventId}", obj.RowData.Id, _eventId);
+        }
+
+        FillDS();
+        FillDS2();
+        StateHasChanged();
+        break;
+    }
+  }
+
+  #endregion
+}

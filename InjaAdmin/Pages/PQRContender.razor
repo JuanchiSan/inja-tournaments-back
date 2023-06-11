@@ -1,6 +1,7 @@
 ﻿@page "/QRContender"
 
 @using Syncfusion.Blazor.BarcodeGenerator
+@using System.Collections.Immutable
 
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
@@ -32,15 +33,15 @@
     @{
       if (_lstUsersToPrint is {Count: > 0 })
       {
-        foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber))
+        foreach (var user in _lstUsersToPrint.OrderBy(x => x.Usernumber).ThenBy(x => x.Eventchallengeid).ToList())
         {
           var strFinal = $"{Helper.strURL}eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
           <div class="user-data">
             <div class="user-challenge">@user.Eventchallengename</div>
             <div class="user-division">@user.Divisionname</div>
             <div class="user-qr">
-              <SfQRCodeGenerator Width="150px" Height="150px"  Value="@(strFinal)">
-                <QRCodeGeneratorDisplayText Text="@user.Usernumber"/>
+              <SfQRCodeGenerator Width="150px" Height="150px" Value="@(strFinal)">
+                <QRCodeGeneratorDisplayText Text="@(user.Usernumber ?? "-")"/>
               </SfQRCodeGenerator>
             </div>
           </div>
@@ -90,14 +91,14 @@
 </style>
 
 @code {
-  
+
   int? _eventId { get; set; }
   int? _contenderId { get; set; }
   List<Event>? _lstEvents { get; set; }
 
   List<VUserinscriptionPlana>? _lstUsersToPrint { get; set; }
   List<InternalContender>? _lstContenders { get; set; }
-  
+
   private void FillDataSources()
   {
     _contenderId = null;
@@ -150,7 +151,7 @@
     }
     StateHasChanged();
   }
-  
+
   #endregion
 
 }

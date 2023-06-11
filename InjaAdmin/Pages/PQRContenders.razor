@@ -34,7 +34,7 @@
     @{
       if (_lstUsers is {Count: > 0 })
       {
-        foreach (var user in _lstUsers.OrderBy(x => x.Usernumber).Skip(_skipValue).Take(_takeValue))
+        foreach (var user in _lstUsers.Skip(_skipValue).Take(_takeValue).ToList())
         {
           var strFinal = $"{Helper.strURL}eventId={user.Eventid}&challengeId={user.Challengeid}&divisionId={user.Divisionid}&contenderId={user.Userid}&guid={Guid.NewGuid()}";
           <div class="user-data">
@@ -96,8 +96,7 @@
   List<Event>? _lstEvents { get; set; }
   SfPager? Page;
 
-  //public int pageSize { get; set; }
-  private readonly int PageSize = 20;
+    private const int PageSize = 20;
   private int _skipValue;
   private int _takeValue = 20;
 
@@ -112,7 +111,13 @@
     _lstUsers?.Clear();
     if (_eventId != null)
       _lstUsers = Helper.DB
-        .VUserinscriptionPlanas.Where(x => x.Eventid == _eventId).ToList();
+        .VUserinscriptionPlanas
+        .Where(x => x.Eventid == _eventId)
+        .OrderBy(x => x.Usernumber)
+        .ThenBy(y => y.Eventchallengeid)
+        .ThenBy(z => z.Divisionid)
+        .ThenBy(w => w.Userid)
+        .ToList();
   }
 
   protected override void OnInitialized()
@@ -130,6 +135,8 @@
   private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
     _skipValue = 0;
+    if (Page != null)
+      Page.CurrentPage = 1;
     FillDataSources();
     StateHasChanged();
   }
