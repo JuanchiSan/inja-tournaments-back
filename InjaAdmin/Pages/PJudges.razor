@@ -1,4 +1,7 @@
 ﻿@page "/Judges"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Microsoft.EntityFrameworkCore
 @using InjaDTO
 @using Microsoft.AspNetCore.WebUtilities

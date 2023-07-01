@@ -1,5 +1,7 @@
 ﻿@page "/PointView"
 
+@attribute [Authorize(Roles = "6")]
+
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 @inject IJSRuntime JsRuntime
@@ -79,7 +81,7 @@
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
       <GridSortSettings>
         <GridSortColumns>
-          <GridSortColumn Field="@nameof(VUserpointGroup.Totalpoints)" Direction="SortDirection.Descending"/>
+          <GridSortColumn Field="@nameof(VUserpointGroup.FinalPoint)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
       <GridEvents CommandClicked="GridPointsCommandClick" RowDataBound="Callback" OnToolbarClick="@GridToolbarClick" TValue="VUserpointGroup"/>

@@ -1,4 +1,7 @@
 ﻿@page "/EventConfig"
+@using Microsoft.AspNetCore.WebUtilities
+
+@attribute [Authorize(Roles = "6")]
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
@@ -147,9 +150,11 @@
   protected override Task OnInitializedAsync()
   {
     _lstEvents = _db.Events.OrderBy(x => x.Name).ToList();
-    if (_lstEvents.Any())
-      SetEventInternalValues(_lstEvents.First());
+    
+    var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
 
+    _eventId = foundQueryParameter.TryGetValue("eid", out var eid) ? Convert.ToInt32(eid) : _lstEvents.FirstOrDefault()?.Id;
+    
     return base.OnInitializedAsync();
   }
 

@@ -489,6 +489,9 @@ public partial class dbContext : DbContext
                 .IsRequired()
                 .HasDefaultValueSql("true")
                 .HasColumnName("active");
+            entity.Property(e => e.Adminusertype)
+                .HasComment("Tipo de Usuario para la parte de Administración")
+                .HasColumnName("adminusertype");
             entity.Property(e => e.Cityid).HasColumnName("cityid");
             entity.Property(e => e.Docid).HasColumnName("docid");
             entity.Property(e => e.Docnumber)

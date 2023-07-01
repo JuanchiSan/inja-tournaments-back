@@ -1,5 +1,7 @@
 ﻿@page "/Groups"
 
+@attribute [Authorize(Roles = "6")]
+
 @using Microsoft.EntityFrameworkCore
 @using InjaDTO
 @using Action = Syncfusion.Blazor.Grids.Action

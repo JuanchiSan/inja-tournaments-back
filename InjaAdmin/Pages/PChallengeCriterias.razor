@@ -1,4 +1,7 @@
 ﻿@page "/ChallengeCriterias/{cid:int}"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Action = Syncfusion.Blazor.Grids.Action
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager

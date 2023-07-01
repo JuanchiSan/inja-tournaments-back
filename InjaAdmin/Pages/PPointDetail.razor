@@ -1,4 +1,7 @@
 ﻿@page "/PointDetail"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Microsoft.EntityFrameworkCore
 @using Action = Syncfusion.Blazor.Grids.Action
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage

@@ -1,5 +1,7 @@
 ﻿@page "/Challenge"
 
+@attribute [Authorize(Roles = "6")]
+
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 @inject HttpClient httpClient

@@ -1,5 +1,7 @@
 ﻿@page "/Events"
 
+@attribute [Authorize(Roles = "6")]
+
 <div>
   <SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)"
           AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"

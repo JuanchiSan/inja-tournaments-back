@@ -168,4 +168,28 @@ public class DeductionController : ControllerBase
       return StatusCode(StatusCodes.Status500InternalServerError, "Se rompió");
     }
   }
+  
+  [AllowAnonymous]
+  [HttpGet("ContenderDeductionsByChallenge")]
+  public async Task<ActionResult<List<VDeduction>>> ContenderDeductionsByChallenge(int eventId, int contenderId, int challengeId)
+  {
+    try
+    {
+      var dbDeductions = await _context
+        .VDeductions
+        .Where(x => x.Eventid == eventId && x.Contenderid == contenderId && x.Challengeid == challengeId)
+        .ToListAsync();
+
+      if (!dbDeductions.Any())
+        return Ok(new List<VDeduction>());
+      
+      return dbDeductions;
+      
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e,"Error on ContenderDeduction");
+      return StatusCode(StatusCodes.Status500InternalServerError, "Se rompió");
+    }
+  }
 }

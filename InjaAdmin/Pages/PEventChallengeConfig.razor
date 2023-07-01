@@ -1,4 +1,7 @@
 ﻿@page "/EventChallengeConfig"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Microsoft.EntityFrameworkCore
 @using System.ComponentModel.DataAnnotations
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage

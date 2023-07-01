@@ -35,6 +35,11 @@ public partial class Injauser
 
     public string? Nickname { get; set; }
 
+    /// <summary>
+    /// Tipo de Usuario para la parte de Administración
+    /// </summary>
+    public int Adminusertype { get; set; }
+
     public virtual City? City { get; set; }
 
     public virtual Doctype Doc { get; set; } = null!;

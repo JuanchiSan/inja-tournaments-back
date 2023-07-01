@@ -2,8 +2,19 @@
 
 <PageTitle>Index</PageTitle>
 <span class="pageheader">Inja Admin</span>
-<br />
+<br/>
+
+<AuthorizeView>
+	<Authorized>
+		<h1>Hi, @context.User.Identity.Name!</h1>
+	</Authorized>
+	<NotAuthorized>
+		 
+	</NotAuthorized>
+</AuthorizeView>
+
 <div class="controlregion">
+
 
 </div>
 
@@ -40,7 +51,7 @@
 	}
 
 	.syncfusion-blazor-index-icons {
-		font-family: "sbicons";
+		font-family: "sbicons",serif;
 		color: #0073DC !important;
 		font-style: normal;
 		font-weight: normal;
@@ -64,3 +75,9 @@
 		font-weight: bold !important;
 	}
 </style>
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationState { get; set; }
+	
+}

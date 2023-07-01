@@ -1,9 +1,8 @@
 ﻿@page "/QRContenders"
 
-@using Syncfusion.Blazor.BarcodeGenerator
+@attribute [Authorize(Roles = "6")]
 
-@inject IJSRuntime JsRuntime
-@inject NavigationManager navManager
+@using Syncfusion.Blazor.BarcodeGenerator
 
 <h3 class="print-hide">Contenders</h3>
 

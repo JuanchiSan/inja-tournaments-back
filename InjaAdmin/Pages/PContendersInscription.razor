@@ -1,4 +1,7 @@
 ﻿@page "/ContenderInscription"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Log = Serilog.Log
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage

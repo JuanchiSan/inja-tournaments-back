@@ -1,4 +1,7 @@
 ﻿@page "/ChallengeCriteriaJudgeConfig"
+
+@attribute [Authorize(Roles = "6")]
+
 @using Microsoft.EntityFrameworkCore
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
@@ -9,18 +12,16 @@
   <div>
     <h2>Challenge @_challengeName</h2>
   </div>
-  <div class="bootstrap5-dark">
-    <table class="table">
-      <tbody>
+  <div>
+    <table>
       <tr>
         <td>
-          <SfButton @onclick="@(_ => { navManager.NavigateTo("/EventConfig"); })">Go Back</SfButton>
+          <SfButton @onclick="@(_ => { navManager.NavigateTo($"/EventConfig?eid={_eventId}"); })">Go Back</SfButton>
         </td>
         <td>
           <SfButton IsPrimary="true" @onclick="@OnSaveAllChanges">Save All Changes</SfButton>
         </td>
       </tr>
-      </tbody>
     </table>
   </div>
   <div>
@@ -148,7 +149,7 @@
           _db.SaveChanges();
       }
     }
-    navManager.NavigateTo("/EventConfig");
+    navManager.NavigateTo("/EventConfig?eid=" + _eventId);
   }
 
   private async Task FillDataSources()

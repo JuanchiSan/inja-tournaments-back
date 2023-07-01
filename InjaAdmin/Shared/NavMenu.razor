@@ -9,84 +9,89 @@
   <div class="separator"></div>
   <div class="scroller">
     <ul class="nav flex-column">
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Events">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Events</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="JugmentCriteria">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">JugmentCriteria</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Challenge">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Challenge</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="CompetitionType">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">CompetitionType</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Country">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Country</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Types">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Types</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="EventConfig">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Config</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="PointView">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Points</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="QRContender">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR Contender</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="QRContenders">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QRs</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="QRChallenge">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR By Challenge</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Groups">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Groups</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Contenders">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Contenders</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="Judges">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judges</span>
-        </NavLink>
-      </li>
-      <li class="nav-item px-3">
-        <NavLink class="nav-link" href="WinByChallengeDivision">
-          <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Winners By Challenge</span>
-        </NavLink>
-      </li>
+      <AuthorizeView Roles="6">
+        <Authorized>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Events">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Events</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="JugmentCriteria">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">JugmentCriteria</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Challenge">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Challenge</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="CompetitionType">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">CompetitionType</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Country">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Country</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Types">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Types</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="EventConfig">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Config</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="PointView">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Points</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="QRContender">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR Contender</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="QRContenders">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QRs</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="QRChallenge">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR By Challenge</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Groups">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Groups</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Contenders">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Contenders</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Judges">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judges</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="WinByChallengeDivision">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Winners By Challenge</span>
+            </NavLink>
+          </li>
+        </Authorized>
+      </AuthorizeView>
     </ul>
   </div>
 </div>
+
 <style>
 	.scroller {
 		height: calc(100vh - 160px) !important;

@@ -1,5 +1,7 @@
 ﻿@page "/QRChallenge"
 
+@attribute [Authorize(Roles = "6")]
+
 @using Syncfusion.Blazor.BarcodeGenerator
 
 @inject IJSRuntime JsRuntime

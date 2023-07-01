@@ -35,6 +35,8 @@ public static class Helper
 	public static string paramChellengeName => "paramChallengeName";
 	public static string paramJudgeChellengeName => "paramJudgeChallengeName";
 
+	public static string paramUserSession => "UserSession";
+	
 	public static string strURL { get; set; } = string.Empty;
 
 	public static void ResetContext()
