@@ -11,19 +11,13 @@
 
 <h3>PointView</h3>
 
-<SfDialog Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
+<SfDialog Target="#target" Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
   <DialogTemplates>
     <Header>
-      <table>
-        <tr>
-          <td>
-            <b>Challenge:</b>@_challengeName
-          </td>
-          <td>
-            <b>Contender:</b>@_contenderName
-          </td>
-        </tr>
-      </table>
+      <div>
+        <div><b>Challenge:</b>@_challengeName</div>
+        <div><b>Contender:</b>@_contenderName</div>
+      </div>
 
     </Header>
     <Content>
@@ -34,6 +28,7 @@
     <FooterTemplate>
     </FooterTemplate>
   </DialogTemplates>
+  <DialogPositionData X="center" Y="top"></DialogPositionData>
   <DialogEvents Closed="() => { PhotoDialogVisible = false; }"/>
 </SfDialog>
 
@@ -115,6 +110,19 @@
     .body-content {
     
     }
+    #defaultDialog.e-dialog .e-footer-content {
+            padding: 0px 10px 10px;
+            text-align: center;
+        }
+    
+        #target {
+            min-height: 450px;
+            height: 100%;
+        }
+    
+        .e-dialog .e-dlg-content {
+            padding: 10px 16px 10px;
+        }
 </style>
 
 @code {
