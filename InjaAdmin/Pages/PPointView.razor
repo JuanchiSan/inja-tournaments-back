@@ -11,8 +11,7 @@
 
 <h3>PointView</h3>
 
-<SfDialog Height="600" Width="600" ResizeHandles="@(new[] { ResizeDirection.All })"
-          AllowDragging="true" EnableResize="true" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
+<SfDialog Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
   <DialogTemplates>
     <Header>
       <table>
@@ -28,7 +27,7 @@
 
     </Header>
     <Content>
-      <div style="height:500px;width:580px;overflow:scroll;">
+      <div class="body-content">
         <img src="@PhotoURL" alt="Image">
       </div>
     </Content>
@@ -108,6 +107,13 @@
 <style>
     .e-removeEditcommand .e-unboundcell .e-unboundcelldiv button.e-photo {
         display: none;
+    }
+    .dialog-photo {
+      max-height: unset !important;
+      height: fit-content !important;
+    }
+    .body-content {
+    
     }
 </style>
 
