@@ -11,7 +11,7 @@
 
 <h3>PointView</h3>
 
-<SfDialog Target="#target" Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
+<SfDialog IsModal="true" Target="#target" Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
   <DialogTemplates>
     <Header>
       <div>
@@ -122,6 +122,9 @@
     
         .e-dialog .e-dlg-content {
             padding: 10px 16px 10px;
+        }
+        .e-dlg-overlay {
+            height: 100vh;
         }
 </style>
 
