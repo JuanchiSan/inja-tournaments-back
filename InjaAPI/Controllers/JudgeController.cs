@@ -78,7 +78,6 @@ public class JudgeController : ControllerBase
 	// 	}
 	// }
 
-	[AllowAnonymous]
 	[HttpGet]
 	public async Task<ActionResult<PhotoUserChallengeCriteriaDTO>> GetCriteriaByJudge(int eventId, int challengeId, int judgeId, int contenderId)
 	{
@@ -119,7 +118,6 @@ public class JudgeController : ControllerBase
 		}
 	}
 
-	[AllowAnonymous]
 	[HttpPost("SendPoints")]
 	public async Task<ActionResult<PointDTO>> SendPoints(PointDTO aPoint)
 	{

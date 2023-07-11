@@ -30,7 +30,8 @@ public class EventsController : ControllerBase
 		return await _context.Events.ProjectTo<EventDTO>(_mapper.ConfigurationProvider).ToListAsync();
 	}
 
-	[HttpGet("{id}")]
+  [AllowAnonymous]
+  [HttpGet("{id}")]
 	public async Task<ActionResult<EventDTO>> GetEvent(int id)
 	{
 		var dbItem = await _context.Events.FindAsync(id);

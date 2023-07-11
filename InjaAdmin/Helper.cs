@@ -8,17 +8,6 @@ namespace InjaAdmin;
 
 public static class Helper
 {
-	private static InjaData.Models.dbContext? _db;
-
-	// public static InjaData.Models.dbContext DB
-	// {
-	// 	get
-	// 	{
-	// 		_db ??= new InjaData.Models.dbContext();
-	// 		return _db;
-	// 	}
-	// }
-	
 	public static NumericEditCellParams DFNumericEditCell => new()
 	{
 		Params = new NumericTextBoxModel<object>
@@ -32,19 +21,15 @@ public static class Helper
 	};
 	
 	public static string paramDetailPointView => "paramdetailview";
+
 	public static string paramChellengeName => "paramChallengeName";
+
 	public static string paramJudgeChellengeName => "paramJudgeChallengeName";
 
 	public static string paramUserSession => "UserSession";
 	
 	public static string strURL { get; set; } = string.Empty;
 
-	public static void ResetContext()
-	{
-		_db = new InjaData.Models.dbContext();
-		GC.Collect();
-	}
-	
 	public static object ReadDM<T>(IEnumerable ds, DataManagerRequest dm, string? key = null)
 	{
 		var dataObject = new DataResult();

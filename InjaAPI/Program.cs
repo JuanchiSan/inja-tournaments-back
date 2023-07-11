@@ -5,18 +5,41 @@ using System.Text;
 using Serilog;
 using InjaAPI;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Nodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var cs = builder.Configuration["ConnectionStrings:WebApiDatabase"];
-
-if (cs == null)
+#region Set the Corrent Database Connection String
+try
 {
-	Console.WriteLine("There is no CS on the Appconfig");
-	return;
-}
+  Log.Information("Reading dbConfig.json");
+  if (!File.Exists("dbConfig.json"))
+  {
+    Log.Error("Fatal Error. Can't find the dbConfig.json file");
+    return;
+  }
 
-InjaData.Helper.CS = cs;
+  var jsonObject = JsonNode.Parse(File.ReadAllText("dbConfig.json"));
+  if (jsonObject == null)
+  {
+    Log.Error("jSonObject is null, please check dbConfig.json file and location");
+    return;
+  }
+
+  var strMainConn = jsonObject["DB"]!.ToString();
+    Log.Information(jsonObject.ToJsonString());
+
+  InjaData.Helper.CS = strMainConn;
+  Helper.APIDomain = jsonObject["APIDomain"]!.ToString();
+
+  Log.Information(strMainConn);
+}
+catch (Exception e)
+{
+  Log.Error(e, "Error Reading DatabaseFile, Application can't run. Exiting");
+  return;
+}
+#endregion
 
 // SetUp Serilog
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -35,10 +58,9 @@ builder.Services.AddScoped<TokenService, TokenService>();
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 
+// Enable CORS
 builder.Services.AddCors();
 
 builder.Services.AddSwaggerGen(option =>

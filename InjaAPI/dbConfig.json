@@ -1,4 +1,4 @@
 {
 	"DB": "Host=10.10.12.11; Database=Naily; Username=postgres; Password=Qwert.789",
-	"QR_URL": "https://inja-app.guadcore.ar/qr-handler?"
+	"APIDomain": "https://inja-api.guadcore.ar"
 }

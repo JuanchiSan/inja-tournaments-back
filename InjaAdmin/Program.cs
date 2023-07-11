@@ -29,15 +29,12 @@ try
 	}
 
 	var strMainConn = jsonObject["DB"]!.ToString();
-	//var strLogConn =
-	//	$"Server={jsonObject["Server"]};Initial Catalog={jsonObject["LogDatabase"]};User ID={jsonObject["User"]};Password={jsonObject["Password"]};{jsonObject["AdditionalConfig"]}";
 	Log.Information(jsonObject.ToJsonString());
-
 	InjaData.Helper.CS = strMainConn;
-	//MaguariDB.Helper.CS_Log = strLogConn;
 
-	Log.Information(strMainConn);
-	//Log.Information(strLogConn);
+  // Setup QR App
+  InjaAdmin.Helper.strURL = jsonObject["QR_URL"]!.ToString();
+  Log.Information(strMainConn);
 }
 catch (Exception e)
 {
@@ -45,9 +42,6 @@ catch (Exception e)
 	return;
 }
 #endregion
-
-// Setup QR App
-InjaAdmin.Helper.strURL = builder.Configuration.GetValue<string>("QR_URL") ?? string.Empty;
 
 // SetUp Serilog
 builder.Host.UseSerilog((ctx, lc) => lc

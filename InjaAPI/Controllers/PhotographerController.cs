@@ -23,7 +23,6 @@ public class PhotographerController : ControllerBase
     _tokenService = tokenService;
   }
 
-  [AllowAnonymous]
   [HttpGet("GetImage")]
   public async Task<ActionResult> GetImage(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
@@ -59,10 +58,9 @@ public class PhotographerController : ControllerBase
   private string GetFileName(int eventId, int challengeId, int divisionid, int contenderId, int photographerId) => $"{eventId}_{challengeId}_{divisionid}_{contenderId}_{photographerId}";
 
   private string GetPhotoURL(int eventId, int challengeId, int divisionId, int contenderId, int photographerId) =>
-    $"https://inja-api.guadcore.ar/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&divisionid={divisionId}&contenderId={contenderId}&photographerId={photographerId}";
+    $"{Helper.APIDomain}/api/Photographer/DownloadPhotoFile?eventId={eventId}&challengeId={challengeId}&divisionid={divisionId}&contenderId={contenderId}&photographerId={photographerId}";
 
 
-  [AllowAnonymous]
   [HttpGet("GetContenderChallenges")]
   public async Task<ActionResult<ResponseDivisionContenderChallengeDTO>> GetContenderChallenges(int eventid, int challengeid, int divisionid, int contenderid)
   {
@@ -97,7 +95,6 @@ public class PhotographerController : ControllerBase
     return Ok(result);
   }
 
-  [AllowAnonymous]
   [HttpPost("UploadPhotoFile")]
   public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int divisionid, int contenderId, int photographerId, IFormFile? file)
   {
@@ -141,7 +138,6 @@ public class PhotographerController : ControllerBase
     }
   }
 
-  [AllowAnonymous]
   [HttpGet("DownloadPhotoFile")]
   public IActionResult DownloadPhotoFile(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
@@ -166,7 +162,6 @@ public class PhotographerController : ControllerBase
     }
   }
 
-  [AllowAnonymous]
   [HttpPost("UploadPhotoImageBase64")]
   public async Task<ActionResult<string>> UploadPhotoImageBase64(ImageUploadDTO obj)
   {

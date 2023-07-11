@@ -1,4 +1,6 @@
-﻿namespace InjaAPI;
+﻿using System.Security.Policy;
+
+namespace InjaAPI;
 
 public static class Helper
 {
@@ -9,5 +11,7 @@ public static class Helper
 	public static string JWTClaimUserName { get; set; } = "UserName";
 	public static string JWTClaimRoles { get; set; } = "Roles";
 	public static string JWTClaimEmail { get; set; } = "EMail";
+
+	public static string APIDomain { get; set; } = "https://inja-api.guadcore.ar";
 
 }

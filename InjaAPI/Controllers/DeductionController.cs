@@ -21,7 +21,6 @@ public class DeductionController : ControllerBase
     _tokenService = tokenService;
   }
 
-  [AllowAnonymous]
   [HttpPut("AddDeduction")]
   public async Task<ActionResult<int>> AddDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid, decimal score, string? comment)
   {
@@ -112,7 +111,6 @@ public class DeductionController : ControllerBase
     return Ok(ndeductionNumber);
   }
 
-  [AllowAnonymous]
   [HttpDelete("DeleteDeduction")]
   public async Task<ActionResult> DeleteDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid)
   {
@@ -145,7 +143,6 @@ public class DeductionController : ControllerBase
     }
   }
   
-  [AllowAnonymous]
   [HttpGet("ContenderDeductions")]
   public async Task<ActionResult<List<VDeduction>>> ContenderDeductions(int eventId, int contenderId)
   {
@@ -169,7 +166,6 @@ public class DeductionController : ControllerBase
     }
   }
   
-  [AllowAnonymous]
   [HttpGet("ContenderDeductionsByChallenge")]
   public async Task<ActionResult<List<VDeduction>>> ContenderDeductionsByChallenge(int eventId, int contenderId, int challengeId)
   {
