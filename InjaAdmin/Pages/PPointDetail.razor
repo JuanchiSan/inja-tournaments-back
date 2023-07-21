@@ -51,8 +51,8 @@
         <GridColumn Field="@nameof(VUserpoint.Slot9)" HeaderText="Slot 9" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
         <GridColumn Field="@nameof(VUserpoint.Slot10)" HeaderText="Slot 10" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="70" Visible="@_cantslot10"/>
         <GridColumn Field="@nameof(VUserpoint.Comment)" HeaderText="Comment" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" Width="150"/>
-        <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Totalpoints" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
-        <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Maxscore" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Totalpoints)" HeaderText="Total Points" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
+        <GridColumn Field="@nameof(VUserpoint.Maxscore)" HeaderText="Max Score" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Format="N2" Width="100" AllowEditing="false"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -266,5 +266,4 @@
       navManager.NavigateTo("/PointView");
     }
   }
-
 }

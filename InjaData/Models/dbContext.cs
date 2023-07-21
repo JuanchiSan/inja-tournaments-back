@@ -424,6 +424,8 @@ public partial class dbContext : DbContext
 
             entity.ToTable("eventjudgechallengedivision");
 
+            entity.HasIndex(e => new { e.Divisionid, e.Eventchallengeid, e.Challengejuzmentcriteria, e.Judgeid }, "idx_event_judge_challenge_division").IsUnique();
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Active)
                 .IsRequired()
@@ -886,6 +888,9 @@ public partial class dbContext : DbContext
                 .ToView("v_challengejudgementcriteria");
 
             entity.Property(e => e.Challengeid).HasColumnName("challengeid");
+            entity.Property(e => e.Challengetypename)
+                .HasMaxLength(50)
+                .HasColumnName("challengetypename");
             entity.Property(e => e.Criteriaid).HasColumnName("criteriaid");
             entity.Property(e => e.Criterianame)
                 .HasMaxLength(200)
@@ -1442,13 +1447,21 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Contendernumber)
                 .HasMaxLength(10)
                 .HasColumnName("contendernumber");
+            entity.Property(e => e.Criterio100).HasColumnName("criterio100");
+            entity.Property(e => e.Criterio400).HasColumnName("criterio400");
+            entity.Property(e => e.Criterio450).HasColumnName("criterio450");
+            entity.Property(e => e.Criterio500).HasColumnName("criterio500");
+            entity.Property(e => e.Criterio550).HasColumnName("criterio550");
+            entity.Property(e => e.Criterio600).HasColumnName("criterio600");
+            entity.Property(e => e.Criterio650).HasColumnName("criterio650");
+            entity.Property(e => e.Criterio700).HasColumnName("criterio700");
+            entity.Property(e => e.Criterio750).HasColumnName("criterio750");
+            entity.Property(e => e.Criterio800).HasColumnName("criterio800");
+            entity.Property(e => e.Criterio850).HasColumnName("criterio850");
+            entity.Property(e => e.Criterio900).HasColumnName("criterio900");
+            entity.Property(e => e.Criterio950).HasColumnName("criterio950");
+            entity.Property(e => e.CriterioDificultad).HasColumnName("criterio_dificultad");
             entity.Property(e => e.Deductions).HasColumnName("deductions");
-            entity.Property(e => e.Desempate1).HasColumnName("desempate1");
-            entity.Property(e => e.Desempate10).HasColumnName("desempate_10");
-            entity.Property(e => e.Desempate6).HasColumnName("desempate_6");
-            entity.Property(e => e.Desempate7).HasColumnName("desempate_7");
-            entity.Property(e => e.Desempate8).HasColumnName("desempate_8");
-            entity.Property(e => e.Desempate9).HasColumnName("desempate_9");
             entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Divisionname)
                 .HasMaxLength(200)
@@ -1459,6 +1472,9 @@ public partial class dbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("eventchallengename");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
             entity.Property(e => e.FinalPoint).HasColumnName("final_point");
             entity.Property(e => e.Maxscore).HasColumnName("maxscore");
             entity.Property(e => e.NotEval).HasColumnName("not_eval");

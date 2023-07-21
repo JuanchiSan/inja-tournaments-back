@@ -9,6 +9,8 @@ public partial class VChallengejudgementcriterion
 
     public int? Challengeid { get; set; }
 
+    public string? Challengetypename { get; set; }
+
     public int? Divisionid { get; set; }
 
     public int? Criteriaid { get; set; }
