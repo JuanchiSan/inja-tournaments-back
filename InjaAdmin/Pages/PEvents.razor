@@ -1,6 +1,6 @@
 ﻿@page "/Events"
 
-@attribute [Authorize(Roles = "6")]
+@attribute [Authorize(Roles = "4,5")]
 
 <div>
   <SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)"
