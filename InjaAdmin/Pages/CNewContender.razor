@@ -1,0 +1,31 @@
+﻿@using Syncfusion.Blazor.Popups
+
+<SfDialog Height="75%" Width="435px" ShowCloseIcon="true" @bind-Visible="Visibility">
+  <DialogTemplates>
+    <Header>
+      <span>@(NewUser ? "Create" : "Edit") New User</span>
+    </Header>
+    <Content>
+      <EditForm OnValidSubmit="OnValidSubmit">
+      </EditForm>
+    </Content>
+    <FooterTemplate>
+    </FooterTemplate>
+  </DialogTemplates>
+  <DialogEvents></DialogEvents>
+</SfDialog>
+
+@code {
+  [Parameter]
+  public bool Visibility { get; set; }
+
+  [Parameter]
+  public bool NewUser { get; set; }
+
+
+  private void OnValidSubmit(EditContext obj)
+  {
+    throw new NotImplementedException();
+  }
+
+}

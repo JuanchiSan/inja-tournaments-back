@@ -59,6 +59,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Point> Points { get; set; }
 
+    public virtual DbSet<Recoveremail> Recoveremails { get; set; }
+
     public virtual DbSet<Team> Teams { get; set; }
 
     public virtual DbSet<Teaminscription> Teaminscriptions { get; set; }
@@ -486,6 +488,8 @@ public partial class dbContext : DbContext
 
             entity.ToTable("injauser");
 
+            entity.HasIndex(e => e.Mail, "idx_injauser_email").IsUnique();
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Active)
                 .IsRequired()
@@ -779,6 +783,33 @@ public partial class dbContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Points)
                 .HasForeignKey(d => d.Userid)
                 .HasConstraintName("fk_points_user");
+        });
+
+        modelBuilder.Entity<Recoveremail>(entity =>
+        {
+            entity.HasKey(e => new { e.Email, e.CreationDate }).HasName("pk_recoveremail");
+
+            entity.ToTable("recoveremail");
+
+            entity.HasIndex(e => e.Email, "idx_recoverpass_email");
+
+            entity.HasIndex(e => e.Token, "idx_token").IsUnique();
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(200)
+                .HasColumnName("email");
+            entity.Property(e => e.CreationDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creation_date");
+            entity.Property(e => e.Token)
+                .HasMaxLength(40)
+                .HasColumnName("token");
+            entity.Property(e => e.UsedDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("used_date");
+            entity.Property(e => e.ValidUntilDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("valid_until_date");
         });
 
         modelBuilder.Entity<Team>(entity =>

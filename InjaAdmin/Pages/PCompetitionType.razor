@@ -2,7 +2,9 @@
 
 @attribute [Authorize(Roles = "5")]
 
+<div>
 <h3>CompetitionType</h3>
+</div>
 <div>
 	<div>
 		<SfGrid @ref="@CompetitionGrid" TValue="Competitiontype" ID="CompetitionGrid"
@@ -20,6 +22,9 @@
 				<GridColumn Field="@nameof(Competitiontype.Active)" HeaderText="Active" Width="150"></GridColumn>
 			</GridColumns>
 		</SfGrid>
+	</div>
+	<div>
+		<h3>Divisions</h3>
 	</div>
 	<div>
 		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="@nameof(DivisionGrid)" 

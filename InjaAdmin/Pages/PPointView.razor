@@ -55,8 +55,8 @@
         </td>
         <td>Competition</td>
         <td>
-          <SfComboBox @ref="comboDivisions" @bind-Value="@_divisionId" TValue="int?" TItem="EventChallengeDivisionInternal"
-                      Width="550" PopupWidth="500"
+          <SfComboBox @ref="comboDivisions" @bind-Value="@_divisionId" TValue="int?" TItem="EventChallengeDivisionInternal" Autofill="true"
+                      Width="550" PopupWidth="500" 
                       DataSource="@_lstDivision">
             <ComboBoxFieldSettings Text="@nameof(EventChallengeDivisionInternal.DivisionCompetition)" Value="@nameof(EventChallengeDivisionInternal.DivisionId)"/>
             <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" ValueChange="OnComboDivisionValueChange"/>

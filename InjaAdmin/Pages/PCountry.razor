@@ -5,109 +5,115 @@
 <h3>Country</h3>
 
 <div>
-	<div>
-		<SfGrid @ref="@CountryGrid" TValue="Country" ID="CountryGrid"
-						AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-						Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal" />
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-			<SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" />
-			<GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected" />
-			<GridColumns>
-				<GridColumn Field="@nameof(Country.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />
-				<GridColumn Field="@nameof(Country.Name)" HeaderText="Name" Width="150" />
-				<GridColumn Field="@nameof(Country.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
-			</GridColumns>
-		</SfGrid>
-	</div>
-	<div>
-		<SfGrid @ref="@CityGrid" TValue="City" ID="CityGrid"
-						AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-						Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport", "Search"})"
-						Query="@MakeQuery()">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal" />
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-			<GridPageSettings PageSizes="true" />
-			<SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor" />
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" />
-			<GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City" />
-			<GridColumns>
-				<GridColumn Field="@nameof(City.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150" />
-				<GridColumn Field="@nameof(City.Name)" HeaderText="Name" Width="150" />
-				<GridColumn Field="@nameof(City.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150" />
-			</GridColumns>
-		</SfGrid>
-	</div>
+  <div>
+    <SfGrid @ref="@CountryGrid" TValue="Country" ID="CountryGrid"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
+      <GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(Country.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+        <GridColumn Field="@nameof(Country.Name)" HeaderText="Name" Width="150"/>
+        <GridColumn Field="@nameof(Country.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
+  <div>
+    <h3>Cities</h3>
+  </div>
+  <div>
+    <SfGrid @ref="@CityGrid" TValue="City" ID="CityGrid"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+            Query="@MakeQuery()">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+      <GridPageSettings PageSizes="true"/>
+      <SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
+      <GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City"/>
+      <GridColumns>
+        <GridColumn Field="@nameof(City.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+        <GridColumn Field="@nameof(City.Name)" HeaderText="Name" Width="150"/>
+        <GridColumn Field="@nameof(City.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+      </GridColumns>
+    </SfGrid>
+  </div>
 </div>
 
 @code {
 
-	#region City
-	SfGrid<City>? CityGrid { get; set; }
+  #region City
 
-	private Query MakeQuery()
-	{
-		return new Query().Where(nameof(City.Countryid), "equal", _currentCountry?.Id ?? 0);
-	}
+  SfGrid<City>? CityGrid { get; set; }
 
-	/// <summary>
-	/// Event for Toolbar click for Grid Exporting
-	/// </summary>
-	private async Task CityGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (CityGrid == null) return;
+  private Query MakeQuery()
+  {
+    return new Query().Where(nameof(City.Countryid), "equal", _currentCountry?.Id ?? 0);
+  }
 
-		switch (args.Item.Id)
-		{
-			case $"{nameof(CityGrid)}_excelexport":
-				await CityGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(CityGrid)}_pdfexport":
-				await CityGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(CityGrid)}_csvexport":
-				await CityGrid.ExportToCsvAsync();
-				break;
-		}
-	}
-	#endregion
+  /// <summary>
+  /// Event for Toolbar click for Grid Exporting
+  /// </summary>
+  private async Task CityGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (CityGrid == null) return;
 
-	#region Country
-	SfGrid<Country>? CountryGrid { get; set; }
-	Country? _currentCountry { get; set; }
+    switch (args.Item.Id)
+    {
+      case $"{nameof(CityGrid)}_excelexport":
+        await CityGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(CityGrid)}_pdfexport":
+        await CityGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(CityGrid)}_csvexport":
+        await CityGrid.ExportToCsvAsync();
+        break;
+    }
+  }
 
-	/// <summary>
-	/// Event for Toolbar click for Grid Exporting
-	/// </summary>
-	private async Task CountryGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (CountryGrid == null) return;
+  #endregion
 
-		switch (args.Item.Id)
-		{
-			case $"{nameof(CountryGrid)}_excelexport":
-				await CountryGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(CountryGrid)}_pdfexport":
-				await CountryGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(CountryGrid)}_csvexport":
-				await CountryGrid.ExportToCsvAsync();
-				break;
-		}
-	}
+  #region Country
 
-	private void CountryRowSelected(RowSelectEventArgs<Country> obj)
-	{
-		_currentCountry = obj.Data;
-	}
+  SfGrid<Country>? CountryGrid { get; set; }
+  Country? _currentCountry { get; set; }
 
-	private void CountryRowDelesected(RowDeselectEventArgs<Country> obj)
-	{
-		_currentCountry = null;
-	}
+  /// <summary>
+  /// Event for Toolbar click for Grid Exporting
+  /// </summary>
+  private async Task CountryGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (CountryGrid == null) return;
 
-	#endregion
+    switch (args.Item.Id)
+    {
+      case $"{nameof(CountryGrid)}_excelexport":
+        await CountryGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(CountryGrid)}_pdfexport":
+        await CountryGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(CountryGrid)}_csvexport":
+        await CountryGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void CountryRowSelected(RowSelectEventArgs<Country> obj)
+  {
+    _currentCountry = obj.Data;
+  }
+
+  private void CountryRowDelesected(RowDeselectEventArgs<Country> obj)
+  {
+    _currentCountry = null;
+  }
+
+  #endregion
 
 }

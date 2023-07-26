@@ -43,6 +43,10 @@
           <SfButton Content="Add User" @onclick="@OnAddUserClick" IsPrimary="true"/>
         </td>
       }
+      else
+      {
+        <SfButton Content="Add New Contender" @onclick="@OnNewContenderClick" IsPrimary="true"/>
+      }
     </tr>
   </table>
 </div>
@@ -87,6 +91,11 @@
   readonly List<UserDTO> _lstDistinctUsers = new();
   UserDTO? _userToAdd;
 
+  private void OnNewContenderClick(MouseEventArgs obj)
+  {
+    
+  }
+  
   private void OnAddUserClick(MouseEventArgs obj)
   {
     if (_userToAdd == null || _lstUsers == null || _eventId == null) return;

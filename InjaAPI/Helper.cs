@@ -13,5 +13,8 @@ public static class Helper
 	public static string JWTClaimEmail { get; set; } = "EMail";
 
 	public static string APIDomain { get; set; } = "https://inja-api.guadcore.ar";
-
+	public static string BrevoKey { get; set; } = string.Empty;
+	public static string ChangePasswordURL { get; set; } = string.Empty;
+	public static string MailNameFrom { get; set; } = string.Empty;
+	public static string MailAddressFrom { get; set; } = string.Empty;
 }

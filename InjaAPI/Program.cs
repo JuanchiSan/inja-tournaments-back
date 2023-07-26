@@ -31,6 +31,10 @@ try
 
   InjaData.Helper.CS = strMainConn;
   Helper.APIDomain = jsonObject["APIDomain"]!.ToString();
+  Helper.ChangePasswordURL = jsonObject["ChangePasswordURL"]!.ToString();
+  Helper.BrevoKey = jsonObject["Brevo"]!["Key"]!.ToString();
+  Helper.MailNameFrom	= jsonObject["Brevo"]!["MailNameFrom"]!.ToString();
+  Helper.MailAddressFrom = jsonObject["Brevo"]!["MailAddressFrom"]!.ToString();
 
   Log.Information(strMainConn);
 }
