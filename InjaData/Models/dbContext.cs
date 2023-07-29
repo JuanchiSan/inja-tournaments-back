@@ -1144,10 +1144,22 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Eventchallengestartdate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("eventchallengestartdate");
+            entity.Property(e => e.Eventenddate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventenddate");
+            entity.Property(e => e.Eventendincriptiondate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventendincriptiondate");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.Eventname)
                 .HasMaxLength(50)
                 .HasColumnName("eventname");
+            entity.Property(e => e.Eventstartdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventstartdate");
+            entity.Property(e => e.Eventstartincriptiondate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("eventstartincriptiondate");
         });
 
         modelBuilder.Entity<VEventjudgechallengedivisionPlana>(entity =>

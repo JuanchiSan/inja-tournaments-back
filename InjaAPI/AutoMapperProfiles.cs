@@ -12,9 +12,7 @@ public class AutoMapperProfiles : Profile
 		CreateMap<InjaData.Models.Country, InjaDTO.CountryDTO>();
 		CreateMap<InjaData.Models.Challengetype, InjaDTO.ChallengeDTO>();
 		CreateMap<InjaData.Models.Challengejuzmentcriterion, InjaDTO.ChallengejuzmentcriterionDTO>();
-		CreateMap<InjaData.Models.Competitiontype, InjaDTO.CompetitionDTO>();
-		CreateMap<InjaData.Models.Division, InjaDTO.DivisionDTO>();
-		CreateMap<InjaData.Models.Event, InjaDTO.EventDTO>();
+		CreateMap<InjaData.Models.Competitiontype, InjaDTO.CompetitionTypeDTO>();
 		CreateMap<InjaData.Models.Injagroup, InjaDTO.GroupDTO>();
 		CreateMap<InjaData.Models.Inscription, InjaDTO.InscriptionDTO>();
 		CreateMap<InjaData.Models.Judgmentcriterion, InjaDTO.JudgmentcriterionDTO>();
