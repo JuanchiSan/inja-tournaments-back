@@ -24,6 +24,7 @@ public class PhotographerController : ControllerBase
   }
 
   [HttpGet("GetImage")]
+  [AllowAnonymous]
   public async Task<ActionResult> GetImage(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
     try
@@ -62,6 +63,7 @@ public class PhotographerController : ControllerBase
 
 
   [HttpGet("GetContenderChallenges")]
+  [AllowAnonymous]
   public async Task<ActionResult<ResponseDivisionContenderChallengeDTO>> GetContenderChallenges(int eventid, int challengeid, int divisionid, int contenderid)
   {
     var dbItems = await _context
@@ -96,6 +98,7 @@ public class PhotographerController : ControllerBase
   }
 
   [HttpPost("UploadPhotoFile")]
+  [AllowAnonymous]
   public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int divisionid, int contenderId, int photographerId, IFormFile? file)
   {
     try
@@ -139,6 +142,7 @@ public class PhotographerController : ControllerBase
   }
 
   [HttpGet("DownloadPhotoFile")]
+  [AllowAnonymous]
   public IActionResult DownloadPhotoFile(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
     try
@@ -163,6 +167,7 @@ public class PhotographerController : ControllerBase
   }
 
   [HttpPost("UploadPhotoImageBase64")]
+  [AllowAnonymous]
   public async Task<ActionResult<string>> UploadPhotoImageBase64(ImageUploadDTO obj)
   {
     if (obj.Photo64string == null)

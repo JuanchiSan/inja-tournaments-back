@@ -245,4 +245,52 @@ public class UserController : ControllerBase
 
     return userPart;
   }
+
+  [AllowAnonymous]
+  [HttpPost("NewContender")]
+  [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO)),
+  ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
+  ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+  public async Task<ActionResult<int>> NewUser(UserDTO aNewUser)
+  {
+    var dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Mail == aNewUser.Mail);
+    if (dbUser != null)
+    {
+      return BadRequest("User already exists");
+    }
+
+    dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Docnumber == aNewUser.Docnumber && x.Docid == aNewUser.Docid);
+    if (dbUser != null)
+    {
+      return BadRequest("User Document already exists");
+    }
+
+    var newDbUser = new Injauser
+    {
+      Active = true,
+      Pass = aNewUser.Pass,
+      Firstname = aNewUser.Firstname,
+      Lastname = aNewUser.Lastname,
+      Adminusertype = 1,
+      Cityid = aNewUser.Cityid,
+      Docid = aNewUser.Docid,
+      Docnumber = aNewUser.Docnumber,
+      Mail = aNewUser.Mail,
+      Phone = aNewUser.Phone,
+      Street = aNewUser.Street,
+    };
+
+    _context.Injausers.Add(newDbUser);
+    try
+    {
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Logger.Error(e, "Error saving new user");
+      return  StatusCode(StatusCodes.Status500InternalServerError, "Error saving new user");
+    }
+    
+    return Ok(newDbUser.Id);  
+  }
 }

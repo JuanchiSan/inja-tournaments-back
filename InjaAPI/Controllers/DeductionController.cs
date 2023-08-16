@@ -22,6 +22,7 @@ public class DeductionController : ControllerBase
   }
 
   [HttpPut("AddDeduction")]
+  [AllowAnonymous]
   public async Task<ActionResult<int>> AddDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid, decimal score, string? comment)
   {
     var dbContender = await _context
@@ -112,6 +113,7 @@ public class DeductionController : ControllerBase
   }
 
   [HttpDelete("DeleteDeduction")]
+  [AllowAnonymous]
   public async Task<ActionResult> DeleteDeduction(int deductionnumber, int eventId, int challengeid, int divisionid, int judgeid, int contenderid)
   {
     var dbDeduction = await _context
@@ -144,6 +146,7 @@ public class DeductionController : ControllerBase
   }
   
   [HttpGet("ContenderDeductions")]
+  [AllowAnonymous]
   public async Task<ActionResult<List<VDeduction>>> ContenderDeductions(int eventId, int contenderId)
   {
     try
@@ -167,6 +170,7 @@ public class DeductionController : ControllerBase
   }
   
   [HttpGet("ContenderDeductionsByChallenge")]
+  [AllowAnonymous]
   public async Task<ActionResult<List<VDeduction>>> ContenderDeductionsByChallenge(int eventId, int contenderId, int challengeId)
   {
     try

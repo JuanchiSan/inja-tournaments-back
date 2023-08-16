@@ -1,121 +1,116 @@
 ﻿@using Syncfusion.Blazor.Navigations;
 <div class="sidebar-content print-hide">
+  <ul class="nav flex-column">
+    <li class="nav-item px-3">
+      <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <span class="oi oi-home" aria-hidden="true"></span> <span class="displayText">Inja Admin</span>
+      </NavLink>
+    </li>
+  </ul>
+  <div class="separator"></div>
+  <div class="scroller">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> <span class="displayText">Inja Admin</span>
+      <AuthorizeView Roles="5">
+        <Authorized>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="JugmentCriteria">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judgment Criteria</span>
             </NavLink>
-        </li>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Challenge">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Challenge Types</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <SfAccordion>
+              <AccordionItems>
+                <AccordionItem Expanded="false">
+                  <HeaderTemplate><span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span>Internal Configuration</HeaderTemplate>
+                  <ContentTemplate>
+                    <li class="nav-item px-3">
+                      <NavLink class="nav-link" href="CompetitionType">
+                        <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Type of Competition</span>
+                      </NavLink>
+                    </li>
+                    <li class="nav-item px-3">
+                      <NavLink class="nav-link" href="Country">
+                        <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">List of Countries</span>
+                      </NavLink>
+                    </li>
+                    <li class="nav-item px-3">
+                      <NavLink class="nav-link" href="Types">
+                        <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Types</span>
+                      </NavLink>
+                    </li>
+                  </ContentTemplate>
+                </AccordionItem>
+              </AccordionItems>
+            </SfAccordion>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="PointView">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Points</span>
+            </NavLink>
+          </li>
+        </Authorized>
+      </AuthorizeView>
+      <AuthorizeView Roles="4,5">
+        <Authorized>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Events">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Events</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="EventConfig">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Event Configuration</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Judges">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judges by Events</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Contenders">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Inscriptions</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Groups">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Groups</span>
+            </NavLink>
+          </li>
+          <li class="nav-item px-3">
+            <SfAccordion>
+              <AccordionItems>
+                <AccordionItem Expanded="false">
+                  <HeaderTemplate><span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span>Print QRs</HeaderTemplate>
+                  <ContentTemplate>
+                    <NavLink class="nav-link" href="QRContenders">
+                      <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR list by Event</span>
+                    </NavLink>
+                    <NavLink class="nav-link" href="QRContender">
+                      <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR by Contender</span>
+                    </NavLink>
+                    <NavLink class="nav-link" href="QRChallenge">
+                      <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR list By Challenge</span>
+                    </NavLink>
+                  </ContentTemplate>
+                </AccordionItem>
+              </AccordionItems>
+            </SfAccordion>
+          </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="WinByChallengeDivision">
+              <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Winners By Challenge</span>
+            </NavLink>
+          </li>
+        </Authorized>
+      </AuthorizeView>
     </ul>
-    <div class="separator"></div>
-    <div class="scroller">
-        <ul class="nav flex-column">
-            <AuthorizeView Roles="5">
-                <Authorized>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="JugmentCriteria">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judgment Criteria</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Challenge">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Challenge Types</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <SfAccordion>
-                            <AccordionItems>
-                                <AccordionItem Expanded="false">
-                                    <HeaderTemplate><span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span>Internal Configuration</HeaderTemplate>
-                                    <ContentTemplate>
-                                        <li class="nav-item px-3">
-                                            <NavLink class="nav-link" href="CompetitionType">
-                                                <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Type of Competition</span>
-                                            </NavLink>
-                                        </li>
-                                        <li class="nav-item px-3">
-                                            <NavLink class="nav-link" href="Country">
-                                                <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">List of Countries</span>
-                                            </NavLink>
-                                        </li>
-                                        <li class="nav-item px-3">
-                                            <NavLink class="nav-link" href="Types">
-                                                <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Types</span>
-                                            </NavLink>
-                                        </li>
-                                    </ContentTemplate>
-                                </AccordionItem>
-                            </AccordionItems>
-                        </SfAccordion>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="PointView">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Points</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Judges">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judges by Events</span>
-                        </NavLink>
-                    </li>
-                </Authorized>
-            </AuthorizeView>
-            <AuthorizeView Roles="4,5">
-                <Authorized>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Events">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Events</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="EventConfig">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Event Configuration</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Judges">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Judges by Events</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Contenders">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Contenders</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="Groups">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Groups</span>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item px-3">
-                        <SfAccordion>
-                            <AccordionItems>
-                                <AccordionItem Expanded="false">
-                                    <HeaderTemplate><span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span> Print QRs</HeaderTemplate>
-                                    <ContentTemplate>
-                                        <NavLink class="nav-link" href="QRContenders">
-                                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR list by Event</span>
-                                        </NavLink>
-                                        <NavLink class="nav-link" href="QRContender">
-                                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR by Contender</span>
-                                        </NavLink>
-                                        <NavLink class="nav-link" href="QRChallenge">
-                                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">QR list By Challenge</span>
-                                        </NavLink>
-                                    </ContentTemplate>
-                                </AccordionItem>
-                            </AccordionItems>
-                        </SfAccordion>
-                    </li>
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link" href="WinByChallengeDivision">
-                            <span class="syncfusion-blazor-icons syncfusion-blazor-icon-datagrid" aria-hidden="true"></span><span class="displayText">Winners By Challenge</span>
-                        </NavLink>
-                    </li>
-                </Authorized>
-            </AuthorizeView>
-        </ul>
-    </div>
+  </div>
 </div>
 
 <style>

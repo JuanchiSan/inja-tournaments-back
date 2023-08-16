@@ -24,6 +24,7 @@ namespace InjaAPI.Controllers;
 
 		[HttpPost]
 		[Route("login")]
+		[AllowAnonymous]
 		public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
 		{
 			if (!ModelState.IsValid)

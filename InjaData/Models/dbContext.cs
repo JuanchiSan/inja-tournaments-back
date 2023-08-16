@@ -95,6 +95,10 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VInjagroupPlana> VInjagroupPlanas { get; set; }
 
+    public virtual DbSet<VInjagroupPointsPlana> VInjagroupPointsPlanas { get; set; }
+
+    public virtual DbSet<VInjagroupResult> VInjagroupResults { get; set; }
+
     public virtual DbSet<VInjauser> VInjausers { get; set; }
 
     public virtual DbSet<VNailCupPoint> VNailCupPoints { get; set; }
@@ -1261,6 +1265,55 @@ public partial class dbContext : DbContext
             entity.Property(e => e.UserNumber)
                 .HasMaxLength(10)
                 .HasColumnName("user_number");
+        });
+
+        modelBuilder.Entity<VInjagroupPointsPlana>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_injagroup_points_plana");
+
+            entity.Property(e => e.Contenderid).HasColumnName("contenderid");
+            entity.Property(e => e.Contendername)
+                .HasMaxLength(200)
+                .HasColumnName("contendername");
+            entity.Property(e => e.Contendernumber)
+                .HasMaxLength(10)
+                .HasColumnName("contendernumber");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
+            entity.Property(e => e.Divisionname)
+                .HasMaxLength(200)
+                .HasColumnName("divisionname");
+            entity.Property(e => e.Eventchallengeid).HasColumnName("eventchallengeid");
+            entity.Property(e => e.Eventchallengename)
+                .HasMaxLength(100)
+                .HasColumnName("eventchallengename");
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
+            entity.Property(e => e.FinalPoint).HasColumnName("final_point");
+            entity.Property(e => e.Groupid).HasColumnName("groupid");
+            entity.Property(e => e.Groupname)
+                .HasMaxLength(200)
+                .HasColumnName("groupname");
+        });
+
+        modelBuilder.Entity<VInjagroupResult>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_injagroup_result");
+
+            entity.Property(e => e.Eventid).HasColumnName("eventid");
+            entity.Property(e => e.Eventname)
+                .HasMaxLength(50)
+                .HasColumnName("eventname");
+            entity.Property(e => e.FinalPoint).HasColumnName("final_point");
+            entity.Property(e => e.Groupid).HasColumnName("groupid");
+            entity.Property(e => e.Groupname)
+                .HasMaxLength(200)
+                .HasColumnName("groupname");
         });
 
         modelBuilder.Entity<VInjauser>(entity =>

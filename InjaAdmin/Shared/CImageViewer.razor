@@ -1,0 +1,103 @@
+﻿
+<SfDialog IsModal="true" Target="#target" Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
+  <DialogTemplates>
+    <Header>
+      <div>
+        <div><b>Challenge:</b>@ChallengeName</div>
+        <div><b>Contender:</b>@ContenderName</div>
+      </div>
+    </Header>
+    <Content>
+      @{ if (string.IsNullOrEmpty(PhotoURL))
+        {
+          <div class="body-content">
+            <img src="images/placeholder.png" alt="Image">
+          </div>
+        }
+        else
+        {
+          <div class="body-content">
+            <img src="@PhotoURL" alt="Image">
+          </div>
+        }
+      }
+    </Content>
+    <FooterTemplate>
+      <InputFile OnChange="OnInputFile">Choose new Image to Upload</InputFile>
+      <SfButton @onclick="OnClickReplacePhoto">Replace Photo</SfButton>
+    </FooterTemplate>
+  </DialogTemplates>
+  <DialogPositionData X="center" Y="top"></DialogPositionData>
+  <DialogEvents Closed="() => { PhotoDialogVisible = false; }"/>
+</SfDialog>
+
+<style>
+    .dialog-photo {
+      max-height: unset !important;
+      height: fit-content !important;
+    }
+    .body-content {
+    
+    }
+    #defaultDialog.e-dialog .e-footer-content {
+            padding: 0px 10px 10px;
+            text-align: center;
+        }
+    
+        #target {
+            min-height: 450px;
+            height: 100%;
+        }
+    
+        .e-dialog .e-dlg-content {
+            padding: 10px 16px 10px;
+        }
+        .e-dlg-overlay {
+            height: 100vh;
+        }
+</style>
+
+@code {
+  [Parameter]
+  public string ChallengeName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string ContenderName { get; set; } = string.Empty;
+
+  private bool PhotoDialogVisible { get; set; }
+  private string? PhotoURL { get; set; }
+
+  private int Eid { get; set; }
+  private int Cid { get; set; }
+  private int Did { get; set; }
+  private int ContenderId { get; set; }
+  
+  private void OnClickReplacePhoto(MouseEventArgs obj)
+  {
+    
+  }
+
+  public void OpenDialog(string? aPhotoUrl, int eid, int cid, int did, int contenderid)
+  {
+    PhotoDialogVisible = false;
+    Eid = eid;
+    Cid = cid;
+    Did = did;
+    ContenderId = contenderid;
+    PhotoURL = aPhotoUrl;
+    PhotoDialogVisible = true;
+    StateHasChanged();
+  }
+
+  private async Task OnInputFile(InputFileChangeEventArgs obj)
+  {
+    var file = obj.File;
+    var fileContent = await file.RequestImageFileAsync("image/png", 100, 100);
+    var buffer = new byte[fileContent.Size];
+    await fileContent.OpenReadStream().ReadAsync(buffer);
+    var base64 = Convert.ToBase64String(buffer);
+    PhotoURL = $"data:image/png;base64,{base64}";
+    StateHasChanged();
+  }
+
+}

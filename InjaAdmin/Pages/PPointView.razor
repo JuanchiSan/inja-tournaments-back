@@ -11,27 +11,6 @@
 
 <h3>PointView</h3>
 
-<SfDialog IsModal="true" Target="#target" Width="600" CssClass="dialog-photo" ShowCloseIcon="true" @bind-Visible="PhotoDialogVisible">
-  <DialogTemplates>
-    <Header>
-      <div>
-        <div><b>Challenge:</b>@_challengeName</div>
-        <div><b>Contender:</b>@_contenderName</div>
-      </div>
-
-    </Header>
-    <Content>
-      <div class="body-content">
-        <img src="@PhotoURL" alt="Image">
-      </div>
-    </Content>
-    <FooterTemplate>
-    </FooterTemplate>
-  </DialogTemplates>
-  <DialogPositionData X="center" Y="top"></DialogPositionData>
-  <DialogEvents Closed="() => { PhotoDialogVisible = false; }"/>
-</SfDialog>
-
 <div>
   <div>
     <table>
@@ -78,7 +57,7 @@
           <GridSortColumn Field="@nameof(VUserpointGroup.FinalPoint)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
-      <GridEvents CommandClicked="GridPointsCommandClick" RowDataBound="Callback" OnToolbarClick="@GridToolbarClick" TValue="VUserpointGroup"/>
+      <GridEvents CommandClicked="GridPointsCommandClick" OnToolbarClick="@GridToolbarClick" TValue="VUserpointGroup"/>
       <GridColumns>
         <GridColumn Field="@nameof(VUserpointGroup.Contendername)" HeaderText="Contender" Width="200"/>
         <GridColumn Field="@nameof(VUserpointGroup.Contendernumber)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Number" Width="200"/>
@@ -99,33 +78,12 @@
   </div>
 </div>
 
+<CImageViewer @ref="@PhotoDialog" ChallengeName="@_challengeName" ContenderName="@_contenderName" />
+
 <style>
     .e-removeEditcommand .e-unboundcell .e-unboundcelldiv button.e-photo {
         display: none;
     }
-    .dialog-photo {
-      max-height: unset !important;
-      height: fit-content !important;
-    }
-    .body-content {
-    
-    }
-    #defaultDialog.e-dialog .e-footer-content {
-            padding: 0px 10px 10px;
-            text-align: center;
-        }
-    
-        #target {
-            min-height: 450px;
-            height: 100%;
-        }
-    
-        .e-dialog .e-dlg-content {
-            padding: 10px 16px 10px;
-        }
-        .e-dlg-overlay {
-            height: 100vh;
-        }
 </style>
 
 @code {
@@ -134,15 +92,16 @@
   string? _challengeName { get; set; }
   string? _contenderName { get; set; }
 
-  bool PhotoDialogVisible { get; set; }
-  string PhotoURL { get; set; } = string.Empty;
+  private CImageViewer? PhotoDialog { get; set; }
+  //bool PhotoDialogVisible { get; set; }
+  //string PhotoURL { get; set; } = string.Empty;
 
   #region Grid
 
   SfGrid<VUserpointGroup>? GridPoints { get; set; }
   List<VUserpointGroup> _lstPoints = new();
 
-  private void Callback(RowDataBoundEventArgs<VUserpointGroup> obj)
+  private void OnGridDataRowBound(RowDataBoundEventArgs<VUserpointGroup> obj)
   {
     if (obj.Data.CantPhotos == 0)
     {
@@ -164,27 +123,28 @@
 
   private async Task GridPointsCommandClick(CommandClickEventArgs<VUserpointGroup> obj)
   {
-    var fila = await new dbContext().Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
+    var _db = new dbContext();
+    var fila = await _db.Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
 
     switch (obj.CommandColumn.ID)
     {
       case "Photo" when fila != null:
       {
-        var cosa = await new dbContext().Photos
+        var cosa = await _db.Photos
           .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == obj.RowData.Contenderid)
           .OrderByDescending(x => x.Created)
           .ToListAsync();
 
-        if (!cosa.Any() || cosa.First().PhotoUrl == null)
-        {
-          await JsRuntime.InvokeVoidAsync("alert", "No hay foto para este registro");
-          return; // mostrar cartel de que no hay foto
-        }
+        // if (!cosa.Any() || cosa.First().PhotoUrl == null)
+        // {
+        //   await JsRuntime.InvokeVoidAsync("alert", "No hay foto para este registro");
+        //   return; // mostrar cartel de que no hay foto
+        // }
 
-        PhotoURL = cosa.First().PhotoUrl!.Replace("DownloadPhotoFile", "GetImage");
+        var PhotoURL = (!cosa.Any() || cosa.First().PhotoUrl == null) ? string.Empty : cosa.First().PhotoUrl!.Replace("DownloadPhotoFile", "GetImage");
         _contenderName = obj.RowData.Contendername;
         _challengeName = obj.RowData.Eventchallengename;
-        PhotoDialogVisible = true;
+        PhotoDialog?.OpenDialog(PhotoURL, (int)_eventId!, fila.Challengeid, (int)_divisionId!, (int)obj.RowData.Contenderid!);
         break;
       }
       case "Edit":
@@ -219,7 +179,7 @@
   {
     if (_eventChallengeId != null && _divisionId != null)
     {
-      _lstPoints = await new dbContext()
+      _lstPoints = await _db
         .VUserpointGroups
         .Where(x => x.Eventchallengeid == _eventChallengeId && x.Divisionid == _divisionId)
         .ToListAsync();

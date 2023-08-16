@@ -64,7 +64,7 @@
         <GridSortColumn Field="@nameof(UserDTO.Firstname)"/>
       </GridSortColumns>
     </GridSortSettings>
-    <GridEvents OnActionBegin="OnGridContendersActionBegin" CommandClicked="@OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
+    <GridEvents OnRecordDoubleClick="OnGridDoubleClick" OnActionBegin="OnGridContendersActionBegin" CommandClicked="@OnGridCommandClicked" OnToolbarClick="@OnContenderGridToolBarClick" TValue="UserDTO"/>
     <GridColumns>
       <GridColumn Field="@nameof(UserDTO.Id)" HeaderText="Id" IsIdentity="true" IsPrimaryKey="true" Visible="true" Width="100"/>
       <GridColumn Field="@nameof(UserDTO.Lastname)" HeaderText="Last Name" Width="150"/>
@@ -77,13 +77,15 @@
           <GridCommandColumn Type="CommandButtonType.None" Title="Inscriptions" ID="Inscriptions" ButtonOption="@(new CommandButtonOptions { Content = "Inscriptions" })"/>
         </GridCommandColumns>
       </GridColumn>
-
     </GridColumns>
   </SfGrid>
 </div>
 
-@code {
+<CNewContender @ref="UserDialog"></CNewContender>
 
+@code {
+  private dbContext _db = new();
+  
   #region Page
 
   List<VInjauser>? _dbUsers;
@@ -91,9 +93,11 @@
   readonly List<UserDTO> _lstDistinctUsers = new();
   UserDTO? _userToAdd;
 
+  CNewContender? UserDialog;
+  
   private void OnNewContenderClick(MouseEventArgs obj)
   {
-    
+    UserDialog?.Open(null);  
   }
   
   private void OnAddUserClick(MouseEventArgs obj)
@@ -133,8 +137,7 @@
 
   private void FillDS2()
   {
-    var db = new dbContext();
-    _dbUsers = db
+    _dbUsers = _db
       .VInjausers
       .Where(x => x.Usertypeid == 1)
       .ToList();
@@ -188,8 +191,7 @@
 
   protected override async Task OnInitializedAsync()
   {
-    var db = new dbContext();
-    _lstEvents = await db
+    _lstEvents = await _db
       .Events
       .ToListAsync();
 
@@ -308,12 +310,10 @@
     }
   }
 
-  // private async Task OnRecordDoubleClick(RecordDoubleClickEventArgs<Injauser> obj)
-  // {
-  //   await sessionStorage.SetItemAsStringAsync("contenderId", obj.RowData.Id.ToString());
-  //   navManager.NavigateTo("/ContenderInscription");
-  // }
-
   #endregion
 
+  private void OnGridDoubleClick(RecordDoubleClickEventArgs<UserDTO> obj)
+  {
+    UserDialog?.Open(_db.Injausers.Find(obj.RowData.Id));
+  }
 }

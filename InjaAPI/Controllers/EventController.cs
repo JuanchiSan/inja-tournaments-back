@@ -5,6 +5,7 @@ using InjaDTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace InjaAPI.Controllers;
 
@@ -109,5 +110,62 @@ public class EventsController : ControllerBase
     }
 
     return Ok(result);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("NewInscription")]
+  [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+  public async Task<ActionResult<string>> NewInscription(EventDTO aEventData)
+  {
+    var dbEventChallenges = await _context.
+      Eventchallenges.
+      Where(x => x.Eventid == aEventData.Id).ToListAsync();
+    
+    var dbUInscriptions = await _context.
+      Userinscriptions.
+      Where(x => x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Utypeid == 1).
+      ToListAsync();
+    
+    foreach (var cType in aEventData.CompetitionTypes)
+    {
+      foreach (var challenge in cType.Challenges)
+      {
+        var dbEventChallenge = dbEventChallenges.FirstOrDefault(x => x.Challengeid == challenge.ChallengeId);
+        if (dbEventChallenge == null) return NotFound("No se encontró el reto");
+
+        foreach (var division in challenge.Divisions.Where(x=> x.Selected == true))
+        {
+          if (dbUInscriptions.Any(x=>x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Eventchallengeid == dbEventChallenge.Id && x.Divisionid == division.Id))
+          {
+            return BadRequest("Ya se encuentra inscrito en el reto " + challenge.Name + " en la división " + division.Name);
+          }
+          var newInsc = new Userinscription
+          {
+            Ueventid = aEventData.Id,
+            Utypeid = 1,
+            Uuserid = (int)aEventData.UserId!,
+            Wonfirstplace = 0,
+            Inscriptiondate = DateTime.Now,
+            Eventchallengeid = dbEventChallenge.Id,
+            Divisionid = division.Id
+          };
+          _context.Userinscriptions.Add(newInsc);
+        }
+      }
+    }
+
+    try
+    {
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error al guardar la inscripción");
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error al guardar la inscripción");
+    }
+
+    return Ok("Inscripción guardada con éxito");
   }
 }

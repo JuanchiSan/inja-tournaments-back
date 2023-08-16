@@ -30,6 +30,9 @@
         <td>
           <SfButton Content="Grand Champion" @onclick="@(() => navManager.NavigateTo($"GrandChampion{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
+        <td>
+          <SfButton Content="Groups Points" @onclick="@(() => navManager.NavigateTo($"PGroupPoints{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+        </td>
       </tr>
     </table>
   </div>
@@ -79,7 +82,7 @@
     {
       _lstWinners = _db.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();
     }
-    await InvokeAsync(StateHasChanged);
+    //await InvokeAsync(StateHasChanged);
   }
   
   #region Events
@@ -103,7 +106,8 @@
     {
       _eventId = Convert.ToInt32(eid);
     }
-    InvokeAsync(FillDS);
+    Task.Run(async()=>await FillDS()).Wait();
+    StateHasChanged();
  }
 
   private async Task GridToolbarClick(ClickEventArgs args)

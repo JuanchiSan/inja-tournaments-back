@@ -90,8 +90,10 @@ public class RecoverPassController : ControllerBase
       var result = await client.SendAsync(
         new Sender(Helper.MailNameFrom, Helper.MailAddressFrom),
         new List<Recipient> { new Recipient(dbUser.Name, email) },
-        "Change Password from Beautycomp",
-        $"<html><h1>To change your password, please follow the next <a href=\"{newUrl}\">link</a></h1></html>",
+        $"Password change order at BeautyComp placed on {DateTime.Now:U}",
+        $"<html><h1>To change your password, please follow the next <a href=\"{newUrl}\">link</a></h1>" +
+        $"<br><h3>This link will be valid until {DateTime.Now.AddHours(4):U}</h3>" +
+        "</html>",
         true
       );
       Serilog.Log.Information("Result of seding mail {Person}", result);

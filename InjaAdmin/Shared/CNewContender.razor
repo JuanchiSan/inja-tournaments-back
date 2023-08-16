@@ -1,0 +1,166 @@
+﻿@using Syncfusion.Blazor.Popups
+@using Microsoft.EntityFrameworkCore
+@using InjaAdmin.Models
+
+<SfDialog @ref="@Dialog" Height="500px" Width="550px" ShowCloseIcon="true" @bind-Visible="Visibility" IsModal="true">
+  <DialogTemplates>
+    <Header>
+      <span>@(NewUser ? "Create" : "Edit") New User</span>
+    </Header>
+    <Content>
+      <EditForm EditContext="@UserContext" OnSubmit="@OnSubmit">
+        <DataAnnotationsValidator/>
+        <div class="container">
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="lastname">Last Name: </label>
+              <SfTextBox id="lastname" @bind-Value="@((context.Model as InjauserAdmin)!.Lastname)"/>
+              <ValidationMessage For="@(() => (context.Model as InjauserAdmin)!.Lastname)" />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="firstname">First Name: </label>
+              <SfTextBox id="firstname" @bind-Value="@((context.Model as InjauserAdmin)!.Firstname)"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <label for="doctype">Doc Type:</label>
+              <SfComboBox id="doctype" TValue="short" TItem="Doctype" @bind-Value="@((context.Model as InjauserAdmin)!.Docid)" DataSource="@LstDocTypes">
+                <ComboBoxFieldSettings Value="@nameof(Doctype.Id)" Text="@nameof(Doctype.Name)"/>
+              </SfComboBox>
+            </div>
+            <div class="form-group col-md-8">
+              <label for="docnro">Doc Number:</label>
+              <SfTextBox id="docnro" @bind-Value="@((context.Model as InjauserAdmin)!.Docnumber)"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <label for="city">City:</label>
+              <SfComboBox id="city" TValue="int?" TItem="City" @bind-Value="@((context.Model as InjauserAdmin)!.Cityid)" DataSource="@LstCiudades">
+                <ComboBoxFieldSettings Value="@nameof(City.Id)" Text="@nameof(City.Name)"/>
+              </SfComboBox>
+            </div>
+            <div class="form-group col-md-5">
+              <label for="street">Street:</label>
+              <SfTextBox id="street" @bind-Value="@((context.Model as InjauserAdmin)!.Street)"/>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="streetnumber">Street Number:</label>
+              <SfTextBox id="streetnumber" @bind-Value="@((context.Model as InjauserAdmin)!.Number)"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-7">
+              <label for="mail">Mail:</label>
+              <SfTextBox id="mail" @bind-Value="@((context.Model as InjauserAdmin)!.Mail)"/>
+            </div>
+            <div class="form-group col-md-5">
+              <label for="phone">Phone:</label>
+              <SfTextBox id="phone" @bind-Value="@((context.Model as InjauserAdmin)!.Phone)"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="password">Password:</label>
+              <SfTextBox id="password" @bind-Value="@((context.Model as InjauserAdmin)!.Pass)" Type="InputType.Password"/>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="password1">Password:</label>
+              <SfTextBox id="password1" @bind-Value="@((context.Model as InjauserAdmin)!.Pass1)" Type="InputType.Password"/>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="row">
+          <button type="submit" class="btn btn-primary col-md-6" @onclick="() => { OnSubmit(UserContext); }">Submit</button>
+          <button type="reset" class="btn col-md-6" @onclick="() => { Visibility = false; }">Cancel</button>
+        </div>
+      </EditForm>
+    </Content>
+    <FooterTemplate/>
+  </DialogTemplates>
+  <DialogEvents/>
+</SfDialog>
+
+@code {
+  private bool NewUser { get; set; }
+
+  public bool Visibility { get; set; }
+  private SfDialog? Dialog { get; set; }
+
+  private EditContext? UserContext { get; set; }
+
+  //private string RepeatedPassword { get; set; } = string.Empty;
+
+  #region Listas
+
+  private List<Doctype>? LstDocTypes;
+  private List<City>? LstCiudades;
+
+  #endregion
+
+  private dbContext _context = new();
+
+  private void FillDataSources()
+  {
+    LstDocTypes = _context.Doctypes.OrderBy(x => x.Name).ToList();
+    LstCiudades = _context.Cities.OrderBy(x => x.Name).ToList();
+  }
+
+  public void Open(Injauser? aNewUser)
+  {
+    FillDataSources();
+  // Task.Run(async () => await FillDataSources()).Wait();
+    var nUser = new InjauserAdmin();
+
+    if (aNewUser == null)
+    {
+      NewUser = true;
+      nUser.Cityid = LstCiudades != null && LstCiudades.Any() ? LstCiudades.FirstOrDefault()?.Id : null;
+      nUser.Docid = LstDocTypes!.FirstOrDefault()!.Id;
+    }
+    else
+    {
+      NewUser = false;
+      nUser = InjauserAdmin.FromDbInjaUser(aNewUser);
+    }
+
+    UserContext = new EditContext(nUser);
+
+    Visibility = true;
+    StateHasChanged();
+  }
+
+  private void OnValidSubmit(EditContext? obj)
+  {
+  }
+
+  private void OnSubmit(EditContext? obj)
+  {
+    var modelValid = obj?.Validate();
+    if (modelValid == null || !Convert.ToBoolean(modelValid)) return;
+
+    var memUser = (UserContext?.Model as InjauserAdmin)!;
+    try
+    {
+      if (NewUser)
+      {
+        _context.Injausers.Add(InjauserAdmin.ToDbInjaUser(memUser));
+      }
+      else
+      {
+        var dbUser = _context.Injausers.Find(memUser.Id);
+        InjauserAdmin.ToDbInjaUser(memUser,dbUser!);
+      }
+      _context.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error al guardar usuario");
+      _context = new dbContext();
+    }
+    Visibility = false;
+  }
+}

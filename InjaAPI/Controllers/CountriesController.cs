@@ -47,6 +47,7 @@ public class CountriesController : ControllerBase
   }
 
   [HttpGet("/api/GetCountriesByName/{aCountyName}")]
+  [AllowAnonymous]
   public async Task<ActionResult<IEnumerable<CountryDTO>>> GetCountry(string aCountyName)
   {
     var country = await _context.Countries.Include(x => x.Cities).ToListAsync();
