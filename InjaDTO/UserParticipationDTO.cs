@@ -55,6 +55,8 @@ public class UserEventChallengeDivisionDTO
   public decimal MaxPoints { get; set; }
   public decimal? UserPoints { get; set; }
   
+  public string? PhotoUrl { get; set; }
+  
   public List<UserEventChallengeCriteriasDTO>? Points { get; set; } = new();
   public List<UserPointsDeductionsDTO>? Deductions { get; set; } = new();
 }

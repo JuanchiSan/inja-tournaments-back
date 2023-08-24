@@ -8,6 +8,8 @@ namespace InjaAdmin;
 
 public static class Helper
 {
+	public static string AppName =>"BeautyComp Admin";
+	
 	public static NumericEditCellParams DFNumericEditCell => new()
 	{
 		Params = new NumericTextBoxModel<object>

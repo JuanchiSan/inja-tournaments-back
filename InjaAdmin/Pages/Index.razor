@@ -1,7 +1,7 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
-<span class="pageheader">Inja Admin</span>
+<PageTitle>Index - @(Helper.AppName)</PageTitle>
+<span class="pageheader">@(Helper.AppName)</span>
 <br/>
 
 <AuthorizeView>
@@ -15,10 +15,18 @@
 
 <div class="controlregion">
 
-
+	<img src="images/AppImage.jpeg" alt="@(Helper.AppName)" class="center">
+	
 </div>
 
 <style>
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+}
+
 	.ulstyle {
 		margin-top: 10px;
 		margin-bottom: 20px;

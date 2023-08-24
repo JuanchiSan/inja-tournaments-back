@@ -13,6 +13,9 @@
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
     <GridEvents OnActionBegin="OnGridEventActionBegin" OnToolbarClick="@GridToolbarClick" TValue="Event"/>
+    <GridSortColumns>
+      <GridSortColumn Field="@nameof(Event.Name)" Direction="SortDirection.Ascending"/>
+    </GridSortColumns>
     <GridColumns>
       <GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" AllowAdding="false" IsIdentity="true" IsPrimaryKey="true" Width="150"/>
       <GridColumn Field="@nameof(Event.Name)" HeaderText="Name" Width="150"/>
@@ -39,10 +42,10 @@
         await DataGrid.ExportToExcelAsync();
         break;
       case $"{nameof(DataGrid)}_pdfexport":
-        await this.DataGrid.ExportToPdfAsync();
+        await DataGrid.ExportToPdfAsync();
         break;
       case $"{nameof(DataGrid)}_csvexport":
-        await this.DataGrid.ExportToCsvAsync();
+        await DataGrid.ExportToCsvAsync();
         break;
     }
   }

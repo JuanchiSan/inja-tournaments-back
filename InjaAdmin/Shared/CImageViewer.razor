@@ -11,7 +11,7 @@
       @{ if (string.IsNullOrEmpty(PhotoURL))
         {
           <div class="body-content">
-            <img src="images/placeholder.png" alt="Image">
+            <img src="images/AppImage.jpeg" alt="Image">
           </div>
         }
         else
@@ -92,7 +92,7 @@
   private async Task OnInputFile(InputFileChangeEventArgs obj)
   {
     var file = obj.File;
-    var fileContent = await file.RequestImageFileAsync("image/png", 100, 100);
+    var fileContent = await file.RequestImageFileAsync("image/png", 640, 480);
     var buffer = new byte[fileContent.Size];
     await fileContent.OpenReadStream().ReadAsync(buffer);
     var base64 = Convert.ToBase64String(buffer);

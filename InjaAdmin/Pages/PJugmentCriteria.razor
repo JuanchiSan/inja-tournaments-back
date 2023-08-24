@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "5")]
 
-<h3>JugmentCriteria</h3>
+<h3>Judgment Criterias</h3>
 
 <div>
 	<SfGrid @ref="@DataGrid" TValue="Judgmentcriterion" ID="@nameof(DataGrid)"
@@ -12,6 +12,9 @@
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
 		<SfDataManager AdaptorInstance="@typeof(JugmentCriteriaAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
 		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Judgmentcriterion"/>
+		<GridSortColumns>
+			<GridSortColumn Field="@nameof(Judgmentcriterion.Name)" Direction="SortDirection.Ascending" />
+		</GridSortColumns>
 		<GridColumns>
 			<GridColumn Field="@nameof(Judgmentcriterion.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
 			<GridColumn Field="@nameof(Judgmentcriterion.Name)" HeaderText="Name" Width="150"/>

@@ -14,6 +14,9 @@
       <SfDataManager AdaptorInstance="@typeof(CountryAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
       <GridEvents OnToolbarClick="@CountryGridToolbarClick" TValue="Country" RowSelected="CountryRowSelected" RowDeselected="CountryRowDelesected"/>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Country.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
       <GridColumns>
         <GridColumn Field="@nameof(Country.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
         <GridColumn Field="@nameof(Country.Name)" HeaderText="Name" Width="150"/>
@@ -22,7 +25,7 @@
     </SfGrid>
   </div>
   <div>
-    <h3>Cities</h3>
+    <h3>Cities @(_currentCountry != null ? $"of {_currentCountry.Name}" : string.Empty)</h3>
   </div>
   <div>
     <SfGrid @ref="@CityGrid" TValue="City" ID="CityGrid"
@@ -35,6 +38,9 @@
       <SfDataManager AdaptorInstance="@typeof(CityAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"/>
       <GridEvents OnToolbarClick="@CityGridToolbarClick" TValue="City"/>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(City.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
       <GridColumns>
         <GridColumn Field="@nameof(City.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
         <GridColumn Field="@nameof(City.Name)" HeaderText="Name" Width="150"/>

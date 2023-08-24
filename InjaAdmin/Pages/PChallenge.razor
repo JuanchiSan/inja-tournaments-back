@@ -18,6 +18,9 @@
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
     <GridEvents CommandClicked="CommandColumnClicked" OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
+    <GridSortColumns>
+      <GridSortColumn Field="@nameof(Challengetype.Name)" Direction="SortDirection.Ascending"/>
+    </GridSortColumns>
     <GridColumns>
       <GridColumn Field="@nameof(Challengetype.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
       <GridColumn Field="@nameof(Challengetype.Name)" HeaderText="Name" Width="150"/>
@@ -26,7 +29,7 @@
       <GridColumn Field="@nameof(Challengetype.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="70"/>
       <GridColumn HeaderText="Edit Criterias" Width="150">
         <GridCommandColumns>
-          <GridCommandColumn Type="CommandButtonType.None" ID="Criterias" ButtonOption="@(new CommandButtonOptions { Content="Criterias", IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
+          <GridCommandColumn Type="CommandButtonType.None" ID="Criterias" ButtonOption="@(new CommandButtonOptions { Content = "Criterias", IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
         </GridCommandColumns>
       </GridColumn>
     </GridColumns>
@@ -46,7 +49,7 @@
         break;
     }
   }
-  
+
   private async Task GridToolbarClick(ClickEventArgs args)
   {
     if (DataGrid == null) return;
@@ -63,4 +66,5 @@
         break;
     }
   }
+
 }

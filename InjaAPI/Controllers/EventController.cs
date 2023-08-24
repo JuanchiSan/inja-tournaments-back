@@ -60,16 +60,15 @@ public class EventsController : ControllerBase
 
     foreach (var dbItem in dbItems)
     {
-      if (result == null)
-        result = new EventDTO
-        {
-          Id = id,
-          Name = dbItem.Eventname!,
-          StartDate = dbItem.Eventstartdate,
-          EndDate = dbItem.Eventenddate,
-          InscriptionStartDate = dbItem.Eventstartincriptiondate,
-          InscriptionEndDate = dbItem.Eventendincriptiondate
-        };
+      result ??= new EventDTO
+      {
+        Id = id,
+        Name = dbItem.Eventname!,
+        StartDate = dbItem.Eventstartdate,
+        EndDate = dbItem.Eventenddate,
+        InscriptionStartDate = dbItem.Eventstartincriptiondate,
+        InscriptionEndDate = dbItem.Eventendincriptiondate
+      };
       var memCompType = result.CompetitionTypes.FirstOrDefault(x => x.Id == dbItem.Competitiontypeid);
       if (memCompType == null)
       {
@@ -80,6 +79,7 @@ public class EventsController : ControllerBase
         };
         result.CompetitionTypes.Add(memCompType);
       }
+
       var memChallenge = memCompType.Challenges.FirstOrDefault(x => x.EventChallengeId == dbItem.Eventchallengeid);
       if (memChallenge == null)
       {
@@ -96,7 +96,7 @@ public class EventsController : ControllerBase
         };
         memCompType.Challenges.Add(memChallenge);
       }
-      
+
       var memDivision = memChallenge.Divisions.FirstOrDefault(x => x.Id == dbItem.Divisionid);
       if (memDivision == null)
       {
@@ -122,25 +122,28 @@ public class EventsController : ControllerBase
     var dbEventChallenges = await _context.
       Eventchallenges.
       Where(x => x.Eventid == aEventData.Id).ToListAsync();
-    
+
     var dbUInscriptions = await _context.
       Userinscriptions.
       Where(x => x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Utypeid == 1).
       ToListAsync();
-    
+
     foreach (var cType in aEventData.CompetitionTypes)
     {
       foreach (var challenge in cType.Challenges)
       {
-        var dbEventChallenge = dbEventChallenges.FirstOrDefault(x => x.Challengeid == challenge.ChallengeId);
+        var dbEventChallenge = dbEventChallenges.
+          FirstOrDefault(x => x.Challengeid == challenge.ChallengeId);
+        
         if (dbEventChallenge == null) return NotFound("No se encontró el reto");
 
-        foreach (var division in challenge.Divisions.Where(x=> x.Selected == true))
+        foreach (var division in challenge.Divisions.Where(x => x.Selected))
         {
-          if (dbUInscriptions.Any(x=>x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Eventchallengeid == dbEventChallenge.Id && x.Divisionid == division.Id))
+          if (dbUInscriptions.Any(x => x.Utypeid == 1 && x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Eventchallengeid == dbEventChallenge.Id && x.Divisionid == division.Id))
           {
             return BadRequest("Ya se encuentra inscrito en el reto " + challenge.Name + " en la división " + division.Name);
           }
+
           var newInsc = new Userinscription
           {
             Ueventid = aEventData.Id,

@@ -3,113 +3,122 @@
 @attribute [Authorize(Roles = "5")]
 
 <div>
-<h3>CompetitionType</h3>
+  <h3>Competition Types</h3>
 </div>
 <div>
-	<div>
-		<SfGrid @ref="@CompetitionGrid" TValue="Competitiontype" ID="CompetitionGrid"
-		        AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-		        Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-			<SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
-			<GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected" />
-			<GridColumns>
-				<GridColumn Field="@nameof(Competitiontype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Competitiontype.Name)" HeaderText="Name" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Competitiontype.Comment)" HeaderText="Comment" Width="150"></GridColumn>
-				<GridColumn Field="@nameof(Competitiontype.Active)" HeaderText="Active" Width="150"></GridColumn>
-			</GridColumns>
-		</SfGrid>
-	</div>
-	<div>
-		<h3>Divisions</h3>
-	</div>
-	<div>
-		<SfGrid @ref="@DivisionGrid" TValue="Division" ID="@nameof(DivisionGrid)" 
-		        AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true" 
-		        Toolbar="@(new List<string> {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})"
-		        Query="@(MakeQuery())">
-			<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-			<GridPageSettings PageSizes="true"></GridPageSettings>
-			<SfDataManager AdaptorInstance="@typeof(DivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-			<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
-			<GridEvents OnToolbarClick="@DivisionGridToolbarClick" TValue="Division"></GridEvents>
-			<GridColumns>
-				<GridColumn Field="@nameof(Division.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
-				<GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>
-				<GridColumn Field="@nameof(Division.Active)" HeaderText="Active" Width="150"/>
-				<GridColumn Field="@nameof(Division.Competitiontypeid)" HeaderText="Competitiontypeid" AllowEditing="false" Width="150"/>
-			</GridColumns>
-		</SfGrid>
+  <div>
+    <SfGrid @ref="@CompetitionGrid" TValue="Competitiontype" ID="CompetitionGrid"
+            AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+      <SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+      <GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected"/>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Competitiontype.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
+      <GridColumns>
+        <GridColumn Field="@nameof(Competitiontype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+        <GridColumn Field="@nameof(Competitiontype.Name)" HeaderText="Name" Width="150"></GridColumn>
+        <GridColumn Field="@nameof(Competitiontype.Comment)" HeaderText="Comment" Width="150"></GridColumn>
+        <GridColumn Field="@nameof(Competitiontype.Active)" HeaderText="Active" Width="150"></GridColumn>
+      </GridColumns>
+    </SfGrid>
+  </div>
+  <div>
+    <h3>Divisions <b>@(_currentCompetition != null ? _currentCompetition.Name : string.Empty)</b></h3>
+  </div>
+  <div>
+    <SfGrid @ref="@DivisionGrid" TValue="Division" ID="@nameof(DivisionGrid)"
+            AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })"
+            Query="@(MakeQuery())">
+      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+      <GridPageSettings PageSizes="true"></GridPageSettings>
+      <SfDataManager AdaptorInstance="@typeof(DivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+      <GridEvents OnToolbarClick="@DivisionGridToolbarClick" TValue="Division"></GridEvents>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Division.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
+      <GridColumns>
+        <GridColumn Field="@nameof(Division.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+        <GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>
+        <GridColumn Field="@nameof(Division.Active)" HeaderText="Active" Width="150"/>
+        <GridColumn Field="@nameof(Division.Competitiontypeid)" HeaderText="Competition Type" AllowEditing="false" Width="150" Visible="@(_currentCompetition != null)"/>
+      </GridColumns>
+    </SfGrid>
 
-	</div>
+  </div>
 </div>
 
 
 @code {
-	
-	#region Division
-	
-	SfGrid<Division>? DivisionGrid { get; set; }
 
-	private Query MakeQuery()
-	{
-		return new Query().Where(nameof(Division.Competitiontypeid), "equal", _currentCompetition?.Id ?? 0);
-	}
+  #region Division
 
-	private async Task DivisionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (DivisionGrid == null) return;
+  SfGrid<Division>? DivisionGrid { get; set; }
 
-		switch (args.Item.Id)
-		{
-			case $"{nameof(DivisionGrid)}_excelexport":
-				await DivisionGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(DivisionGrid)}_pdfexport":
-				await DivisionGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(DivisionGrid)}_csvexport":
-				await DivisionGrid.ExportToCsvAsync();
-				break;
-		}
-	}
-	#endregion
+  private Query MakeQuery()
+  {
+    return new Query().Where(nameof(Division.Competitiontypeid), "equal", _currentCompetition?.Id ?? 0);
+  }
 
-	#region Competition
+  private async Task DivisionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (DivisionGrid == null) return;
 
-	Competitiontype? _currentCompetition { get; set; }
-	
-	SfGrid<Competitiontype>? CompetitionGrid { get; set; }
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DivisionGrid)}_excelexport":
+        await DivisionGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DivisionGrid)}_pdfexport":
+        await DivisionGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DivisionGrid)}_csvexport":
+        await DivisionGrid.ExportToCsvAsync();
+        break;
+    }
+  }
 
-	private async Task CompetitionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (CompetitionGrid == null) return;
-		switch (args.Item.Id)
-		{
-			case $"{nameof(CompetitionGrid)}_excelexport":
-				await CompetitionGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(CompetitionGrid)}_pdfexport":
-				await CompetitionGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(CompetitionGrid)}_csvexport":
-				await CompetitionGrid.ExportToCsvAsync();
-				break;
-		}
-	}
-	
-	private void CompetitionRowSelected(RowSelectEventArgs<Competitiontype> obj)
-	{
-		_currentCompetition = obj.Data;
-	}
-	
-	private void CompetitionRowDelesected(RowDeselectEventArgs<Competitiontype> obj)
-	{
-		_currentCompetition = null;
-	}
-	#endregion
+  #endregion
+
+  #region Competition
+
+  Competitiontype? _currentCompetition { get; set; }
+
+  SfGrid<Competitiontype>? CompetitionGrid { get; set; }
+
+  private async Task CompetitionGridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (CompetitionGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(CompetitionGrid)}_excelexport":
+        await CompetitionGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(CompetitionGrid)}_pdfexport":
+        await CompetitionGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(CompetitionGrid)}_csvexport":
+        await CompetitionGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
+  private void CompetitionRowSelected(RowSelectEventArgs<Competitiontype> obj)
+  {
+    _currentCompetition = obj.Data;
+  }
+
+  private void CompetitionRowDelesected(RowDeselectEventArgs<Competitiontype> obj)
+  {
+    _currentCompetition = null;
+  }
+
+  #endregion
+
 }

@@ -4,15 +4,15 @@
 @inject NavigationManager navManager
 @inject IJSRuntime jsRunTime
 
-<PageTitle>Inja Admin</PageTitle>
+<PageTitle>@(Helper.AppName)</PageTitle>
 
-<SfSidebar class="print-hide" ID="Sidebar" Type="SidebarType.Slide" Width="300px" DockSize="65px" 
+<SfSidebar class="print-hide" ID="Sidebar" Type="SidebarType.Slide" Width="300px" DockSize="65px"
            EnableDock="true" @ref="Sidebar" @bind-IsOpen="SidebarToggle">
   <div class="sidebar print-hide" style="position:fixed;z-index:1200">
     <div class="topnav navbar navbar-dark">
       <button class="navbar-toggler" @onclick="@ToggleNavMenu"></button>
       <a class="navbar-brand" href="">
-        <span class="displayText" style="margin-right:30px">Inja Admin</span>
+        <span class="displayText" style="margin-right:30px">@(Helper.AppName)</span>
       </a>
     </div>
     <div class="print-hide" @onmouseover="@MouseIn" @onmouseout="@MouseOut">
@@ -23,15 +23,15 @@
 
 <div class="main">
   <div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0">
-	  <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
-	  <AuthorizeView>
-		  <Authorized>
-			  <a @onclick="OnLogoutClick"	href="javascript:void(0)">Logout</a>	  
-		  </Authorized>
-		  <NotAuthorized>
-			  <a href="/Login">Login</a>
-		  </NotAuthorized>
-	  </AuthorizeView>
+    <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
+    <AuthorizeView>
+      <Authorized>
+        <a @onclick="OnLogoutClick" href="javascript:void(0)">Logout</a>
+      </Authorized>
+      <NotAuthorized>
+        <a href="/Login">Login</a>
+      </NotAuthorized>
+    </AuthorizeView>
     @* <CultureSwitcher/> *@
   </div>
 
@@ -236,10 +236,10 @@
     }
   }
 
-	private async Task OnLogoutClick(MouseEventArgs obj)
-	{
-		var casp = (CustomAuthStateProvider) authStateProvider;
-		await casp.UpdateAuthenticationState(null);
-		navManager.NavigateTo("/", true);
-	}
+  private async Task OnLogoutClick(MouseEventArgs obj)
+  {
+    var casp = (CustomAuthStateProvider)authStateProvider;
+    await casp.UpdateAuthenticationState(null);
+    navManager.NavigateTo("/", true);
+  }
 }
