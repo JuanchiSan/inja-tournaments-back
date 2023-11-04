@@ -12,9 +12,11 @@
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
       <SfDataManager AdaptorInstance="@typeof(DocTypeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
       <GridEvents OnToolbarClick="@DocTypeGridToolbarClick" TValue="Doctype"/>
-      <GridSortColumns>
-        <GridSortColumn Field="@nameof(Doctype.Name)" Direction="SortDirection.Ascending"/>
-      </GridSortColumns>
+      <GridSortSettings>
+        <GridSortColumns>
+          <GridSortColumn Field="@nameof(Doctype.Name)" Direction="SortDirection.Ascending"/>
+        </GridSortColumns>
+      </GridSortSettings>
       <GridColumns>
         <GridColumn Field="@nameof(Doctype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
         <GridColumn Field="@nameof(Doctype.Name)" HeaderText="Name" Width="150"/>
@@ -33,9 +35,11 @@
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
       <SfDataManager AdaptorInstance="@typeof(UserTypeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
       <GridEvents OnToolbarClick="@UserTypeGridToolbarClick" TValue="Usertype"/>
+      <GridSortSettings>
       <GridSortColumns>
         <GridSortColumn Field="@nameof(Usertype.Name)" Direction="SortDirection.Ascending"/>
       </GridSortColumns>
+      </GridSortSettings>
       <GridColumns>
         <GridColumn Field="@nameof(Usertype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
         <GridColumn Field="@nameof(Usertype.Name)" HeaderText="Name" Width="150"/>

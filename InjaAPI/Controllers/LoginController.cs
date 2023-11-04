@@ -27,6 +27,10 @@ namespace InjaAPI.Controllers;
 		[AllowAnonymous]
 		public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
 		{
+			Serilog.Log.Logger.Information("{CurrentMethod} from IP: {RemoteIpAddress}", 
+				System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+				Helper.GetRemoteIpAddress(HttpContext));
+
 			if (!ModelState.IsValid)
 			{
 				Serilog.Log.Warning("Bad Login: {RequestEmail} {RequestPassword} {RequestEventId}", request.Email, request.Password, request.EventId);

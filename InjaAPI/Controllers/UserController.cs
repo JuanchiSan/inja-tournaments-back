@@ -27,6 +27,9 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      Helper.GetRemoteIpAddress(HttpContext));
     try
     {
       return await _context.Injausers.ProjectTo<UserDTO>(_mapper.ConfigurationProvider).ToListAsync();
@@ -42,12 +45,14 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetPersonByEmail(string email)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} email: {EMail} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      email,
+      Helper.GetRemoteIpAddress(HttpContext));
 
     var person = await _context.Injausers
       .FromSql($"SELECT * FROM injauser where lower(mail) = {email.ToLowerInvariant()}")
       .FirstOrDefaultAsync();
-    // var person =
-    //   await _context.Injausers.FirstOrDefaultAsync(x => x.Mail.ToLowerInvariant().Equals(email.ToLowerInvariant()));
 
     if (person == null)
     {
@@ -61,6 +66,11 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetUser(int id)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} Id: {EMail} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      id,
+      Helper.GetRemoteIpAddress(HttpContext));
+
     var dbItem = await _context.Injausers.FirstOrDefaultAsync(x => x.Id == id);
 
     if (dbItem == null)
@@ -75,6 +85,11 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<List<ContenderPointsResponseDTO>>> GetContenderPoints(int eventId, int challengeid, int divisionId, int contenderId)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} for ContenderId: {ContenderId} eventId: {EventId} challengeId: {ChallengeId}, DivisionId: {DivisionId} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      contenderId, eventId, challengeid, divisionId,
+      Helper.GetRemoteIpAddress(HttpContext));
+    
     try
     {
       var lst = await _context.VUserpoints
@@ -82,7 +97,10 @@ public class UserController : ControllerBase
         .ToListAsync();
 
       if (!lst.Any())
+      {
+        Serilog.Log.Logger.Information("No Data Found");
         return NotFound("No Data with the given parameters");
+      }
 
       var lstResult = new List<ContenderPointsResponseDTO>();
       var photoURL = await _context
@@ -124,7 +142,7 @@ public class UserController : ControllerBase
 
         lstResult.Add(result);
       }
-
+      Serilog.Log.Logger.Information("Returning Data {DataCount}", lstResult.Count);
       return Ok(lstResult);
     }
     catch (Exception e)
@@ -138,15 +156,20 @@ public class UserController : ControllerBase
   [HttpGet("GetContenderParticipation")]
   [ProducesResponseType(StatusCodes.Status200OK),
   ProducesResponseType(StatusCodes.Status404NotFound),
-  ProducesResponseType(StatusCodes.Status500InternalServerError)
-  ]
+  ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<UserParticipationDTO?>> GetContenderParticipation(int contenderId)
   {
-    //var dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Id == contenderId);
+    Serilog.Log.Logger.Information("{CurrentMethod} for contenderId: {ContenderId} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      contenderId,
+      Helper.GetRemoteIpAddress(HttpContext));
+
     var dbData = await _context.VUserpoints.Where(x => x.Contenderid == contenderId).ToListAsync();
   
     if (!dbData.Any())
     {
+      Serilog.Log.Logger.Information("No Data Found"); 
+      
       return Ok(null);
     }
     
@@ -264,6 +287,8 @@ public class UserController : ControllerBase
           }
         }
       });
+      Serilog.Log.Logger.Information("Returning Data"); 
+
       return Ok(userPart);
     }
     catch (Exception e)
@@ -284,10 +309,23 @@ public class UserController : ControllerBase
   ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
   public async Task<ActionResult<int>> NewUser(UserDTO aNewUser)
   {
+    try
+    {
+      Serilog.Log.Logger.Information("{CurrentMethod} for User: {Contender} from IP: {RemoteIpAddress}", 
+        System.Reflection.MethodBase.GetCurrentMethod()?.Name,
+        (aNewUser.Lastname + ", " + aNewUser.Firstname),
+        Helper.GetRemoteIpAddress(HttpContext));
+
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Logger.Error(e, "Error on NewContender");
+    }
+
     var dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Mail == aNewUser.Mail);
     if (dbUser != null)
     {
-      return BadRequest("User already exists");
+      return BadRequest("User Mail already exists");
     }
 
     dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Docnumber == aNewUser.Docnumber && x.Docid == aNewUser.Docid);
@@ -302,7 +340,7 @@ public class UserController : ControllerBase
       Pass = aNewUser.Pass,
       Firstname = aNewUser.Firstname,
       Lastname = aNewUser.Lastname,
-      Adminusertype = 1,
+      Adminusertype = 0,
       Cityid = aNewUser.Cityid,
       Docid = aNewUser.Docid,
       Docnumber = aNewUser.Docnumber,
@@ -314,6 +352,7 @@ public class UserController : ControllerBase
     _context.Injausers.Add(newDbUser);
     try
     {
+      Serilog.Log.Logger.Information("Saving new user");
       await _context.SaveChangesAsync();
     }
     catch (Exception e)
@@ -321,7 +360,7 @@ public class UserController : ControllerBase
       Serilog.Log.Logger.Error(e, "Error saving new user");
       return  StatusCode(StatusCodes.Status500InternalServerError, "Error saving new user");
     }
-    
+    Serilog.Log.Logger.Information("Returning new user id");
     return Ok(newDbUser.Id);  
   }
 }

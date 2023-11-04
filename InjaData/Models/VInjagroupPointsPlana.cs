@@ -28,4 +28,6 @@ public partial class VInjagroupPointsPlana
     public string? Divisionname { get; set; }
 
     public decimal? FinalPoint { get; set; }
+
+    public long? Rank { get; set; }
 }

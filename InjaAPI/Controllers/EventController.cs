@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using InjaData.Models;
 using InjaDTO;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace InjaAPI.Controllers;
 
@@ -119,31 +117,52 @@ public class EventsController : ControllerBase
    ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
   public async Task<ActionResult<string>> NewInscription(EventDTO aEventData)
   {
-    var dbEventChallenges = await _context.
-      Eventchallenges.
-      Where(x => x.Eventid == aEventData.Id).ToListAsync();
-
     var dbUInscriptions = await _context.
       Userinscriptions.
       Where(x => x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Utypeid == 1).
       ToListAsync();
 
+    var dbUsers = await _context.Injausers.ToDictionaryAsync(x => x.Id);
+    if (!dbUsers.ContainsKey((int)aEventData.UserId!))
+      return BadRequest("Usuario con UserId " + aEventData.UserId + " no existe");
+
+    var dbInjaUserTypes = _context
+      .Injauserusertypes.Where(x => x.Eventid == aEventData.Id && x.Typeid == 1);
+
+    int cantInscriptos;
+    
+    if (!dbInjaUserTypes.Any(x=>x.Userid == aEventData.UserId))
+    {
+      cantInscriptos = dbInjaUserTypes.Count() + 1;
+      while (dbInjaUserTypes.Any(x=>x.UserNumber == cantInscriptos.ToString()))
+      {
+        cantInscriptos++;
+      }
+      _context.Injauserusertypes.Add(new Injauserusertype
+      {
+        Eventid = aEventData.Id,
+        Userid = (int)aEventData.UserId,
+        Typeid = 1,
+        UserNumber = cantInscriptos.ToString()
+      });
+    }
+
     foreach (var cType in aEventData.CompetitionTypes)
     {
       foreach (var challenge in cType.Challenges)
       {
-        var dbEventChallenge = dbEventChallenges.
-          FirstOrDefault(x => x.Challengeid == challenge.ChallengeId);
-        
-        if (dbEventChallenge == null) return NotFound("No se encontró el reto");
-
         foreach (var division in challenge.Divisions.Where(x => x.Selected))
         {
-          if (dbUInscriptions.Any(x => x.Utypeid == 1 && x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Eventchallengeid == dbEventChallenge.Id && x.Divisionid == division.Id))
+          if (dbUInscriptions.
+              Any(x => x.Utypeid == 1 && x.Ueventid == aEventData.Id && x.Uuserid == aEventData.UserId && x.Eventchallengeid == challenge.EventChallengeId && x.Divisionid == division.Id))
           {
-            return BadRequest("Ya se encuentra inscrito en el reto " + challenge.Name + " en la división " + division.Name);
-          }
 
+            Serilog.Log.Warning(
+              $"Se recibe una inscripción ya realizada: Event:{aEventData.Id}, EventChallenge:{challenge.EventChallengeId} Division:{division.Id} User:{aEventData.UserId}");
+            continue;
+            //return BadRequest("Ya se encuentra inscrito en el reto " + challenge.Name + " en la división " + division.Name);
+          }
+          
           var newInsc = new Userinscription
           {
             Ueventid = aEventData.Id,
@@ -151,9 +170,10 @@ public class EventsController : ControllerBase
             Uuserid = (int)aEventData.UserId!,
             Wonfirstplace = 0,
             Inscriptiondate = DateTime.Now,
-            Eventchallengeid = dbEventChallenge.Id,
+            Eventchallengeid = challenge.EventChallengeId,
             Divisionid = division.Id
           };
+          Serilog.Log.Information($"Nueva Inscripción: Event:{aEventData.Id}, EventChallenge:{challenge.EventChallengeId} Division:{division.Id} User:{aEventData.UserId}");
           _context.Userinscriptions.Add(newInsc);
         }
       }
@@ -161,6 +181,7 @@ public class EventsController : ControllerBase
 
     try
     {
+      Serilog.Log.Information($"Se guardan todas las nuevas Inscripciones --------------------------------------------------------------");
       await _context.SaveChangesAsync();
     }
     catch (Exception e)

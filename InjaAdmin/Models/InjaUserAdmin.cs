@@ -65,8 +65,8 @@ public class InjauserAdmin
 
   [Required] [MinLength(1)] public string Firstname { get; set; } = string.Empty;
 
-  [Required] [MinLength(1)] [UniqueDoc] public string Docnumber { get; set; } = string.Empty;
-  [Required] [UniqueDoc] public short Docid { get; set; }
+  [Required] [MinLength(1)] public string Docnumber { get; set; } = string.Empty;
+  [Required] public short Docid { get; set; }
 
   public string? Street { get; set; }
 

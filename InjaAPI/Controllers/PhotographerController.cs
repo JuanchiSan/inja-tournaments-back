@@ -27,6 +27,11 @@ public class PhotographerController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult> GetImage(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} event: {EventId} challengeId:{ChallengeId} divisionId: {DivId} Contender: {ContenderId}  PhotographerId:{PhotoId} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      eventId, challengeId, divisionId, contenderId, photographerId,
+      Helper.GetRemoteIpAddress(HttpContext));
+    
     try
     {
       var cosa = await new dbContext().Photos
@@ -66,6 +71,11 @@ public class PhotographerController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<ResponseDivisionContenderChallengeDTO>> GetContenderChallenges(int eventid, int challengeid, int divisionid, int contenderid)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} event: {EventId} challengeId:{ChallengeId} divisionId: {DivId} Contender: {ContenderId} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      eventid, challengeid, divisionid, contenderid,
+      Helper.GetRemoteIpAddress(HttpContext));
+    
     var dbItems = await _context
       .VUserinscriptionPlanas
       .Where(x => x.Eventid == eventid && x.Challengeid == challengeid)
@@ -99,8 +109,12 @@ public class PhotographerController : ControllerBase
 
   [HttpPost("UploadPhotoFile")]
   [AllowAnonymous]
-  public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int divisionid, int contenderId, int photographerId, IFormFile? file)
+  public async Task<IActionResult> UploadPhotoFile(int eventId, int challengeId, int divisionId, int contenderId, int photographerId, IFormFile? file)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} event: {EventId} challengeId:{ChallengeId} divisionId: {DivId} Contender: {ContenderId}  PhotographerId:{PhotoId} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      eventId, challengeId, divisionId, contenderId, photographerId,
+      Helper.GetRemoteIpAddress(HttpContext));
     try
     {
       if (file == null)
@@ -109,14 +123,14 @@ public class PhotographerController : ControllerBase
       var ct = DateTime.Now;
 
       if (file.Length <= 0) return BadRequest("File length is 0");
-      var fileNameStorage = GetFileName(eventId, challengeId, divisionid, contenderId, photographerId) + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
-      var photourl = GetPhotoURL(eventId, challengeId, divisionid, contenderId, photographerId);
+      var fileNameStorage = GetFileName(eventId, challengeId, divisionId, contenderId, photographerId) + $"_{ct.Year}_{ct.Month}_{ct.Day}_{ct.Hour}_{ct.Minute}_{ct.Second}";
+      var photourl = GetPhotoURL(eventId, challengeId, divisionId, contenderId, photographerId);
 
       var dbPhoto = new Photo
       {
         Challengeid = challengeId,
         Contenderid = contenderId,
-        Divisionid = divisionid,
+        Divisionid = divisionId,
         Photographerid = photographerId,
         Eventid = eventId,
         Created = ct,
@@ -132,6 +146,9 @@ public class PhotographerController : ControllerBase
       await using var stream = System.IO.File.Create(filePath);
       await file.CopyToAsync(stream);
       await _context.SaveChangesAsync();
+      
+      Serilog.Log.Logger.Information("Returning Data on UploadPhotoFile");
+      
       return Ok(photourl);
     }
     catch (Exception e)
@@ -145,6 +162,10 @@ public class PhotographerController : ControllerBase
   [AllowAnonymous]
   public IActionResult DownloadPhotoFile(int eventId, int challengeId, int divisionId, int contenderId, int photographerId)
   {
+    Serilog.Log.Logger.Information("{CurrentMethod} event: {EventId} challengeId:{ChallengeId} divisionId: {DivId} Contender: {ContenderId}  PhotographerId:{PhotoId} from IP: {RemoteIpAddress}", 
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+      eventId, challengeId, divisionId, contenderId, photographerId,
+      Helper.GetRemoteIpAddress(HttpContext));
     try
     {
       var dbItems = _context.Photos
@@ -157,6 +178,7 @@ public class PhotographerController : ControllerBase
 
       var filePath = Path.Combine("./Photos", dbItem.StoredFileName);
 
+      Serilog.Log.Logger.Information("Returning File on DownloadPhotoFile");
       return File(System.IO.File.OpenRead(filePath), "image/png", string.IsNullOrEmpty(dbItem.Filename) ? "Image.png" : dbItem.Filename);
     }
     catch (Exception e)

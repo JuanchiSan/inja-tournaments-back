@@ -1,6 +1,6 @@
 ﻿@page "/Challenge"
 
-@attribute [Authorize(Roles = "4,5")]
+@* @attribute [Authorize(Roles = "4,5")] *@
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
@@ -17,10 +17,12 @@
     <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <SfDataManager AdaptorInstance="@typeof(ChallengeAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
-    <GridEvents CommandClicked="CommandColumnClicked" OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
-    <GridSortColumns>
-      <GridSortColumn Field="@nameof(Challengetype.Name)" Direction="SortDirection.Ascending"/>
-    </GridSortColumns>
+    <GridEvents CommandClicked="@CommandColumnClicked" OnToolbarClick="@GridToolbarClick" TValue="Challengetype"/>
+    <GridSortSettings>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Challengetype.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
+    </GridSortSettings>
     <GridColumns>
       <GridColumn Field="@nameof(Challengetype.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
       <GridColumn Field="@nameof(Challengetype.Name)" HeaderText="Name" Width="150"/>

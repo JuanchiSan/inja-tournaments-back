@@ -1297,6 +1297,7 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Groupname)
                 .HasMaxLength(200)
                 .HasColumnName("groupname");
+            entity.Property(e => e.Rank).HasColumnName("rank");
         });
 
         modelBuilder.Entity<VInjagroupResult>(entity =>

@@ -15,9 +15,11 @@
       <SfDataManager AdaptorInstance="@typeof(CompetitionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
       <GridEvents OnToolbarClick="@CompetitionGridToolbarClick" TValue="Competitiontype" RowSelected="CompetitionRowSelected" RowDeselected="CompetitionRowDelesected"/>
+      <GridSortSettings>
       <GridSortColumns>
         <GridSortColumn Field="@nameof(Competitiontype.Name)" Direction="SortDirection.Ascending"/>
       </GridSortColumns>
+      </GridSortSettings>
       <GridColumns>
         <GridColumn Field="@nameof(Competitiontype.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
         <GridColumn Field="@nameof(Competitiontype.Name)" HeaderText="Name" Width="150"></GridColumn>
@@ -34,15 +36,17 @@
             AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
             Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })"
             Query="@(MakeQuery())">
-      <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
-      <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-      <GridPageSettings PageSizes="true"></GridPageSettings>
-      <SfDataManager AdaptorInstance="@typeof(DivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-      <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
-      <GridEvents OnToolbarClick="@DivisionGridToolbarClick" TValue="Division"></GridEvents>
+	    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+	    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+	    <GridPageSettings PageSizes="true"/>
+	    <SfDataManager AdaptorInstance="@typeof(DivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+	    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
+      <GridEvents OnToolbarClick="@DivisionGridToolbarClick" TValue="Division"/>
+      <GridSortSettings>
       <GridSortColumns>
         <GridSortColumn Field="@nameof(Division.Name)" Direction="SortDirection.Ascending"/>
       </GridSortColumns>
+      </GridSortSettings>
       <GridColumns>
         <GridColumn Field="@nameof(Division.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
         <GridColumn Field="@nameof(Division.Name)" HeaderText="Name" Width="150"/>

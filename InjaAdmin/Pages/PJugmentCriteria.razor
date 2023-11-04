@@ -5,46 +5,50 @@
 <h3>Judgment Criterias</h3>
 
 <div>
-	<SfGrid @ref="@DataGrid" TValue="Judgmentcriterion" ID="@nameof(DataGrid)"
-					AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
-					Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","PdfExport","CsvExport"})">
-		<GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
-		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-		<SfDataManager AdaptorInstance="@typeof(JugmentCriteriaAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
-		<GridEvents OnToolbarClick="@GridToolbarClick" TValue="Judgmentcriterion"/>
-		<GridSortColumns>
-			<GridSortColumn Field="@nameof(Judgmentcriterion.Name)" Direction="SortDirection.Ascending" />
-		</GridSortColumns>
-		<GridColumns>
-			<GridColumn Field="@nameof(Judgmentcriterion.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
-			<GridColumn Field="@nameof(Judgmentcriterion.Name)" HeaderText="Name" Width="150"/>
-			<GridColumn Field="@nameof(Judgmentcriterion.Namees)" HeaderText="Namees" Width="150"/>
-			<GridColumn Field="@nameof(Judgmentcriterion.Namefr)" HeaderText="Namefr" Width="150"/>
-			<GridColumn Field="@nameof(Judgmentcriterion.Namepr)" HeaderText="Namepr" Width="150"/>
-			<GridColumn Field="@nameof(Judgmentcriterion.Nameit)" HeaderText="Nameit" Width="150"/>
-		</GridColumns>
-	</SfGrid>
+  <SfGrid @ref="@DataGrid" TValue="Judgmentcriterion" ID="@nameof(DataGrid)"
+          AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
+          Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"/>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
+    <SfDataManager AdaptorInstance="@typeof(JugmentCriteriaAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
+    <GridEvents OnToolbarClick="@GridToolbarClick" TValue="Judgmentcriterion"/>
+    <GridSortSettings>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Judgmentcriterion.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
+    </GridSortSettings>
+    <GridColumns>
+      <GridColumn Field="@nameof(Judgmentcriterion.Id)" HeaderText="Id" AllowEditing="false" IsPrimaryKey="true" Width="150"/>
+      <GridColumn Field="@nameof(Judgmentcriterion.Name)" HeaderText="Name" Width="150"/>
+      <GridColumn Field="@nameof(Judgmentcriterion.Namees)" HeaderText="Namees" Width="150"/>
+      <GridColumn Field="@nameof(Judgmentcriterion.Namefr)" HeaderText="Namefr" Width="150"/>
+      <GridColumn Field="@nameof(Judgmentcriterion.Namepr)" HeaderText="Namepr" Width="150"/>
+      <GridColumn Field="@nameof(Judgmentcriterion.Nameit)" HeaderText="Nameit" Width="150"/>
+    </GridColumns>
+  </SfGrid>
 </div>
 
 @code {
-	SfGrid<Judgmentcriterion>? DataGrid { get; set; }
-	/// <summary>
-	/// Event for Toolbar click for Grid Exporting
-	/// </summary>
-	private async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-	{
-		if (DataGrid == null) return;
-		switch (args.Item.Id)
-		{
-			case $"{nameof(DataGrid)}_excelexport":
-				await DataGrid.ExportToExcelAsync();
-				break;
-			case $"{nameof(DataGrid)}_pdfexport":
-				await DataGrid.ExportToPdfAsync();
-				break;
-			case $"{nameof(DataGrid)}_csvexport":
-				await DataGrid.ExportToCsvAsync();
-				break;
-		}
-	}
+  SfGrid<Judgmentcriterion>? DataGrid { get; set; }
+
+  /// <summary>
+  /// Event for Toolbar click for Grid Exporting
+  /// </summary>
+  private async Task GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+  {
+    if (DataGrid == null) return;
+    switch (args.Item.Id)
+    {
+      case $"{nameof(DataGrid)}_excelexport":
+        await DataGrid.ExportToExcelAsync();
+        break;
+      case $"{nameof(DataGrid)}_pdfexport":
+        await DataGrid.ExportToPdfAsync();
+        break;
+      case $"{nameof(DataGrid)}_csvexport":
+        await DataGrid.ExportToCsvAsync();
+        break;
+    }
+  }
+
 }

@@ -34,7 +34,7 @@
           <span>Add User</span>
         </td>
         <td>
-          <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search" DataSource="@_lstDistinctUsers">
+          <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search" DataSource="@_lstAllUsers">
             <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="Callback"/>
             <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
           </SfAutoComplete>
@@ -54,7 +54,7 @@
   <SfGrid @ref="ContenderGrid" TValue="UserDTO" ID="@nameof(ContenderGrid)"
           AllowFiltering="true" AllowResizing="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
           Toolbar="@(new List<string> { "Delete", "PdfExport", "Print", "Search" })"
-          DataSource="_lstUsers">
+          DataSource="_lstEventUsers">
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
     <GridEditSettings AllowDeleting="true"/>
@@ -81,7 +81,7 @@
   </SfGrid>
 </div>
 
-<CNewContender @ref="UserDialog"></CNewContender>
+<CNewContender @ref="UserDialog"/>
 
 @code {
   private dbContext _db = new();
@@ -89,8 +89,8 @@
   #region Page
 
   List<VInjauser>? _dbUsers;
-  //List<UserDTO> _availableUsers = new();
-  readonly List<UserDTO> _lstDistinctUsers = new();
+  readonly List<UserDTO> _lstEventUsers = new();
+  readonly List<UserDTO> _lstAllUsers = new();
   UserDTO? _userToAdd;
 
   CNewContender? UserDialog;
@@ -100,12 +100,13 @@
     UserDialog?.Open(null);  
   }
   
-  private void OnAddUserClick(MouseEventArgs obj)
+  private async Task OnAddUserClick(MouseEventArgs obj)
   {
-    if (_userToAdd == null || _lstUsers == null || _eventId == null) return;
-    if (_lstUsers.FirstOrDefault(x => x.Id == _userToAdd.Id) != null)
+    if (_userToAdd == null || _eventId == null) return;
+    if (_lstEventUsers.Any(x => x.Id == _userToAdd.Id))
     {
-      Task.Run(async () => await JsRuntime.InvokeVoidAsync("alert", "The user already Exists"));
+      //Task.Run(async () => await JsRuntime.InvokeVoidAsync("alert", "The user already Exists"));
+      await JsRuntime.InvokeVoidAsync("alert", "The user already Exists");
       _userToAdd = null;
     }
     else
@@ -119,9 +120,10 @@
       });
       try
       {
-        db.SaveChanges();
-        FillDS2();
+        await db.SaveChangesAsync();
         FillDS();
+        StateHasChanged();
+        ContenderGrid?.Refresh();
       }
       catch (Exception e)
       {
@@ -135,56 +137,49 @@
     _userToAdd = obj.ItemData;
   }
 
-  private void FillDS2()
+  private void FillDS()
   {
+    _lstAllUsers.Clear();
+    _lstEventUsers.Clear();
+    
     _dbUsers = _db
-      .VInjausers
-      .Where(x => x.Usertypeid == 1)
-      .ToList();
+       .VInjausers
+       .Where(x => x.Usertypeid == 1 || x.Usertypeid == null && (x.Eventid == _eventId || x.Eventid == null))
+       .ToList();
 
-    _dbUsers.ForEach(x =>
-    {
-      var memUser = _lstDistinctUsers.FirstOrDefault(du => du.Id == x.Injauserid);
-      if (memUser == null) // no sestá y lo tengo que agregar
+    _dbUsers?
+      .ToList()
+      .ForEach(x =>
       {
-        _lstDistinctUsers.Add(new UserDTO
+        // Hay que agregarlo
+        var udto = new UserDTO
         {
           Id = (int)x.Injauserid!,
           Lastname = x.Lastname ?? string.Empty,
           Firstname = x.Firstname ?? string.Empty,
           Phone = x.Phone,
           Mail = x.Mail ?? string.Empty,
+          User_Number = _eventId == null ? null : x.UserNumber,
           Docid = (short)x.Docid!,
           Docnumber = x.Docnumber ?? string.Empty
-        });
-      }
-    });
-  }
+        };
 
-  private void FillDS()
-  {
-    _lstUsers = new List<UserDTO>();
-  //_availableUsers.Clear();
-
-    _dbUsers?
-      .Where(db => (_eventId == null || db.Eventid == _eventId) && db.Usertypeid == 1)
-      .ToList()
-      .ForEach(x =>
-      {
-        var memItem = _lstUsers.FirstOrDefault(u => u.Id == (int)x.Injauserid!);
-        if (memItem == null) // Hay que agregarlo
+        if (_eventId == null)
         {
-          _lstUsers.Add(new UserDTO
+          if (_lstEventUsers.All(y => y.Id != udto.Id))
+            _lstEventUsers.Add(udto);
+        }
+        else
+        {
+          if (x.Eventid == _eventId && _lstEventUsers.All(y => y.Id != udto.Id))
           {
-            Id = (int)x.Injauserid!,
-            Lastname = x.Lastname ?? string.Empty,
-            Firstname = x.Firstname ?? string.Empty,
-            Phone = x.Phone,
-            Mail = x.Mail ?? string.Empty,
-            User_Number = _eventId == null ? null : x.UserNumber,
-            Docid = (short)x.Docid!,
-            Docnumber = x.Docnumber ?? string.Empty
-          });
+            _lstEventUsers.Add(udto);
+          }
+          if (x.Eventid != _eventId && _lstEventUsers.All(y => y.Id != udto.Id) && _lstAllUsers.All(y => y.Id != udto.Id))
+          {
+            _lstAllUsers.Add(udto);
+          }
+          
         }
       });
   }
@@ -195,10 +190,7 @@
       .Events
       .ToListAsync();
 
-    FillDS2();
-
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
-
     if (foundQueryParameter.TryGetValue("eid", out var eid))
     {
       _eventId = Convert.ToInt32(eid);
@@ -228,7 +220,7 @@
   #region Grid
 
   SfGrid<UserDTO>? ContenderGrid { get; set; }
-  List<UserDTO>? _lstUsers { get; set; }
+  //List<UserDTO>? _lstUsers { get; set; }
 
   private async Task OnGridCommandClicked(CommandClickEventArgs<UserDTO> obj)
   {
@@ -304,16 +296,16 @@
         }
 
         FillDS();
-        FillDS2();
+        //FillDS2();
         StateHasChanged();
         break;
     }
   }
 
-  #endregion
-
   private void OnGridDoubleClick(RecordDoubleClickEventArgs<UserDTO> obj)
   {
     UserDialog?.Open(_db.Injausers.Find(obj.RowData.Id));
   }
+  
+  #endregion
 }
