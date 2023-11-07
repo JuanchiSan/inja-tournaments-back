@@ -23,13 +23,13 @@
 
 <div class="main">
   <div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0">
-    <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4">|</div>
+    <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4" class="print-hide">|</div>
     <AuthorizeView>
       <Authorized>
-        <a @onclick="OnLogoutClick" href="javascript:void(0)">Logout</a>
+        <a @onclick="OnLogoutClick" href="javascript:void(0)" class="print-hide">Logout</a>
       </Authorized>
       <NotAuthorized>
-        <a href="/Login">Login</a>
+        <a href="/Login" class="print-hide">Login</a>
       </NotAuthorized>
     </AuthorizeView>
     @* <CultureSwitcher/> *@

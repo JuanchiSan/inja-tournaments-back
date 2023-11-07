@@ -37,7 +37,7 @@
           <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
           <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
           <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
-          <GridEvents CommandClicked="OnFillAll" OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
+          <GridEvents CommandClicked="@OnFillAll" OnToolbarClick="@GridToolbarClick" TValue="InternalInjaCriteria"/>
           <GridColumns>
             <GridColumn Field="@nameof(InternalInjaCriteria.CRKey)" IsPrimaryKey="true" Visible="false"/>
             <GridColumn Field="@nameof(InternalInjaCriteria.CriteriaName)" HeaderText="Criterias" Width="200" AllowEditing="false"/>
@@ -146,7 +146,15 @@
           _db.Eventjudgechallengedivisions.Add(db_ejcd);
         }
         if (db_ejcd != null)
-          _db.SaveChanges();
+          try
+          {
+            _db.SaveChanges();
+          }
+          catch (Exception e)
+          {
+            Serilog.Log.Error(e, "error Asignando Jueces");
+            _db = new dbContext();
+          }
       }
     }
     navManager.NavigateTo("/EventConfig?eid=" + _eventId);

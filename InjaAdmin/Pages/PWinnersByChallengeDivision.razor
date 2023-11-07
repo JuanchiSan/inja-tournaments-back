@@ -25,13 +25,16 @@
           </SfComboBox>
         </td>
         <td>
-          <SfButton Content="Winners of Winners" @onclick="@(() => navManager.NavigateTo($"WinnersOfWinners{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+          <SfButton Content="Winners of Winners" @onclick="@(() => navManager.NavigateTo($"WinnersOfWinners{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
         <td>
-          <SfButton Content="Grand Champion" @onclick="@(() => navManager.NavigateTo($"GrandChampion{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+          <SfButton Content="Grand Champion" @onclick="@(() => navManager.NavigateTo($"GrandChampion{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
         <td>
-          <SfButton Content="Groups Points" @onclick="@(() => navManager.NavigateTo($"PGroupPoints{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+          <SfButton Content="Groups Points" @onclick="@(() => navManager.NavigateTo($"PGroupPoints{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+        </td>
+        <td>
+          <SfButton Content="Nail Art" @onclick="@(() => navManager.NavigateTo($"PNailArt{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
       </tr>
     </table>
@@ -69,11 +72,11 @@
 
 @code {
   private readonly dbContext _db = new();
-  
+
   SfGrid<VWinnersByChallengeDivision>? DataGrid { get; set; }
   List<VWinnersByChallengeDivision>? _lstWinners { get; set; }
 
-  
+
   private async Task FillDS()
   {
     _lstWinners?.Clear();
@@ -82,9 +85,9 @@
     {
       _lstWinners = _db.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();
     }
-    //await InvokeAsync(StateHasChanged);
+  //await InvokeAsync(StateHasChanged);
   }
-  
+
   #region Events
 
   List<Event>? _lstEvents;
@@ -96,8 +99,8 @@
     await FillDS();
   }
 
-  #endregion  
-  
+  #endregion
+
   protected override void OnInitialized()
   {
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
@@ -106,9 +109,9 @@
     {
       _eventId = Convert.ToInt32(eid);
     }
-    Task.Run(async()=>await FillDS()).Wait();
+    Task.Run(async () => await FillDS()).Wait();
     StateHasChanged();
- }
+  }
 
   private async Task GridToolbarClick(ClickEventArgs args)
   {
