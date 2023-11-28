@@ -61,5 +61,36 @@ public class CountriesController : ControllerBase
     return _mapper.Map<List<CountryDTO>>(country);
   }
 
+  [HttpPost]
+  [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CountryDTO)),
+   ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+  public async Task<ActionResult<CountryDTO>> AddCountry(string? aCountryName)
+  {
+    if (string.IsNullOrEmpty(aCountryName) || string.IsNullOrWhiteSpace(aCountryName))
+    {
+      return BadRequest("Country Name can't be null or empty");
+    }
 
+    var dbCountry = _context.Countries.ToList().FirstOrDefault(x =>
+      string.Equals(x.Name, aCountryName, StringComparison.InvariantCultureIgnoreCase));
+
+    if (dbCountry != null) return CountryDTO.FromDbItem(dbCountry);
+    dbCountry = new Country
+    {
+      Active = true,
+      Name = aCountryName
+    };
+    _context.Countries.Add(dbCountry);
+    try
+    {
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, $"Error agregando un País {aCountryName}");
+      return StatusCode(StatusCodes.Status500InternalServerError, $"Error Agregando un País");
+    }
+    return CountryDTO.FromDbItem(dbCountry);
+  }
 }

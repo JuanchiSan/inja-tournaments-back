@@ -60,4 +60,41 @@ public class CitiesController : ControllerBase
 		return _mapper.Map<CityDTO>(city);
 	}
 
+	[HttpPost]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CountryDTO)),
+	 ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
+	 ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+	[AllowAnonymous]
+	public async Task<ActionResult<CityDTO>> AddCity(string? aCityName, string? aCountryName)
+	{
+		if (string.IsNullOrEmpty(aCityName) || string.IsNullOrWhiteSpace(aCityName))
+		{
+			return BadRequest("City Name can't be null or empty");
+		}
+
+		var dbCity = _context.Cities.ToList().FirstOrDefault(x => string.Equals(x.Name, aCityName, StringComparison.InvariantCultureIgnoreCase));
+
+		var dbCountry = new CountriesController(_context, _mapper, _tokenService).AddCountry(aCountryName ?? "Desconocido");
+
+		if (dbCity != null) 
+			return CityDTO.FromDbItem(dbCity);
+
+		dbCity = new City
+		{
+			Name = aCityName,
+			Countryid = dbCountry.Id
+		};
+		
+		_context.Cities.Add(dbCity);
+		try
+		{
+			await _context.SaveChangesAsync();
+		}
+		catch (Exception e)
+		{
+			Serilog.Log.Error(e, $"Error agregando un Ciudad {aCityName}");
+			return StatusCode(StatusCodes.Status500InternalServerError, $"Error Agregando una Ciudad");
+		}
+		return CityDTO.FromDbItem(dbCity);
+	}
 }

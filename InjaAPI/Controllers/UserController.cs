@@ -334,6 +334,18 @@ public class UserController : ControllerBase
       return BadRequest("User Document already exists");
     }
 
+    if (aNewUser.CountryId is null or 0)
+    {
+      var aCountry = new CountriesController(_context, _mapper, _tokenService).AddCountry(aNewUser.CountryName);
+      aNewUser.CountryId = aCountry.Id;
+    }
+    
+    if (aNewUser.Cityid is null or 0)
+    {
+      var aCity = new CitiesController(_context, _mapper, _tokenService).AddCity(aNewUser.CityName, aNewUser.CountryName);
+      aNewUser.Cityid = aCity.Id;
+    }
+
     var newDbUser = new Injauser
     {
       Active = true,

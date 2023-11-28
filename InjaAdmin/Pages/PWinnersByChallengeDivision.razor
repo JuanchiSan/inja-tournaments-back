@@ -4,11 +4,19 @@
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.WebUtilities
+@using InjaAdmin.Auth
 
-@inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
+@inject AuthenticationStateProvider authStateProvider
+@inject SfDialogService DialogService
 
-<h3>Winners By Challenge Division</h3>
+<table>
+  <tr>
+    <td><h3>Winners By Challenge Division</h3></td>
+    <td><SfButton Content="Publish Points" @onclick="OnPublishedChange" Disabled="@(ppublished)"/></td>
+  </tr>
+</table>
+
 
 <div>
   <div>
@@ -71,21 +79,34 @@
 </div>
 
 @code {
-  private readonly dbContext _db = new();
-
+  private dbContext _db = new();
+  private bool ppublished;
+  
   SfGrid<VWinnersByChallengeDivision>? DataGrid { get; set; }
   List<VWinnersByChallengeDivision>? _lstWinners { get; set; }
 
-
+  private async Task<bool> CalcPubPointDisabled()
+  {
+    if (_eventId == null)
+    {
+      ppublished = false;
+      return !ppublished;
+    }
+    var eventdb = await _db.Events.FirstAsync(x => x.Active == true && x.Id == _eventId);
+    ppublished = eventdb.PointPublished;
+    
+    return !ppublished;
+  }
+  
   private async Task FillDS()
   {
     _lstWinners?.Clear();
-    _lstEvents = await _db.Events.ToListAsync();
+    _lstEvents = await _db.Events.Where(x => x.Active == true).ToListAsync();
     if (_eventId != null)
     {
       _lstWinners = _db.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();
     }
-  //await InvokeAsync(StateHasChanged);
+    await CalcPubPointDisabled();
   }
 
   #region Events
@@ -109,6 +130,7 @@
     {
       _eventId = Convert.ToInt32(eid);
     }
+    Task.Run(async () => await CalcPubPointDisabled()).Wait();
     Task.Run(async () => await FillDS()).Wait();
     StateHasChanged();
   }
@@ -130,4 +152,27 @@
     }
   }
 
+  private async Task OnPublishedChange(MouseEventArgs obj)
+  {
+    if (_eventId == null) return;
+    var dbItem = await _db.Events.FirstAsync(x => x.Id == _eventId);
+    dbItem.PointPublished = true;
+    dbItem.PointPublishedDate = DateTime.Now;
+    var customAuthStateProvider = (CustomAuthStateProvider)authStateProvider;
+    var authState = await customAuthStateProvider.GetAuthenticationStateAsync();
+    dbItem.PointPublishedUser = authState.User.Identity?.Name;
+
+    try
+    {
+      await _db.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e,"Error cambiando de estado el Evento en publicación de resultados ");
+      _db = new dbContext();
+    }
+    await FillDS();
+    await DialogService.AlertAsync("Points Published", $"{dbItem.Name}");
+    StateHasChanged();
+  }
 }

@@ -32,6 +32,9 @@ try
 	Log.Information(jsonObject.ToJsonString());
 	InjaData.Helper.CS = strMainConn;
 
+	// Setup Environment to show password
+	InjaAdmin.Helper.Environment = jsonObject["Environment"]!.ToString();
+	
   // Setup QR App
   InjaAdmin.Helper.strURL = jsonObject["QR_URL"]!.ToString();
   Log.Information(strMainConn);

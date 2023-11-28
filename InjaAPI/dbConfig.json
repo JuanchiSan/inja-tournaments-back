@@ -1,5 +1,5 @@
 {
-  "DB": "Host=181.209.125.98; Database=Naily; Username=postgres; Password=Qwert.789",
+  "DB": "Host=10.10.11.40; Database=Naily; Username=postgres; Password=Qwert.789",
   "APIDomain": "https://inja-api.guadcore.ar",
   "ChangePasswordURL": "https://inja-app.guadcore.ar/change-password",
   "DB1": "Host=66.165.248.187; Database=Naily; Username=postgres; Password=Qwert.789",

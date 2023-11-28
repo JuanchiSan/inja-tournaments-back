@@ -10,6 +10,8 @@ public static class Helper
 {
 	public static string AppName =>"BeautyComp Admin";
 	
+	public static string Environment { get; set; }
+	
 	public static NumericEditCellParams DFNumericEditCell => new()
 	{
 		Params = new NumericTextBoxModel<object>

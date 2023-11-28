@@ -23,6 +23,12 @@ public partial class Event
 
     public bool? Active { get; set; }
 
+    public bool PointPublished { get; set; }
+
+    public DateTime? PointPublishedDate { get; set; }
+
+    public string? PointPublishedUser { get; set; }
+
     public virtual Injauser? Creatoruser { get; set; }
 
     public virtual ICollection<Eventchallenge> Eventchallenges { get; set; } = new List<Eventchallenge>();

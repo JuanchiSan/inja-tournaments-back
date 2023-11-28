@@ -23,6 +23,17 @@
 
 <div class="main">
   <div class="top-row px-4 print-hide" style="z-index:1111;padding-top:0">
+    @if (Helper.Environment != "Production")
+    {
+      <div class="flex">
+        <span class="align-content-start" style="background-color: #0dcaf0">
+          <H3>TESTING</H3>
+        </span>
+        <span class="align-content-start" style="background-color: #0dcaf0">
+	        <H3>@InjaData.Helper.CS</H3>
+        </span>
+      </div>
+    }
     <div style="padding-left:10px;width:1px;height:25px;color:#E4E4E4" class="print-hide">|</div>
     <AuthorizeView>
       <Authorized>

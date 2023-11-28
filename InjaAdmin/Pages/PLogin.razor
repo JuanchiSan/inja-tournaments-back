@@ -1,6 +1,7 @@
 ﻿@page "/Login"
 @using Microsoft.EntityFrameworkCore
 @using InjaAdmin.Auth
+@using Helper = InjaData.Helper
 
 @inject SfDialogService dialogService
 @inject AuthenticationStateProvider authStateProvider
@@ -13,11 +14,11 @@
     </div>
     <div class="mb-3">
       <label>User Mail</label>
-      <input @bind="model.UserName" class="form-control" placeholder="User Mail"/>
+      <input @bind="_model.UserName" class="form-control" placeholder="User Mail"/>
     </div>
     <div class="mb-3">
       <label>Password</label>
-      <input @bind="model.Password" type="password" class="form-control" placeholder="Password"/>
+      <input @bind="_model.Password" type="password" class="form-control" placeholder="Password"/>
     </div>
     <div class="mb-3 d-grid gap-2">
       <button @onclick="OnLoginClick" class="btn btn-primary">Login</button>
@@ -26,7 +27,7 @@
 </div>
 
 @code {
-  readonly Model model = new();
+  readonly Model _model = new();
 
   public class Model
   {
@@ -36,18 +37,19 @@
 
   protected override void OnInitialized()
   {
-    model.UserName = string.Empty;
-    model.Password = string.Empty;
-    model.UserName = "guadcore@gmail.com";
-    model.Password = "Pepe.1234";
+    _model.UserName = string.Empty;
+    _model.Password = string.Empty;
+    if (InjaAdmin.Helper.Environment != "Dev") return;
+    _model.UserName = "guadcore@gmail.com";
+    _model.Password = "Pepe.1234";
   }
 
   private async Task OnLoginClick(MouseEventArgs obj)
   {
     var dbUsers = await new dbContext().Injausers.ToListAsync();
     var dbUser = dbUsers.FirstOrDefault(x =>
-      string.Equals(x.Mail, model.UserName, StringComparison.InvariantCultureIgnoreCase) &&
-      string.Equals(x.Pass, model.Password, StringComparison.CurrentCulture));
+      string.Equals(x.Mail, _model.UserName, StringComparison.InvariantCultureIgnoreCase) &&
+      string.Equals(x.Pass, _model.Password, StringComparison.CurrentCulture));
 
     if (dbUser == null)
     {

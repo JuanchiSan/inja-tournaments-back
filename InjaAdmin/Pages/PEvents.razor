@@ -9,24 +9,27 @@
   <SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)"
           AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
           Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
-    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog"/>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
     <GridEvents OnActionBegin="OnGridEventActionBegin" OnToolbarClick="@GridToolbarClick" TValue="Event"/>
     <GridSortSettings>
-    <GridSortColumns>
-      <GridSortColumn Field="@nameof(Event.Name)" Direction="SortDirection.Ascending"/>
-    </GridSortColumns>
+      <GridSortColumns>
+        <GridSortColumn Field="@nameof(Event.Name)" Direction="SortDirection.Ascending"/>
+      </GridSortColumns>
     </GridSortSettings>
     <GridColumns>
-      <GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" AllowAdding="false" IsIdentity="true" IsPrimaryKey="true" Width="150"/>
+      <GridColumn Field="@nameof(Event.Id)" HeaderText="Id" AllowEditing="false" AllowAdding="false" IsIdentity="true" IsPrimaryKey="true" Width="50"/>
       <GridColumn Field="@nameof(Event.Name)" HeaderText="Name" Width="150"/>
-      <GridColumn Field="@nameof(Event.Startdate)" HeaderText="Start Date" EditType="EditType.DateTimePickerEdit" Width="150"/>
-      <GridColumn Field="@nameof(Event.Enddate)" HeaderText="End Date" EditType="EditType.DateTimePickerEdit" Width="150"/>
-      <GridColumn Field="@nameof(Event.Startinscription)" HeaderText="Start Inscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
-      <GridColumn Field="@nameof(Event.Endinscription)" HeaderText="End Inscription" EditType="EditType.DateTimePickerEdit" Width="150"/>
+      <GridColumn Field="@nameof(Event.Startdate)" HeaderText="Start Date" EditType="EditType.DateTimePickerEdit" Width="120"/>
+      <GridColumn Field="@nameof(Event.Enddate)" HeaderText="End Date" EditType="EditType.DateTimePickerEdit" Width="120"/>
+      <GridColumn Field="@nameof(Event.Startinscription)" HeaderText="Start Inscription" EditType="EditType.DateTimePickerEdit" Width="120"/>
+      <GridColumn Field="@nameof(Event.Endinscription)" HeaderText="End Inscription" EditType="EditType.DateTimePickerEdit" Width="120"/>
       <GridColumn Field="@nameof(Event.Comment)" HeaderText="Comment" Width="150"/>
-      <GridColumn Field="@nameof(Event.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="150"/>
+      <GridColumn Field="@nameof(Event.Active)" HeaderText="Active" DisplayAsCheckBox="true" Width="100"/>
+      <GridColumn Field="@nameof(Event.PointPublished)" HeaderText="Is Published" DisplayAsCheckBox="true" Width="50" AllowEditing="false"/>
+      <GridColumn Field="@nameof(Event.PointPublishedDate)" HeaderText="Published At" EditType="EditType.DateTimePickerEdit" Width="120" AllowEditing="false"/>
+      <GridColumn Field="@nameof(Event.PointPublishedUser)" HeaderText="Published By" Width="100" AllowEditing="false"/>
     </GridColumns>
   </SfGrid>
 </div>

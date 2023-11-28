@@ -38,9 +38,9 @@
       <GridTemplates>
         <DetailTemplate>
           @{
-            var selectedContender = context as VCupNailArt;
-
-            List<VCupNailArtBase> detailInfo = selectedContender == null ? new List<VCupNailArtBase>() : _db.VCupNailArtBases.Where(x => x.Contenderid == selectedContender.Contenderid).ToList();
+            var detailInfo = context is not VCupNailArt selectedContender ? 
+              new List<VCupNailArtBase>() : 
+              _db.VCupNailArtBases.Where(x => x.Contenderid == selectedContender.Contenderid).ToList();
             <SfGrid @ref="GridCupNailBase" TValue="VCupNailArtBase" DataSource="@detailInfo"
                     AllowResizing="true" AllowSorting="true">
               <GridColumns>
