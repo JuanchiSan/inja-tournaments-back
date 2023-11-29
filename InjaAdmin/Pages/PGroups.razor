@@ -142,6 +142,7 @@
   {
     _lstEvents = await new dbContext()
       .Events
+      .Where(x => x.Active == true)
       .OrderBy(x => x.Name)
       .ToListAsync();
 

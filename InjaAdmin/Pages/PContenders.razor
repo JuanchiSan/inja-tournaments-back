@@ -13,8 +13,8 @@
 @inject SfDialogService dialogService
 
 <div class="header-content">
-  <h3>Contenders</h3>
-  <SfButton Content="Add New Contender" @onclick="@OnNewContenderClick" IsPrimary="true" Disabled="@(_eventId != null)"/>
+  <h3>Users</h3>
+  <SfButton Content="Add New User" @onclick="@OnNewContenderClick" IsPrimary="true" Disabled="@(_eventId != null)"/>
 </div>
 <div class="filter-content label-event">
   <div class="filter-input large">
@@ -28,7 +28,6 @@
   {
     <div class="filter-input">
       <span class="label user-type">User Type:</span>
-      @* @ref="@sfComboUserType"    *@
       <SfComboBox @bind-Value="@(_currentUserTypeId)" AllowCustom="false" ShowClearButton="false" TValue="int" TItem="UserType" 
                   CssClass="user-type-combo-box" PopupWidth="110" DataSource="@(_lstUserTypes)">
         <ComboBoxFieldSettings Text="@nameof(UserType.Name)" Value="@nameof(UserType.Id)"/>
@@ -70,8 +69,10 @@
       <GridColumn HeaderText="Manage Inscriptions" Width="150" Visible="@(_eventId != null && _currentUserTypeId == 1)">
         <GridCommandColumns>
           <GridCommandColumn Type="CommandButtonType.None" Title="Inscriptions" ID="Inscriptions" ButtonOption="@(new CommandButtonOptions { Content = "Inscriptions" })"/>
+          <GridCommandColumn Type="CommandButtonType.None" Title="Delete" ID="Delete" ButtonOption="@(new CommandButtonOptions { Content = "Delete" })"/>
         </GridCommandColumns>
       </GridColumn>
+      
     </GridColumns>
   </SfGrid>
 </div>
@@ -258,7 +259,24 @@ padding-left: 5px;
         await sessionStorage.SetItemAsync("ContenderInscription", Tuple.Create(_eventId, obj.RowData.Id, $"{obj.RowData.Lastname}, {obj.RowData.Firstname}"));
         navManager.NavigateTo("/ContenderInscription");
         break;
-      case "Types":
+      case "Delete":
+        var dbItem = await _db.Injauserusertypes.FirstOrDefaultAsync(x => x.Eventid == _eventId && x.Userid == obj.RowData.Id && x.Typeid == _currentUserTypeId);
+        if (dbItem == null) return;
+        var response = await dialogService.ConfirmAsync($"Do you want to remove the user {obj.RowData.Lastname}, {obj.RowData.Firstname} from this category?", "Confirmation");
+        if (!response) return;
+        _db.Injauserusertypes.Remove(dbItem);
+        try
+        {
+          await _db.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+          Log.Error(e,"Error Removing user from category");
+          _db = new();
+        }
+        await FillDS();
+        await ContenderGrid?.Refresh()!;
+        StateHasChanged();
         break;
     }
   }

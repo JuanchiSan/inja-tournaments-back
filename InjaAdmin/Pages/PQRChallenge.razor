@@ -145,7 +145,7 @@
 
   protected override void OnInitialized()
   {
-    _lstEvents = _db.Events.ToList();
+    _lstEvents = _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToList();
 
     FillDataSources();
     StateHasChanged();

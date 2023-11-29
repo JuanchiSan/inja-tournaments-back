@@ -174,8 +174,8 @@
     var db = new dbContext();
     _lstEvents = await db
       .Events
-      .ToListAsync();
-
+      .Where(x => x.Active == true).OrderBy(x => x.Name).ToListAsync();
+      
     FillDS2();
 
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);

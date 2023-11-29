@@ -1,0 +1,102 @@
+﻿@using Microsoft.EntityFrameworkCore
+
+<SfDialog @ref="@Dialog" Width="300px" ShowCloseIcon="true" @bind-Visible="Visibility" IsModal="true">
+  <DialogTemplates>
+    <Header>
+      <span>Event's Cups</span>
+    </Header>
+    <Content>
+      <div>
+        <table>
+          <tr>
+            <td><label style="padding: 10px 70px 10px 0">@_strCupNailArt</label></td>
+            <td><SfSwitch @bind-Checked="@_cupNailArt"/></td>
+          </tr>
+          <tr>
+            <td><label style="padding: 10px 24px 10px 0">@_strCupWinnersofWinners</label></td>
+            <td><SfSwitch @bind-Checked="@_cupWinnersOfWinners"/></td>
+          </tr>
+        </table>
+      </div>
+             
+      <div class="header-content" style="padding-top: 15px">
+        <button type="submit" class="btn btn-primary" @onclick="() => { OnSubmit(); }">Submit</button>
+        <button type="reset" class="btn" @onclick="() => { Visibility = false; }">Cancel</button>
+      </div>
+    </Content>
+    <FooterTemplate/>
+  </DialogTemplates>
+  <DialogEvents/>
+</SfDialog>
+
+<style>
+  .header-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+</style>
+
+@code {
+    private const string _strCupNailArt = "NailArt";
+    private const string _strCupWinnersofWinners = "WinnersOfWinners";
+
+  public bool Visibility { get; set; }
+
+  private SfDialog? Dialog { get; set; }
+
+  private EditContext? UserContext { get; set; }
+
+  private Event? _event { get; set; }
+
+  private bool _cupNailArt { get; set; }
+  private bool _cupWinnersOfWinners { get; set; }
+
+  readonly List<EventCup> _lstEventCup = new();
+
+  private dbContext _context = new();
+
+  private async Task FillDataSources()
+  {
+    _cupNailArt = false;
+    _cupWinnersOfWinners = false;
+    if (_event == null) return;
+    _lstEventCup.Clear();
+    _lstEventCup.AddRange(await _context.EventCups.Where(x => x.EventId == _event.Id).ToListAsync());
+    _cupNailArt = _lstEventCup.Any(x => string.Equals(x.Cup, _strCupNailArt, StringComparison.InvariantCultureIgnoreCase));
+    _cupWinnersOfWinners = _lstEventCup.Any(x => string.Equals(x.Cup, _strCupWinnersofWinners, StringComparison.InvariantCultureIgnoreCase));
+  }
+
+  public async Task Open(Event? aEvent)
+  {
+    _event = aEvent;
+    await FillDataSources();
+
+
+    Visibility = true;
+    StateHasChanged();
+  }
+
+  private void OnSubmit()
+  {
+    if (_event == null) return;
+    _context.EventCups.RemoveRange(_context.EventCups.Where(x => x.EventId == _event.Id).ToList());
+
+    if (_cupNailArt)
+      _context.EventCups.Add(new EventCup { EventId = _event.Id, Cup = _strCupNailArt });
+    if (_cupWinnersOfWinners)
+      _context.EventCups.Add(new EventCup { EventId = _event.Id, Cup = _strCupWinnersofWinners });
+
+    try
+    {
+      _context.SaveChanges();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, "Error saving cups Selection");
+      _context = new dbContext();
+    }
+    Visibility = false;
+  }
+
+}

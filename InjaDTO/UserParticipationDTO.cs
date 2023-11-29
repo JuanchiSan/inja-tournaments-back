@@ -12,9 +12,15 @@ public class UserEventDTO : IEqualityComparer<UserEventDTO>
 {
   public int EventId { get; set; }
   public string EventName { get; set; } = string.Empty;
+  public bool PointsPublished { get; set; }
+  public DateTime? PointsPublishedDate { get; set; }
+  public string? PointsPublishedUserAuth { get; set; }
   
   public List<UserCompetitionsDTO>? UserCompetitions { get; set; } = new();
 
+  public List<UserCupsDTO> UserCups { get; set; } = new();
+
+  public List<UserPointGroupDTO> UserGroups { get; set; } = new();
 
   public bool Equals(UserEventDTO? x, UserEventDTO? y)
   {
@@ -25,6 +31,21 @@ public class UserEventDTO : IEqualityComparer<UserEventDTO>
   {
     return 1;
   }
+}
+
+public class UserPointGroupDTO
+{
+  public string GroupName { get; set; }
+  public string Participants { get; set; }
+  public decimal TotalPoints { get; set; }
+  public int GroupPosition { get; set; }
+}
+
+public class UserCupsDTO
+{
+  public string CupName { get; set; }
+  public int Position { get; set; }
+  public decimal TotalPoints { get; set; }
 }
 
 public class UserCompetitionsDTO : IEquatable<UserCompetitionsDTO>

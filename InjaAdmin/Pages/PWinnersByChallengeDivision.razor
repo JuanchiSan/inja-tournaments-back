@@ -39,10 +39,10 @@
           <SfButton Content="Grand Champion" @onclick="@(() => navManager.NavigateTo($"GrandChampion{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
         <td>
-          <SfButton Content="Groups Points" @onclick="@(() => navManager.NavigateTo($"PGroupPoints{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+          <SfButton Content="Groups Points" @onclick="@(() => navManager.NavigateTo($"GroupPoints{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
         <td>
-          <SfButton Content="Nail Art" @onclick="@(() => navManager.NavigateTo($"PNailArt{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+          <SfButton Content="Nail Art" @onclick="@(() => navManager.NavigateTo($"CupNailArt{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
         </td>
       </tr>
     </table>
@@ -101,7 +101,7 @@
   private async Task FillDS()
   {
     _lstWinners?.Clear();
-    _lstEvents = await _db.Events.Where(x => x.Active == true).ToListAsync();
+    _lstEvents = await _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToListAsync();
     if (_eventId != null)
     {
       _lstWinners = _db.VWinnersByChallengeDivisions.Where(x => x.Eventid == _eventId).ToList();

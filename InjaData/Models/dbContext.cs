@@ -35,6 +35,8 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<Event> Events { get; set; }
 
+    public virtual DbSet<EventCup> EventCups { get; set; }
+
     public virtual DbSet<Eventchallenge> Eventchallenges { get; set; }
 
     public virtual DbSet<Eventchallengedivision> Eventchallengedivisions { get; set; }
@@ -385,6 +387,22 @@ public partial class dbContext : DbContext
                 .HasForeignKey(d => d.Creatoruserid)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_event_ninjauser");
+        });
+
+        modelBuilder.Entity<EventCup>(entity =>
+        {
+            entity.HasKey(e => new { e.EventId, e.Cup }).HasName("event_cups_pk");
+
+            entity.ToTable("event_cups");
+
+            entity.Property(e => e.EventId).HasColumnName("event_id");
+            entity.Property(e => e.Cup)
+                .HasMaxLength(50)
+                .HasColumnName("cup");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.EventCups)
+                .HasForeignKey(d => d.EventId)
+                .HasConstraintName("event_cups_event_id_fk");
         });
 
         modelBuilder.Entity<Eventchallenge>(entity =>
@@ -1597,6 +1615,13 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Maxscore)
                 .HasPrecision(12, 2)
                 .HasColumnName("maxscore");
+            entity.Property(e => e.PointPublished).HasColumnName("point_published");
+            entity.Property(e => e.PointPublishedDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("point_published_date");
+            entity.Property(e => e.PointPublishedUser)
+                .HasMaxLength(50)
+                .HasColumnName("point_published_user");
             entity.Property(e => e.Rounds).HasColumnName("rounds");
             entity.Property(e => e.Slot1)
                 .HasPrecision(5, 2)

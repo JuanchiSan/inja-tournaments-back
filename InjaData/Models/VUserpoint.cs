@@ -74,4 +74,10 @@ public partial class VUserpoint
     public decimal? Slotstep { get; set; }
 
     public string? Eventname { get; set; }
+
+    public bool? PointPublished { get; set; }
+
+    public DateTime? PointPublishedDate { get; set; }
+
+    public string? PointPublishedUser { get; set; }
 }

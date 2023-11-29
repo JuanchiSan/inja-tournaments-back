@@ -31,6 +31,8 @@ public partial class Event
 
     public virtual Injauser? Creatoruser { get; set; }
 
+    public virtual ICollection<EventCup> EventCups { get; set; } = new List<EventCup>();
+
     public virtual ICollection<Eventchallenge> Eventchallenges { get; set; } = new List<Eventchallenge>();
 
     public virtual ICollection<Injagroup> Injagroups { get; set; } = new List<Injagroup>();

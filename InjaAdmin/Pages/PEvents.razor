@@ -1,6 +1,22 @@
 ﻿@page "/Events"
 
+@using InjaAdmin.Adaptors
+@using InjaData.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+@using InjaAdmin.Adaptors
+@using InjaData.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+
 @attribute [Authorize(Roles = "4,5")]
+
 <div>
   <h2>Events</h2>
 </div>
@@ -8,11 +24,11 @@
 <div>
   <SfGrid @ref="@DataGrid" TValue="Event" ID="@nameof(DataGrid)"
           AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true"
-          Toolbar="@(new List<string> { "Add", "Edit", "Delete", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
+          Toolbar="@(new List<string> { "Add", "Edit", "Cancel", "Update", "ExcelExport", "PdfExport", "CsvExport" })">
     <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog"/>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
     <SfDataManager AdaptorInstance="@typeof(EventAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
-    <GridEvents OnActionBegin="OnGridEventActionBegin" OnToolbarClick="@GridToolbarClick" TValue="Event"/>
+    <GridEvents OnActionBegin="@OnGridEventActionBegin" OnToolbarClick="@GridToolbarClick" CommandClicked="@OnGridCommandClicked" TValue="Event"/>
     <GridSortSettings>
       <GridSortColumns>
         <GridSortColumn Field="@nameof(Event.Name)" Direction="SortDirection.Ascending"/>
@@ -30,13 +46,23 @@
       <GridColumn Field="@nameof(Event.PointPublished)" HeaderText="Is Published" DisplayAsCheckBox="true" Width="50" AllowEditing="false"/>
       <GridColumn Field="@nameof(Event.PointPublishedDate)" HeaderText="Published At" EditType="EditType.DateTimePickerEdit" Width="120" AllowEditing="false"/>
       <GridColumn Field="@nameof(Event.PointPublishedUser)" HeaderText="Published By" Width="100" AllowEditing="false"/>
+      <GridColumn HeaderText="Cups" Width="150">
+        <GridCommandColumns>
+          <GridCommandColumn Type="CommandButtonType.None" Title="Cups" ID="Cups" ButtonOption="@(new CommandButtonOptions { Content = "Cups" })"/>
+        </GridCommandColumns>
+      </GridColumn>
+
     </GridColumns>
   </SfGrid>
 </div>
 
+<CEventCups @ref="UserDialog"/>
 
 @code {
   SfGrid<Event>? DataGrid { get; set; }
+
+  CEventCups? UserDialog { get; set; }
+
 
   private async Task GridToolbarClick(ClickEventArgs args)
   {
@@ -65,6 +91,16 @@
         obj.RowData.Startinscription = DateTime.Today;
         obj.RowData.Endinscription = DateTime.Today;
         obj.RowData.Active = true;
+        break;
+    }
+  }
+
+  private void OnGridCommandClicked(CommandClickEventArgs<Event> obj)
+  {
+    switch (obj.CommandColumn.ID)
+    {
+      case "Cups":
+        UserDialog?.Open(obj.RowData);
         break;
     }
   }

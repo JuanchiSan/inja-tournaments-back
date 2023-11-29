@@ -122,7 +122,7 @@
 
   protected override void OnInitialized()
   {
-    _lstEvents = _db.Events.ToList();
+    _lstEvents = _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToList();
     if (_lstEvents is {Count: > 0 })
       _eventId = _lstEvents.FirstOrDefault()?.Id;
 

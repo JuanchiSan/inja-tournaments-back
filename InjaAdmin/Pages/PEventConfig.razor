@@ -149,7 +149,7 @@
 
   protected override Task OnInitializedAsync()
   {
-    _lstEvents = _db.Events.OrderBy(x => x.Name).ToList();
+    _lstEvents = _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToList();
     
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
 

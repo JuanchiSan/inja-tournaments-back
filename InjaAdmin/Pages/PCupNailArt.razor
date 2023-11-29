@@ -1,5 +1,4 @@
-﻿@page "/WinnersOfWinners"
-
+﻿@page "/CupNailArt"
 @attribute [Authorize(Roles = "4,5")]
 
 @using Microsoft.EntityFrameworkCore
@@ -8,7 +7,7 @@
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
 
-<h3>Winners of Winners</h3>
+<h3>Nail Art Cup</h3>
 
 <div>
   <div>
@@ -32,23 +31,39 @@
     </div>
   </div>
   <div>
-    <SfGrid @ref="GridWinners" TValue="VWinnerOfWinner" DataSource="@_lstData"
+    <SfGrid @ref="GridCutNailArt" TValue="VCupNailArt" DataSource="@_lstData"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true"
             AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport" })">
+      <GridTemplates>
+        <DetailTemplate>
+          @{
+            var detailInfo = context is not VCupNailArt selectedContender ? 
+              new List<VCupNailArtBase>() : 
+              _db.VCupNailArtBases.Where(x => x.Contenderid == selectedContender.Contenderid).ToList();
+            <SfGrid @ref="GridCupNailBase" TValue="VCupNailArtBase" DataSource="@detailInfo"
+                    AllowResizing="true" AllowSorting="true">
+              <GridColumns>
+                <GridColumn Field="@nameof(VCupNailArtBase.Eventchallengename)" HeaderText="Challenge"/>
+                <GridColumn Field="@nameof(VCupNailArtBase.FinalPoint)" HeaderText="Points"/>
+              </GridColumns>
+            </SfGrid>
+          }
+        </DetailTemplate>
+      </GridTemplates>
       <GridSortSettings>
         <GridSortColumns>
-          <GridSortColumn Field="@nameof(VWinnerOfWinner.Finalpoints)" Direction="SortDirection.Descending"/>
+          <GridSortColumn Field="@nameof(VCupNailArt.FinalPoint)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-      <GridGroupSettings Columns="@(new[] { nameof(VWinnerOfWinner.Divisionname) })"/>
-      <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VWinnerOfWinner"/>
+      <GridGroupSettings Columns="@(new[] { nameof(VCupNailArt.Divisionname) })"/>
+      <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VCupNailArt"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VWinnerOfWinner.Contendernumber)" HeaderText="Number"/>
-        <GridColumn Field="@nameof(VWinnerOfWinner.Contendername)" HeaderText="Contender"/>
-        <GridColumn Field="@nameof(VWinnerOfWinner.Divisionname)" HeaderText="Div Name"/>
-        <GridColumn Field="@nameof(VWinnerOfWinner.Finalpoints)" HeaderText="Points"/>
+        <GridColumn Field="@nameof(VCupNailArt.Divisionname)" HeaderText="Division"/>
+        <GridColumn Field="@nameof(VCupNailArt.Contendernumber)" HeaderText="Number"/>
+        <GridColumn Field="@nameof(VCupNailArt.Contendername)" HeaderText="Contender"/>
+        <GridColumn Field="@nameof(VCupNailArt.FinalPoint)" HeaderText="Points"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -60,18 +75,19 @@
   int? _eventId;
   SfComboBox<int?, Event>? _comboEvent;
 
-  List<VWinnerOfWinner>? _lstData;
-  SfGrid<VWinnerOfWinner>? GridWinners;
+  List<VCupNailArt>? _lstData;
+  SfGrid<VCupNailArt>? GridCutNailArt;
+  SfGrid<VCupNailArtBase>? GridCupNailBase;
 
   private async Task FillDS()
   {
-    _lstEvents = await _db.Events.OrderBy(x => x.Name).ToListAsync();
+    _lstEvents = await _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToListAsync();
 
     if (_eventId != null)
     {
       _lstData = new dbContext()
-        .VWinnerOfWinners
-        .Where(x => x.Eventid == _eventId && x.Competitiontypeid == 1)
+        .VCupNailArts
+        .Where(x => x.Eventid == _eventId)
         .ToList();
     }
   }
@@ -92,24 +108,24 @@
   private async Task OnEventValueChange(ChangeEventArgs<int?, Event> args)
   {
     await FillDS();
-    if (GridWinners != null)
-      await GridWinners.Refresh();
+    if (GridCutNailArt != null)
+      await GridCutNailArt.Refresh();
     StateHasChanged();
   }
 
   private async Task GridToolbarClick(ClickEventArgs args)
   {
-    if (GridWinners == null) return;
+    if (GridCutNailArt == null) return;
     switch (args.Item.Id)
     {
-      case $"{nameof(GridWinners)}_excelexport":
-        await GridWinners.ExportToExcelAsync();
+      case $"{nameof(GridCutNailArt)}_excelexport":
+        await GridCutNailArt.ExportToExcelAsync();
         break;
-      case $"{nameof(GridWinners)}_pdfexport":
-        await GridWinners.ExportToPdfAsync();
+      case $"{nameof(GridCutNailArt)}_pdfexport":
+        await GridCutNailArt.ExportToPdfAsync();
         break;
-      case $"{nameof(GridWinners)}_csvexport":
-        await GridWinners.ExportToCsvAsync();
+      case $"{nameof(GridCutNailArt)}_csvexport":
+        await GridCutNailArt.ExportToCsvAsync();
         break;
     }
   }

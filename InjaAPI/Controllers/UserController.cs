@@ -188,7 +188,10 @@ public class UserController : ControllerBase
         .Select(x => new UserEventDTO
         {
           EventId = (int)x.Eventid!,
-          EventName = x.Eventname!
+          EventName = x.Eventname!,
+          PointsPublished = Convert.ToBoolean(x.PointPublished),
+          PointsPublishedDate = x.PointPublishedDate,
+          PointsPublishedUserAuth = x.PointPublishedUser
         }).DistinctBy(y => y.EventId));
 
       userPart.Events?.ForEach(ue =>
@@ -287,8 +290,9 @@ public class UserController : ControllerBase
           }
         }
       });
-      Serilog.Log.Logger.Information("Returning Data"); 
 
+      Serilog.Log.Logger.Information("Returning Data"); 
+      
       return Ok(userPart);
     }
     catch (Exception e)

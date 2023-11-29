@@ -1,4 +1,4 @@
-﻿@page "/GrandChampion"
+﻿@page "/WinnersOfWinners"
 
 @attribute [Authorize(Roles = "4,5")]
 
@@ -8,7 +8,7 @@
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navManager
 
-<h3>Grand Champion</h3>
+<h3>Winners of Winners</h3>
 
 <div>
   <div>
@@ -28,27 +28,27 @@
       </tr>
     </table>
     <div>
-      <SfButton Content="Go Back" @onclick="@(() => navManager.NavigateTo($"WinByChallengeDivision{( _eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
+      <SfButton Content="Go Back" @onclick="@(() => navManager.NavigateTo($"WinByChallengeDivision{(_eventId != null ? $"?eid={_eventId}" : string.Empty)}"))"/>
     </div>
   </div>
   <div>
-    <SfGrid @ref="GridWinners" TValue="VGrandChampion" DataSource="@_lstData"
+    <SfGrid @ref="GridWinners" TValue="VWinnerOfWinner" DataSource="@_lstData"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowSorting="true"
             AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport" })">
       <GridSortSettings>
         <GridSortColumns>
-          <GridSortColumn Field="@nameof(VGrandChampion.Finalpoints)" Direction="SortDirection.Descending"/>
+          <GridSortColumn Field="@nameof(VWinnerOfWinner.Finalpoints)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-      <GridGroupSettings Columns="@(new[] { nameof(VGrandChampion.Divisionname) })"/>
-      <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VGrandChampion"/>
+      <GridGroupSettings Columns="@(new[] { nameof(VWinnerOfWinner.Divisionname) })"/>
+      <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VWinnerOfWinner"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VGrandChampion.Contendernumber)" HeaderText="Number"/>
-        <GridColumn Field="@nameof(VGrandChampion.Contendername)" HeaderText="Contender"/>
-        <GridColumn Field="@nameof(VGrandChampion.Divisionname)" HeaderText="Div Name"/>
-        <GridColumn Field="@nameof(VGrandChampion.Finalpoints)" HeaderText="Points"/>
+        <GridColumn Field="@nameof(VWinnerOfWinner.Contendernumber)" HeaderText="Number"/>
+        <GridColumn Field="@nameof(VWinnerOfWinner.Contendername)" HeaderText="Contender"/>
+        <GridColumn Field="@nameof(VWinnerOfWinner.Divisionname)" HeaderText="Div Name"/>
+        <GridColumn Field="@nameof(VWinnerOfWinner.Finalpoints)" HeaderText="Points"/>
       </GridColumns>
     </SfGrid>
   </div>
@@ -56,22 +56,21 @@
 
 @code {
   private readonly dbContext _db = new();
-  
   List<Event>? _lstEvents;
   int? _eventId;
   SfComboBox<int?, Event>? _comboEvent;
 
-  List<VGrandChampion>? _lstData;
-  SfGrid<VGrandChampion>? GridWinners;
+  List<VWinnerOfWinner>? _lstData;
+  SfGrid<VWinnerOfWinner>? GridWinners;
 
   private async Task FillDS()
   {
-    _lstEvents = await _db.Events.OrderBy(x => x.Name).ToListAsync();
+    _lstEvents = await _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToListAsync();
 
     if (_eventId != null)
     {
       _lstData = new dbContext()
-        .VGrandChampions
+        .VWinnerOfWinners
         .Where(x => x.Eventid == _eventId && x.Competitiontypeid == 1)
         .ToList();
     }
