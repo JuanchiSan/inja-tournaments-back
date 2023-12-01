@@ -42,13 +42,12 @@
         <GridColumn Field="@nameof(InternalEventChallengeDivision.EventChallengeName)" HeaderText="Challenge" Width="150" AllowEditing="false" />
         <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionName)" HeaderText="Division" Width="150" AllowEditing="false"/>
         <GridColumn Field="@nameof(InternalEventChallengeDivision.CompetitionName)" HeaderText="Competition" Width="150" AllowEditing="false"/>
-        <GridColumn Field="ManualCode" HeaderText="ManualCode" Width="150" AllowEditing="false">
+        <GridColumn Field="" HeaderText="ManualCode" Width="150" AllowEditing="false">
           <Template>
             @{
               if (context is InternalEventChallengeDivision{Selected: true }cte)
               {
-                var res = $"{cte.ChallengeId}-{cte.DivisionId}-{_contenderId}-{_eventId}";
-                <div>@res</div>
+                <div>@($"{cte.ChallengeId}-{cte.DivisionId}-{_contenderId}-{_eventId}")</div>
               }
             }
           </Template>
