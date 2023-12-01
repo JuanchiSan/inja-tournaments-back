@@ -171,8 +171,8 @@
       Serilog.Log.Error(e,"Error cambiando de estado el Evento en publicación de resultados ");
       _db = new dbContext();
     }
-    await FillDS();
     await DialogService.AlertAsync("Points Published", $"{dbItem.Name}");
+    await FillDS();
     StateHasChanged();
   }
 }

@@ -1,19 +1,6 @@
 ﻿@page "/Events"
 
-@using InjaAdmin.Adaptors
-@using InjaData.Models
-@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components
-@using Syncfusion.Blazor
-@using Syncfusion.Blazor.Data
-@using Syncfusion.Blazor.Grids
-@using InjaAdmin.Adaptors
-@using InjaData.Models
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components
-@using Syncfusion.Blazor
-@using Syncfusion.Blazor.Data
-@using Syncfusion.Blazor.Grids
 
 @attribute [Authorize(Roles = "4,5")]
 
@@ -46,7 +33,8 @@
       <GridColumn Field="@nameof(Event.PointPublished)" HeaderText="Is Published" DisplayAsCheckBox="true" Width="50" AllowEditing="false"/>
       <GridColumn Field="@nameof(Event.PointPublishedDate)" HeaderText="Published At" EditType="EditType.DateTimePickerEdit" Width="120" AllowEditing="false"/>
       <GridColumn Field="@nameof(Event.PointPublishedUser)" HeaderText="Published By" Width="100" AllowEditing="false"/>
-      <GridColumn HeaderText="Cups" Width="150">
+      <GridColumn Field="@nameof(Event.PointPublishedUser)" HeaderText="Published Message" Width="100" AllowEditing="true"/>
+      <GridColumn HeaderText="Cups" Width="100">
         <GridCommandColumns>
           <GridCommandColumn Type="CommandButtonType.None" Title="Cups" ID="Cups" ButtonOption="@(new CommandButtonOptions { Content = "Cups" })"/>
         </GridCommandColumns>

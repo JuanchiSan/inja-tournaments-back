@@ -80,4 +80,6 @@ public partial class VUserpoint
     public DateTime? PointPublishedDate { get; set; }
 
     public string? PointPublishedUser { get; set; }
+
+    public string? PointPublishedMessage { get; set; }
 }

@@ -27,8 +27,8 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
   {
-    Serilog.Log.Logger.Information("{CurrentMethod} from IP: {RemoteIpAddress}", 
-      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+    Serilog.Log.Logger.Information("{CurrentMethod} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       Helper.GetRemoteIpAddress(HttpContext));
     try
     {
@@ -45,8 +45,8 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetPersonByEmail(string email)
   {
-    Serilog.Log.Logger.Information("{CurrentMethod} email: {EMail} from IP: {RemoteIpAddress}", 
-      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+    Serilog.Log.Logger.Information("{CurrentMethod} email: {EMail} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       email,
       Helper.GetRemoteIpAddress(HttpContext));
 
@@ -66,8 +66,8 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   public async Task<ActionResult<UserDTO>> GetUser(int id)
   {
-    Serilog.Log.Logger.Information("{CurrentMethod} Id: {EMail} from IP: {RemoteIpAddress}", 
-      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+    Serilog.Log.Logger.Information("{CurrentMethod} Id: {EMail} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       id,
       Helper.GetRemoteIpAddress(HttpContext));
 
@@ -83,17 +83,20 @@ public class UserController : ControllerBase
 
   [HttpGet("GetContenderPoints")]
   [AllowAnonymous]
-  public async Task<ActionResult<List<ContenderPointsResponseDTO>>> GetContenderPoints(int eventId, int challengeid, int divisionId, int contenderId)
+  public async Task<ActionResult<List<ContenderPointsResponseDTO>>> GetContenderPoints(int eventId, int challengeid,
+    int divisionId, int contenderId)
   {
-    Serilog.Log.Logger.Information("{CurrentMethod} for ContenderId: {ContenderId} eventId: {EventId} challengeId: {ChallengeId}, DivisionId: {DivisionId} from IP: {RemoteIpAddress}",
-      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+    Serilog.Log.Logger.Information(
+      "{CurrentMethod} for ContenderId: {ContenderId} eventId: {EventId} challengeId: {ChallengeId}, DivisionId: {DivisionId} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       contenderId, eventId, challengeid, divisionId,
       Helper.GetRemoteIpAddress(HttpContext));
-    
+
     try
     {
       var lst = await _context.VUserpoints
-        .Where(x => x.Eventid == eventId && x.Challengeid == challengeid && x.Divisionid == divisionId && x.Contenderid == contenderId)
+        .Where(x => x.Eventid == eventId && x.Challengeid == challengeid && x.Divisionid == divisionId &&
+                    x.Contenderid == contenderId)
         .ToListAsync();
 
       if (!lst.Any())
@@ -105,7 +108,8 @@ public class UserController : ControllerBase
       var lstResult = new List<ContenderPointsResponseDTO>();
       var photoURL = await _context
         .Photos
-        .Where(x => x.Eventid == eventId && x.Challengeid == challengeid && x.Contenderid == contenderId && x.Divisionid == divisionId)
+        .Where(x => x.Eventid == eventId && x.Challengeid == challengeid && x.Contenderid == contenderId &&
+                    x.Divisionid == divisionId)
         .OrderByDescending(y => y.Created)
         .FirstOrDefaultAsync();
       foreach (var x in lst)
@@ -142,6 +146,7 @@ public class UserController : ControllerBase
 
         lstResult.Add(result);
       }
+
       Serilog.Log.Logger.Information("Returning Data {DataCount}", lstResult.Count);
       return Ok(lstResult);
     }
@@ -155,24 +160,28 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   [HttpGet("GetContenderParticipation")]
   [ProducesResponseType(StatusCodes.Status200OK),
-  ProducesResponseType(StatusCodes.Status404NotFound),
-  ProducesResponseType(StatusCodes.Status500InternalServerError)]
+   ProducesResponseType(StatusCodes.Status404NotFound),
+   ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<UserParticipationDTO?>> GetContenderParticipation(int contenderId)
   {
-    Serilog.Log.Logger.Information("{CurrentMethod} for contenderId: {ContenderId} from IP: {RemoteIpAddress}", 
-      System.Reflection.MethodBase.GetCurrentMethod()?.Name, 
+    Serilog.Log.Logger.Information("{CurrentMethod} for contenderId: {ContenderId} from IP: {RemoteIpAddress}",
+      System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       contenderId,
       Helper.GetRemoteIpAddress(HttpContext));
 
     var dbData = await _context.VUserpoints.Where(x => x.Contenderid == contenderId).ToListAsync();
-  
+    var dbDataWinCD =
+      await _context.VWinnersByChallengeDivisions.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbDataNailArt = await _context.VCupNailArts.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbDataGroupCup = await _context.VInjagroupPointsPlanas.Where(x => x.Contenderid == contenderId).ToListAsync();
+
     if (!dbData.Any())
     {
-      Serilog.Log.Logger.Information("No Data Found"); 
-      
+      Serilog.Log.Logger.Information("No Data Found");
+
       return Ok(null);
     }
-    
+
     try
     {
       var userPart = new UserParticipationDTO
@@ -183,7 +192,7 @@ public class UserController : ControllerBase
       };
 
       var dbPhotos = await _context.Photos.Where(x => x.Contenderid == contenderId).ToListAsync();
-      
+
       userPart.Events?.AddRange(dbData
         .Select(x => new UserEventDTO
         {
@@ -191,11 +200,41 @@ public class UserController : ControllerBase
           EventName = x.Eventname!,
           PointsPublished = Convert.ToBoolean(x.PointPublished),
           PointsPublishedDate = x.PointPublishedDate,
-          PointsPublishedUserAuth = x.PointPublishedUser
+          PointsPublishedUserAuth = x.PointPublishedUser,
+          NotPublishedPointsMessage = x.PointPublishedMessage
         }).DistinctBy(y => y.EventId));
 
       userPart.Events?.ForEach(ue =>
       {
+        #region Copas
+
+        var dbCupArtEvent = dbDataNailArt.Where(x => x.Eventid == ue.EventId).ToList();
+        foreach (var dbItem in dbCupArtEvent)
+        {
+          ue.UserCups.Add(new UserCupsDTO
+          {
+            CupName = "Nail Art",
+            TotalPoints = Convert.ToDecimal(dbItem.FinalPoint),
+            Position = Convert.ToInt32(dbItem.Rank)
+          });
+        }
+
+        #endregion
+
+        #region Los Grupos
+
+        foreach (var dbItem in dbDataGroupCup)
+        {
+          ue.UserGroups.Add(new UserPointGroupDTO
+          {
+            GroupName = dbItem.Groupname!,
+            GroupPosition = Convert.ToInt32(dbItem.GroupPosition),
+            TotalPoints = Convert.ToDecimal(dbItem.GroupPoints)
+          });
+        }
+
+        #endregion
+
         ue.UserCompetitions?
           .AddRange(dbData
             .Where(y => y.Eventid == ue.EventId)
@@ -221,16 +260,22 @@ public class UserController : ControllerBase
           foreach (var challengesDto in userCompetitionsDto.Challenges!)
           {
             challengesDto.Division?.AddRange(dbData
-              .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId && d.Eventchallengeid == challengesDto.EventChallengeId)
+              .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId &&
+                          d.Eventchallengeid == challengesDto.EventChallengeId)
               .Select(c => new UserEventChallengeDivisionDTO
               {
                 DivisionId = (int)c.Divisionid!,
                 DivisionName = c.Divisionname!,
                 MaxPoints = (decimal)c.Maxscore!,
                 UserPoints = c.Totalpoints,
-                PhotoUrl = dbPhotos.
-                  Where(ph=>ph.Divisionid == c.Divisionid && ph.Contenderid == contenderId && ph.Eventid == ue.EventId && ph.Challengeid == challengesDto.ChallengeId).
-                  MaxBy(ph1=>ph1.Created)?.PhotoUrl ?? string.Empty
+                UserPosition = Convert.ToInt32(
+                  dbDataWinCD.FirstOrDefault(ucd =>
+                    ucd.Contenderid == contenderId && ucd.Divisionid == (int)c.Divisionid &&
+                    ucd.Eventid == ue.EventId && ucd.Eventchallengeid == challengesDto.EventChallengeId)?.Rank),
+                PhotoUrl = dbPhotos
+                  .Where(ph =>
+                    ph.Divisionid == c.Divisionid && ph.Contenderid == contenderId && ph.Eventid == ue.EventId &&
+                    ph.Challengeid == challengesDto.ChallengeId).MaxBy(ph1 => ph1.Created)?.PhotoUrl ?? string.Empty
               })
               .DistinctBy(d => d.DivisionId));
 
@@ -241,7 +286,9 @@ public class UserController : ControllerBase
               divisionDto.Deductions?.AddRange(
                 _context
                   .VDeductions
-                  .Where(dbd => dbd.Contenderid == contenderId && dbd.Eventid == ue.EventId && dbd.Challengeid == challengesDto.ChallengeId)
+                  .Where(dbd =>
+                    dbd.Contenderid == contenderId && dbd.Eventid == ue.EventId &&
+                    dbd.Challengeid == challengesDto.ChallengeId)
                   .Select(s => new UserPointsDeductionsDTO
                   {
                     DeductionId = (int)s.Deductionnumber!,
@@ -256,7 +303,8 @@ public class UserController : ControllerBase
               #region Criterios
 
               divisionDto.Points?.AddRange(dbData
-                .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId && d.Eventchallengeid == challengesDto.EventChallengeId &&
+                .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId &&
+                            d.Eventchallengeid == challengesDto.EventChallengeId &&
                             d.Divisionid == divisionDto.DivisionId)
                 .Select(s => new UserEventChallengeCriteriasDTO
                 {
@@ -271,9 +319,11 @@ public class UserController : ControllerBase
               foreach (var dtoPoint in divisionDto.Points!)
               {
                 var dbFinalPoint = dbData
-                  .FirstOrDefault(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId
-                                                               && d.Eventchallengeid == challengesDto.EventChallengeId && d.Divisionid == divisionDto.DivisionId &&
-                                                               d.Criteriaid == dtoPoint.CriteriaId);
+                  .FirstOrDefault(d =>
+                    d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId
+                                            && d.Eventchallengeid == challengesDto.EventChallengeId &&
+                                            d.Divisionid == divisionDto.DivisionId &&
+                                            d.Criteriaid == dtoPoint.CriteriaId);
                 for (var i = 1; i <= dtoPoint.CantSlots; i++)
                 {
                   var value = dbFinalPoint?.GetType().GetProperty($"Slot{i}")?.GetValue(dbFinalPoint);
@@ -291,8 +341,8 @@ public class UserController : ControllerBase
         }
       });
 
-      Serilog.Log.Logger.Information("Returning Data"); 
-      
+      Serilog.Log.Logger.Information("Returning Data");
+
       return Ok(userPart);
     }
     catch (Exception e)
@@ -309,17 +359,16 @@ public class UserController : ControllerBase
   [AllowAnonymous]
   [HttpPost("NewContender")]
   [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO)),
-  ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
-  ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+   ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
   public async Task<ActionResult<int>> NewUser(UserDTO aNewUser)
   {
     try
     {
-      Serilog.Log.Logger.Information("{CurrentMethod} for User: {Contender} from IP: {RemoteIpAddress}", 
+      Serilog.Log.Logger.Information("{CurrentMethod} for User: {Contender} from IP: {RemoteIpAddress}",
         System.Reflection.MethodBase.GetCurrentMethod()?.Name,
         (aNewUser.Lastname + ", " + aNewUser.Firstname),
         Helper.GetRemoteIpAddress(HttpContext));
-
     }
     catch (Exception e)
     {
@@ -332,7 +381,8 @@ public class UserController : ControllerBase
       return BadRequest("User Mail already exists");
     }
 
-    dbUser = await _context.Injausers.FirstOrDefaultAsync(x => x.Docnumber == aNewUser.Docnumber && x.Docid == aNewUser.Docid);
+    dbUser = await _context.Injausers.FirstOrDefaultAsync(x =>
+      x.Docnumber == aNewUser.Docnumber && x.Docid == aNewUser.Docid);
     if (dbUser != null)
     {
       return BadRequest("User Document already exists");
@@ -340,14 +390,20 @@ public class UserController : ControllerBase
 
     if (aNewUser.CountryId is null or 0)
     {
-      var aCountry = new CountriesController(_context, _mapper, _tokenService).AddCountry(aNewUser.CountryName);
-      aNewUser.CountryId = aCountry.Id;
+      var rCountry = await Helper.AddCountry(_context, aNewUser.CountryName ?? "Desconocido");
+      if (rCountry.Item1 != 200)
+        return StatusCode(rCountry.Item1, "Error adding a new Country in NewUser");
+      var aCountry = rCountry.Item2;
+      aNewUser.CountryId = aCountry?.Id;
     }
-    
+
     if (aNewUser.Cityid is null or 0)
     {
-      var aCity = new CitiesController(_context, _mapper, _tokenService).AddCity(aNewUser.CityName, aNewUser.CountryName);
-      aNewUser.Cityid = aCity.Id;
+      var raCity = await Helper.AddCity(_context, aNewUser.CityName!, aNewUser.CountryName);
+      if (raCity.Item1 != 200)
+        return StatusCode(raCity.Item1, "Error adding a new City in NewUser");
+      var aCity = raCity.Item2;
+      aNewUser.Cityid = aCity?.Id;
     }
 
     var newDbUser = new Injauser
@@ -374,9 +430,10 @@ public class UserController : ControllerBase
     catch (Exception e)
     {
       Serilog.Log.Logger.Error(e, "Error saving new user");
-      return  StatusCode(StatusCodes.Status500InternalServerError, "Error saving new user");
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error saving new user");
     }
+
     Serilog.Log.Logger.Information("Returning new user id");
-    return Ok(newDbUser.Id);  
+    return Ok(newDbUser.Id);
   }
 }

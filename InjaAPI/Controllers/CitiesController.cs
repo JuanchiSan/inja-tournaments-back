@@ -72,29 +72,7 @@ public class CitiesController : ControllerBase
 			return BadRequest("City Name can't be null or empty");
 		}
 
-		var dbCity = _context.Cities.ToList().FirstOrDefault(x => string.Equals(x.Name, aCityName, StringComparison.InvariantCultureIgnoreCase));
-
-		var dbCountry = new CountriesController(_context, _mapper, _tokenService).AddCountry(aCountryName ?? "Desconocido");
-
-		if (dbCity != null) 
-			return CityDTO.FromDbItem(dbCity);
-
-		dbCity = new City
-		{
-			Name = aCityName,
-			Countryid = dbCountry.Id
-		};
-		
-		_context.Cities.Add(dbCity);
-		try
-		{
-			await _context.SaveChangesAsync();
-		}
-		catch (Exception e)
-		{
-			Serilog.Log.Error(e, $"Error agregando un Ciudad {aCityName}");
-			return StatusCode(StatusCodes.Status500InternalServerError, $"Error Agregando una Ciudad");
-		}
-		return CityDTO.FromDbItem(dbCity);
+		var result = await Helper.AddCity(_context, aCityName, aCountryName);
+		return result.Item1 != 500 ? Ok(result.Item2) : StatusCode(result.Item1, "Error Adding new City");
 	}
 }

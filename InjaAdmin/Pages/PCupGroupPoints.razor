@@ -34,37 +34,37 @@
             AllowFiltering="false" AllowReordering="true" AllowResizing="true" AllowSorting="true"
             AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport" })">
-      <GridAggregates>
-        <GridAggregate>
-          <GridAggregateColumns>
-            <GridAggregateColumn Field="@nameof(VInjagroupPointsPlana.FinalPoint)" Type="AggregateType.Sum">
-              <GroupCaptionTemplate>
-                @{
-                  var aggregate = (context as AggregateTemplateContext);
-                  <div>
-                    <p>Total Points: @(aggregate?.Sum)</p>
-                  </div>
-                }
-              </GroupCaptionTemplate>
-              <GroupFooterTemplate>
-                @{
-                  var aggregate = (context as AggregateTemplateContext);
-                  <div>
-                    <p>Total Points: @(aggregate?.Sum)</p>
-                  </div>
-                }
-              </GroupFooterTemplate>
-            </GridAggregateColumn>
-          </GridAggregateColumns>
-        </GridAggregate>
-      </GridAggregates>
+      @* <GridAggregates> *@
+      @*   <GridAggregate> *@
+      @*     <GridAggregateColumns> *@
+      @*       <GridAggregateColumn Field="@nameof(VInjagroupPointsPlana.FinalPoint)" Type="AggregateType.Sum"> *@
+      @*         <GroupCaptionTemplate> *@
+      @*           @{ *@
+      @*             var aggregate = (context as AggregateTemplateContext); *@
+      @*             <div> *@
+      @*               <p>Total Points: @(aggregate?.Sum)</p> *@
+      @*             </div> *@
+      @*           } *@
+      @*         </GroupCaptionTemplate> *@
+      @*         <GroupFooterTemplate> *@
+      @*           @{ *@
+      @*             var aggregate = (context as AggregateTemplateContext); *@
+      @*             <div> *@
+      @*               <p>Total Points: @(aggregate?.Sum)</p> *@
+      @*             </div> *@
+      @*           } *@
+      @*         </GroupFooterTemplate> *@
+      @*       </GridAggregateColumn> *@
+      @*     </GridAggregateColumns> *@
+      @*   </GridAggregate> *@
+      @* </GridAggregates> *@
       <GridSortSettings>
         <GridSortColumns>
-          <GridSortColumn Field="@nameof(VInjagroupPointsPlana.FinalPoint)" Direction="SortDirection.Descending"/>
+          <GridSortColumn Field="@nameof(VInjagroupPointsPlana.GroupPosition)" Direction="SortDirection.Ascending"/>
         </GridSortColumns>
       </GridSortSettings>
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
-      <GridGroupSettings Columns="@(new[] { nameof(VInjagroupPointsPlana.Groupname) })"/>
+      @* <GridGroupSettings Columns="@(new[] { nameof(VInjagroupPointsPlana.Groupname) })"/> *@
       <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VInjagroupPointsPlana"/>
       <GridColumns>
         <GridColumn Field="@nameof(VInjagroupPointsPlana.Groupname)" HeaderText="Group"/>
@@ -73,6 +73,8 @@
         <GridColumn Field="@nameof(VInjagroupPointsPlana.Contendername)" HeaderText="Contender"/>
         <GridColumn Field="@nameof(VInjagroupPointsPlana.Contendernumber)" HeaderText="Number"/>
         <GridColumn Field="@nameof(VInjagroupPointsPlana.FinalPoint)" HeaderText="Points"/>
+        <GridColumn Field="@nameof(VInjagroupPointsPlana.GroupPoints)" HeaderText="Group Points"/>
+        <GridColumn Field="@nameof(VInjagroupPointsPlana.GroupPosition)" HeaderText="Group Position"/>
       </GridColumns>
     </SfGrid>
   </div>

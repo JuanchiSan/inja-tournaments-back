@@ -16,6 +16,8 @@ public class UserEventDTO : IEqualityComparer<UserEventDTO>
   public DateTime? PointsPublishedDate { get; set; }
   public string? PointsPublishedUserAuth { get; set; }
   
+  public string? NotPublishedPointsMessage { get; set; }
+  
   public List<UserCompetitionsDTO>? UserCompetitions { get; set; } = new();
 
   public List<UserCupsDTO> UserCups { get; set; } = new();
@@ -36,7 +38,7 @@ public class UserEventDTO : IEqualityComparer<UserEventDTO>
 public class UserPointGroupDTO
 {
   public string GroupName { get; set; }
-  public string Participants { get; set; }
+  //public string Participants { get; set; }
   public decimal TotalPoints { get; set; }
   public int GroupPosition { get; set; }
 }
@@ -76,6 +78,7 @@ public class UserEventChallengeDivisionDTO
   public decimal MaxPoints { get; set; }
   public decimal? UserPoints { get; set; }
   
+  public int? UserPosition { get; set; }
   public string? PhotoUrl { get; set; }
   
   public List<UserEventChallengeCriteriasDTO>? Points { get; set; } = new();

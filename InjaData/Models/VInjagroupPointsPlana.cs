@@ -29,5 +29,7 @@ public partial class VInjagroupPointsPlana
 
     public decimal? FinalPoint { get; set; }
 
-    public long? Rank { get; set; }
+    public decimal? GroupPoints { get; set; }
+
+    public long? GroupPosition { get; set; }
 }

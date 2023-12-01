@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Security.Policy;
+using InjaData.Models;
+using InjaDTO;
 
 namespace InjaAPI;
 
@@ -43,6 +44,61 @@ public static class Helper
     }
 
     return string.Join(", ", remoteIpAddress);
+  }
+
+  public static async Task<Tuple<int, CityDTO?>> AddCity(dbContext _context, string aCityName, string? aCountryName)
+  {
+    var dbCity = _context.Cities.ToList().FirstOrDefault(x => string.Equals(x.Name, aCityName, StringComparison.InvariantCultureIgnoreCase));
+
+    var rdbCountry = await Helper.AddCountry(_context, aCountryName ?? "Desconocido");
+    var dbCountry = rdbCountry.Item2;
+
+    if (dbCity != null)
+      return Tuple.Create(200, CityDTO.FromDbItem(dbCity))!;
+
+    dbCity = new City
+    {
+      Name = aCityName,
+      Countryid = dbCountry!.Id,
+      Active = true
+    };
+		
+    _context.Cities.Add(dbCity);
+    try
+    {
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, $"Error agregando un Ciudad {aCityName}");
+      return Tuple.Create(StatusCodes.Status500InternalServerError, (CityDTO?)null);
+    }
+
+    return Tuple.Create(200, CityDTO.FromDbItem(dbCity))!;
+  }
+  
+  public static async Task<Tuple<int, CountryDTO?>> AddCountry(dbContext _context, string aCountryName)
+  {
+    var dbCountry = _context.Countries.ToList().FirstOrDefault(x =>
+      string.Equals(x.Name, aCountryName, StringComparison.InvariantCultureIgnoreCase));
+
+    if (dbCountry != null) return Tuple.Create(200, CountryDTO.FromDbItem(dbCountry))!;
+    dbCountry = new Country
+    {
+      Active = true,
+      Name = aCountryName
+    };
+    _context.Countries.Add(dbCountry);
+    try
+    {
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Error(e, $"Error agregando un País {aCountryName}");
+      return Tuple.Create(500, (CountryDTO?) null);
+    }
+    return Tuple.Create(200,CountryDTO.FromDbItem(dbCountry))!;
   }
   
   public static IPAddress? GetRemoteHostIpAddressUsingRemoteIpAddress(HttpContext httpContext)

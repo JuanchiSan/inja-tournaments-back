@@ -29,6 +29,8 @@ public partial class Event
 
     public string? PointPublishedUser { get; set; }
 
+    public string PointPublishedMessage { get; set; } = null!;
+
     public virtual Injauser? Creatoruser { get; set; }
 
     public virtual ICollection<EventCup> EventCups { get; set; } = new List<EventCup>();

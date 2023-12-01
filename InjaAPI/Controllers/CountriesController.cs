@@ -71,26 +71,8 @@ public class CountriesController : ControllerBase
     {
       return BadRequest("Country Name can't be null or empty");
     }
-
-    var dbCountry = _context.Countries.ToList().FirstOrDefault(x =>
-      string.Equals(x.Name, aCountryName, StringComparison.InvariantCultureIgnoreCase));
-
-    if (dbCountry != null) return CountryDTO.FromDbItem(dbCountry);
-    dbCountry = new Country
-    {
-      Active = true,
-      Name = aCountryName
-    };
-    _context.Countries.Add(dbCountry);
-    try
-    {
-      await _context.SaveChangesAsync();
-    }
-    catch (Exception e)
-    {
-      Serilog.Log.Error(e, $"Error agregando un País {aCountryName}");
-      return StatusCode(StatusCodes.Status500InternalServerError, $"Error Agregando un País");
-    }
-    return CountryDTO.FromDbItem(dbCountry);
+    
+    var result = await Helper.AddCountry(_context, aCountryName);
+    return result.Item1 != 500 ? Ok(result.Item2) : StatusCode(result.Item1, "Error Adding new Country");
   }
 }

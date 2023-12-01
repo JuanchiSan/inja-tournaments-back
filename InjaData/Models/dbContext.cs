@@ -111,8 +111,6 @@ public partial class dbContext : DbContext
 
     public virtual DbSet<VNailCupPoint> VNailCupPoints { get; set; }
 
-    public virtual DbSet<VUser> VUsers { get; set; }
-
     public virtual DbSet<VUserinscriptionPlana> VUserinscriptionPlanas { get; set; }
 
     public virtual DbSet<VUserpoint> VUserpoints { get; set; }
@@ -373,6 +371,10 @@ public partial class dbContext : DbContext
             entity.Property(e => e.PointPublishedDate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("point_published_date");
+            entity.Property(e => e.PointPublishedMessage)
+                .HasMaxLength(2048)
+                .HasDefaultValueSql("'Not Published'::character varying")
+                .HasColumnName("point_published_message");
             entity.Property(e => e.PointPublishedUser)
                 .HasMaxLength(50)
                 .HasColumnName("point_published_user");
@@ -1072,11 +1074,13 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Contendernumber)
                 .HasMaxLength(10)
                 .HasColumnName("contendernumber");
+            entity.Property(e => e.Divisionid).HasColumnName("divisionid");
             entity.Property(e => e.Divisionname)
                 .HasMaxLength(200)
                 .HasColumnName("divisionname");
             entity.Property(e => e.Eventid).HasColumnName("eventid");
             entity.Property(e => e.FinalPoint).HasColumnName("final_point");
+            entity.Property(e => e.Rank).HasColumnName("rank");
         });
 
         modelBuilder.Entity<VCupNailArtBase>(entity =>
@@ -1395,11 +1399,12 @@ public partial class dbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("eventname");
             entity.Property(e => e.FinalPoint).HasColumnName("final_point");
+            entity.Property(e => e.GroupPoints).HasColumnName("group_points");
+            entity.Property(e => e.GroupPosition).HasColumnName("group_position");
             entity.Property(e => e.Groupid).HasColumnName("groupid");
             entity.Property(e => e.Groupname)
                 .HasMaxLength(200)
                 .HasColumnName("groupname");
-            entity.Property(e => e.Rank).HasColumnName("rank");
         });
 
         modelBuilder.Entity<VInjagroupResult>(entity =>
@@ -1487,35 +1492,6 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Totalpoints)
                 .HasPrecision(8, 2)
                 .HasColumnName("totalpoints");
-        });
-
-        modelBuilder.Entity<VUser>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("v_users");
-
-            entity.Property(e => e.Cityid).HasColumnName("cityid");
-            entity.Property(e => e.Docid).HasColumnName("docid");
-            entity.Property(e => e.Docnumber)
-                .HasMaxLength(20)
-                .HasColumnName("docnumber");
-            entity.Property(e => e.Firstname)
-                .HasMaxLength(80)
-                .HasColumnName("firstname");
-            entity.Property(e => e.Injauserid).HasColumnName("injauserid");
-            entity.Property(e => e.Injausername)
-                .HasMaxLength(200)
-                .HasColumnName("injausername");
-            entity.Property(e => e.Lastname)
-                .HasMaxLength(80)
-                .HasColumnName("lastname");
-            entity.Property(e => e.Mail)
-                .HasMaxLength(100)
-                .HasColumnName("mail");
-            entity.Property(e => e.Phone)
-                .HasMaxLength(20)
-                .HasColumnName("phone");
         });
 
         modelBuilder.Entity<VUserinscriptionPlana>(entity =>
@@ -1619,6 +1595,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.PointPublishedDate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("point_published_date");
+            entity.Property(e => e.PointPublishedMessage)
+                .HasMaxLength(2048)
+                .HasColumnName("point_published_message");
             entity.Property(e => e.PointPublishedUser)
                 .HasMaxLength(50)
                 .HasColumnName("point_published_user");
