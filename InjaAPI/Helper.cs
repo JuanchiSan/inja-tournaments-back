@@ -21,6 +21,8 @@ public static class Helper
   public static string MailNameFrom { get; set; } = string.Empty;
   public static string MailAddressFrom { get; set; } = string.Empty;
 
+  public static string[] Languages => new[] { "En", "Es", "It", "Fr", "Pr" };
+  
   public static string GetRemoteIpAddress(HttpContext httpContext)
   {
     var remoteIpAddress = new [] { string.Empty, string.Empty, string.Empty };

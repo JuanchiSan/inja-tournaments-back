@@ -357,6 +357,52 @@ public class UserController : ControllerBase
   }
 
   [AllowAnonymous]
+  [HttpPost("ChangeUserLanguage")]
+  [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
+   ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+  public async Task<ActionResult> ChangeUserLanguage(string anEmail, string newLanguage)
+  {
+    try
+    {
+      Serilog.Log.Logger.Information("{CurrentMethod} for User: {Contender} from IP: {RemoteIpAddress}",
+        System.Reflection.MethodBase.GetCurrentMethod()?.Name,
+        (anEmail + ", newLanguage" + newLanguage),
+        Helper.GetRemoteIpAddress(HttpContext));
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Logger.Error(e, $"Error on {System.Reflection.MethodBase.GetCurrentMethod()?.Name}");
+    }
+
+    if (Helper.Languages.FirstOrDefault(x =>
+          string.Compare(x, newLanguage, StringComparison.InvariantCultureIgnoreCase) == 0) == null)
+    {
+      return BadRequest($"Bad Language, the possible values are:{Helper.Languages}");
+    }
+
+    var dbUser = (await _context.Injausers.ToListAsync())
+      .FirstOrDefault(x => string.Compare(x.Mail, anEmail, StringComparison.InvariantCultureIgnoreCase) == 0);
+    if (dbUser == null)
+    {
+      return BadRequest("User Mail does not exists");
+    }
+
+    try
+    {
+      dbUser.PreferredLanguage = newLanguage;
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception e)
+    {
+      Serilog.Log.Logger.Error(e, $"Error on {System.Reflection.MethodBase.GetCurrentMethod()?.Name}");
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error Changing the language");
+    }
+    
+    return Ok("The Change was realized");
+  }
+  
+  [AllowAnonymous]
   [HttpPost("NewContender")]
   [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO)),
    ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
@@ -419,6 +465,7 @@ public class UserController : ControllerBase
       Mail = aNewUser.Mail,
       Phone = aNewUser.Phone,
       Street = aNewUser.Street,
+      PreferredLanguage = aNewUser.Language
     };
 
     _context.Injausers.Add(newDbUser);

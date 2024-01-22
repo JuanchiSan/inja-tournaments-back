@@ -62,10 +62,9 @@ var localizationOptions = new RequestLocalizationOptions()
   .AddSupportedUICultures(supportedCultures);
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
-  "Mjc5NDMzMEAzMjMzMmUzMDJlMzBPWVI1Vnh4MWlEWFptSUs3ZGx4aUI4MkFZaitVVEN5SGtaWUhuWVVDbHNZPQ==");
+  "Ngo9BigBOggjHTQxAR8/V1NAaF5cWWJCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdgWH1cdnVcQ2FdVUNyWUs=");
 
 builder.Services.AddDbContext<InjaData.Models.dbContext>(options => options.UseNpgsql(InjaData.Helper.CS));
-
 
 builder.Services.AddBlazoredSessionStorage();
 
@@ -106,6 +105,7 @@ app.UseRouting();
 
 app.MapControllers();
 app.MapBlazorHub();
+
 app.MapFallbackToPage("/_Host");
 
 app.Run();

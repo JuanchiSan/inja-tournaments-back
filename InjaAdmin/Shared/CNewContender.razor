@@ -2,10 +2,10 @@
 @using Microsoft.EntityFrameworkCore
 @using InjaAdmin.Models
 
-<SfDialog @ref="@Dialog" Height="500px" Width="550px" ShowCloseIcon="true" @bind-Visible="Visibility" IsModal="true">
+<SfDialog @ref="@Dialog" Height="550px" Width="550px" ShowCloseIcon="true" @bind-Visible="Visibility" IsModal="true">
   <DialogTemplates>
     <Header>
-      <span>@(NewUser ? "Create" : "Edit") New User</span>
+      <span>@(NewUser ? "Create" : "Edit") User</span>
     </Header>
     <Content>
       <EditForm EditContext="@UserContext" OnSubmit="@OnSubmit">
@@ -15,7 +15,7 @@
             <div class="form-group col-md-6">
               <label for="lastname">Last Name: </label>
               <SfTextBox id="lastname" @bind-Value="@((context.Model as InjauserAdmin)!.Lastname)"/>
-              <ValidationMessage For="@(() => (context.Model as InjauserAdmin)!.Lastname)" />
+              <ValidationMessage For="@(() => (context.Model as InjauserAdmin)!.Lastname)"/>
             </div>
             <div class="form-group col-md-6">
               <label for="firstname">First Name: </label>
@@ -70,6 +70,12 @@
               <SfTextBox id="password1" @bind-Value="@((context.Model as InjauserAdmin)!.Pass1)" Type="InputType.Password"/>
             </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="password">Lenguage:</label>
+              <SfComboBox id="lenguage" TValue="string" TItem="string" @bind-Value="@((context.Model as InjauserAdmin)!.Language)" DataSource="@Helper.Languages" />
+            </div>
+          </div>
         </div>
         <br/>
         <br/>
@@ -112,7 +118,7 @@
   public void Open(Injauser? aNewUser)
   {
     FillDataSources();
-  // Task.Run(async () => await FillDataSources()).Wait();
+    // Task.Run(async () => await FillDataSources()).Wait();
     var nUser = new InjauserAdmin();
 
     if (aNewUser == null)
@@ -140,7 +146,8 @@
   private void OnSubmit(EditContext? obj)
   {
     var modelValid = obj?.Validate();
-    if (modelValid == null || !Convert.ToBoolean(modelValid)) return;
+    if (modelValid == null || !Convert.ToBoolean(modelValid)) 
+      return;
 
     var memUser = (UserContext?.Model as InjauserAdmin)!;
     try
@@ -152,8 +159,9 @@
       else
       {
         var dbUser = _context.Injausers.Find(memUser.Id);
-        InjauserAdmin.ToDbInjaUser(memUser,dbUser!);
+        InjauserAdmin.ToDbInjaUser(memUser, dbUser!);
       }
+
       _context.SaveChanges();
     }
     catch (Exception e)
@@ -161,6 +169,8 @@
       Serilog.Log.Error(e, "Error al guardar usuario");
       _context = new dbContext();
     }
+
     Visibility = false;
   }
+
 }

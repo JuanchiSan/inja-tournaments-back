@@ -15,7 +15,8 @@ public class UserDTO
 			Mail = dbItem.Mail ?? string.Empty,
 			User_Number = dbItem.UserNumber,
 			Docid = (short)dbItem.Docid!,
-			Docnumber = dbItem.Docnumber ?? string.Empty
+			Docnumber = dbItem.Docnumber ?? string.Empty,
+			Language = dbItem.Language ?? "En"
 		};
 	}
 	public int Id { get; set; }
@@ -49,4 +50,6 @@ public class UserDTO
 	public string? CountryName { get; set; }
 
 	public short Enabled { get; set; }
+
+	public string Language { get; set; } = "En";
 }

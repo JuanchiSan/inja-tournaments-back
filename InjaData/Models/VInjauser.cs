@@ -32,4 +32,6 @@ public partial class VInjauser
     public short? Docid { get; set; }
 
     public string? Docnumber { get; set; }
+
+    public string? Language { get; set; }
 }

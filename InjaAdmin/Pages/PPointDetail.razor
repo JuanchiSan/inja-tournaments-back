@@ -36,7 +36,7 @@
       <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"/>
       <GridEvents OnToolbarClick="@GridToolbarClick" TValue="VUserpoint"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VUserpoint.VupKey)" Visible="false" AllowEditing="false" IsPrimaryKey="true"/>
+        <GridColumn Field="@nameof(VUserpoint.VupKey)" Visible="true" AllowEditing="false" IsPrimaryKey="true"/>
         <GridColumn Field="@nameof(VUserpoint.Judgename)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Judge" Width="200" AllowEditing="false"/>
         <GridColumn Field="@nameof(VUserpoint.Criterianame)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Left" HeaderText="Criteria" Width="150" AllowEditing="false"/>
         <GridColumn Field="@nameof(VUserpoint.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" EditorSettings="@(Helper.DFNumericEditCell)" Width="30" AllowEditing="false"/>
@@ -175,7 +175,7 @@
 
       if (dbPoint == null) // es uno nuevo
       {
-        dbPoint = new Point
+        dbPoint = new InjaData.Models.Point
         {
           Userid = (int)contenderId!,
           Eventjudgechallengeid = (int)memItem.Eventjudgechallengedivisionid!

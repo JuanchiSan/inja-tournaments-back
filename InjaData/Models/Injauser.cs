@@ -40,6 +40,8 @@ public partial class Injauser
     /// </summary>
     public int Adminusertype { get; set; }
 
+    public string PreferredLanguage { get; set; } = null!;
+
     public virtual City? City { get; set; }
 
     public virtual Doctype Doc { get; set; } = null!;

@@ -6,7 +6,9 @@ public class AutoMapperProfiles : Profile
 {
 	public AutoMapperProfiles()
 	{
-		CreateMap<InjaData.Models.Injauser, InjaDTO.UserDTO>();
+		CreateMap<InjaData.Models.Injauser, InjaDTO.UserDTO>()
+			.ForMember(x => x.Language, y => y.MapFrom(z => z.PreferredLanguage))
+			.ReverseMap();
 		CreateMap<InjaData.Models.City, InjaDTO.CityDTO>();
 		CreateMap<InjaData.Models.Doctype, InjaDTO.DoctypeDTO>();
 		CreateMap<InjaData.Models.Country, InjaDTO.CountryDTO>();

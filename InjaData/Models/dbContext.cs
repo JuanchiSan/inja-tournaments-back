@@ -499,6 +499,7 @@ public partial class dbContext : DbContext
 
             entity.HasOne(d => d.Eventchallengedivision).WithMany(p => p.Eventjudgechallengedivisions)
                 .HasForeignKey(d => new { d.Eventchallengeid, d.Divisionid })
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_ejcd_ecd");
         });
 
@@ -569,6 +570,10 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
                 .HasColumnName("phone");
+            entity.Property(e => e.PreferredLanguage)
+                .HasMaxLength(120)
+                .HasDefaultValueSql("'En'::character varying")
+                .HasColumnName("preferred_language");
             entity.Property(e => e.Street)
                 .HasMaxLength(100)
                 .HasColumnName("street");
@@ -1446,6 +1451,9 @@ public partial class dbContext : DbContext
             entity.Property(e => e.Injausername)
                 .HasMaxLength(200)
                 .HasColumnName("injausername");
+            entity.Property(e => e.Language)
+                .HasMaxLength(120)
+                .HasColumnName("language");
             entity.Property(e => e.Lastname)
                 .HasMaxLength(80)
                 .HasColumnName("lastname");

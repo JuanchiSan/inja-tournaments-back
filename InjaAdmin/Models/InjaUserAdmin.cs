@@ -10,7 +10,7 @@ public class InjauserAdmin
   {
     if (dbItem == null)
       return new InjauserAdmin();
-    return new InjauserAdmin
+    var iuadmin = new InjauserAdmin
     {
       Id = dbItem.Id,
       Docnumber = dbItem.Docnumber,
@@ -25,9 +25,12 @@ public class InjauserAdmin
       Phone = dbItem.Phone,
       Active = dbItem.Active,
       Urlphoto = dbItem.Urlphoto,
+      Language = dbItem.PreferredLanguage,
+      
       Pass = dbItem.Pass,
       Pass1 = dbItem.Pass
     };
+    return iuadmin;
   }
 
   public static Injauser ToDbInjaUser(InjauserAdmin memUser, Injauser? dbUser = null)
@@ -48,6 +51,7 @@ public class InjauserAdmin
     dbUser.Active = memUser.Active;
     dbUser.Urlphoto = memUser.Urlphoto;
     dbUser.Pass = memUser.Pass;
+    dbUser.PreferredLanguage = memUser.Language;
 
     return dbUser;
   }
@@ -82,6 +86,7 @@ public class InjauserAdmin
   public string Name => $"{Lastname}, {Firstname}";
 
   public string? Nickname { get; set; }
+  public string Language { get; set; } = Helper.LengEnglish;
 }
 
 [AttributeUsage(AttributeTargets.Property)]

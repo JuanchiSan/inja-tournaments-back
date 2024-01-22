@@ -37,7 +37,7 @@
     <div class="filter-input">
       <span class="label user-add">Add User:</span>
       <SfAutoComplete TValue="string" TItem="UserDTO" Placeholder="Type to Search" DataSource="@_lstAllUsers" CssClass="user-combo-box">
-        <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="@Callback"/>
+        <AutoCompleteEvents TItem="UserDTO" TValue="string" OnValueSelect="@OnUserToAddSelect"/>
         <AutoCompleteFieldSettings Value="@nameof(UserDTO.Name)"/>
       </SfAutoComplete>
       <SfButton Content="Add User" @onclick="@OnAddUserClick" IsPrimary="true" CssClass="user-add-btn"/>
@@ -69,10 +69,13 @@
       <GridColumn HeaderText="Manage Inscriptions" Width="150" Visible="@(_eventId != null && _currentUserTypeId == 1)">
         <GridCommandColumns>
           <GridCommandColumn Type="CommandButtonType.None" Title="Inscriptions" ID="Inscriptions" ButtonOption="@(new CommandButtonOptions { Content = "Inscriptions" })"/>
+        </GridCommandColumns>
+      </GridColumn>
+      <GridColumn HeaderText="Manage Users" Width="150" Visible="@(_eventId != null)">
+        <GridCommandColumns>
           <GridCommandColumn Type="CommandButtonType.None" Title="Delete" ID="Delete" ButtonOption="@(new CommandButtonOptions { Content = "Delete" })"/>
         </GridCommandColumns>
       </GridColumn>
-      
     </GridColumns>
   </SfGrid>
 </div>
@@ -152,6 +155,7 @@ padding-left: 5px;
         await db.SaveChangesAsync();
         await FillDS();
         await ContenderGrid?.Refresh()!;
+        _userToAdd = null;
         StateHasChanged();
       }
       catch (Exception e)
@@ -161,7 +165,7 @@ padding-left: 5px;
     }
   }
 
-  private void Callback(SelectEventArgs<UserDTO> obj)
+  private void OnUserToAddSelect(SelectEventArgs<UserDTO> obj)
   {
     _userToAdd = obj.ItemData;
   }
@@ -217,7 +221,14 @@ padding-left: 5px;
 
   #region UserType
 
-  List<UserType> _lstUserTypes = new() { new UserType(1, "Contender"), new UserType(3, "Judge"), new UserType(2, "Photographer"), new UserType(4, "Organizer") };
+  List<UserType> _lstUserTypes = new()
+  {
+    new UserType(1, "Contender"), 
+    new UserType(3, "Judge"),
+    new UserType(4, "Organizer"),
+    new UserType(2, "Photographer"), 
+    new UserType(6, "Supervisor")
+  };
   SfComboBox<int?, UserType?>? sfComboUserType;
 
   private async Task OnUserTypeValueChange(ChangeEventArgs<int, UserType> args)
@@ -348,6 +359,9 @@ padding-left: 5px;
 
   private void OnGridDoubleClick(RecordDoubleClickEventArgs<UserDTO> obj)
   {
+    var cosa = _db.ChangeTracker.Entries<Injauser>().FirstOrDefault();
+    cosa?.Reload();
+
     UserDialog?.Open(_db.Injausers.Find(obj.RowData.Id));
   }
 

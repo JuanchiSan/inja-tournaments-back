@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using HarfBuzzSharp;
 using Syncfusion.Blazor;
 using Syncfusion.Blazor.Data;
 using Syncfusion.Blazor.Grids;
@@ -11,6 +12,10 @@ public static class Helper
 	public static string AppName =>"BeautyComp Admin";
 	
 	public static string Environment { get; set; }
+
+	public static string[] Languages => new[] { "En", "Es", "It", "Fr", "Pr" };
+	
+	public static string LengEnglish => Languages[0]; 
 	
 	public static NumericEditCellParams DFNumericEditCell => new()
 	{
