@@ -57,7 +57,7 @@
                   AllowResizing="true" AllowSelection="true" AllowSorting="true"
                   DataSource="@_lstModelDivision" Query="@_divisionQuery"
                   Toolbar="@(new object[] { "Edit", "Update", "Cancel" })">
-            <GridEditSettings AllowEditing="true" Mode="EditMode.Normal"/>
+            <GridEditSettings AllowEditing="true" Mode="EditMode.Batch"/>
             <GridColumns>
               <GridColumn Field="@nameof(InternalEventChallengeDivision.DivisionId)" IsPrimaryKey="true" Visible="false"/>
               <GridColumn Field="@nameof(InternalEventChallengeDivision.Checked)" HeaderText="Checked" DisplayAsCheckBox="true" Width="50"/>

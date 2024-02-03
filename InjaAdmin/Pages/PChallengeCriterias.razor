@@ -3,6 +3,8 @@
 @attribute [Authorize(Roles = "5")]
 
 @using Action = Syncfusion.Blazor.Grids.Action
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Cryptography.X509Certificates
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
 
@@ -35,11 +37,11 @@
               </GridSortColumns>
             </GridSortSettings>
       <GridColumns>
-        <GridColumn Field="@nameof(Challengejuzmentcriterion.Id)" HeaderText="Id" Visible="false" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
+        <GridColumn Field="@nameof(Challengejuzmentcriterion.Id)" HeaderText="Id" Visible="true" AllowEditing="false" IsPrimaryKey="true" IsIdentity="true" Width="150"/>
         <GridForeignColumn TValue="Judgmentcriterion" Field="@nameof(Challengejuzmentcriterion.Criteriaid)" HeaderText="Criteria" Width="150"
                            ForeignDataSource="@_lstCriterias" ForeignKeyField="@nameof(Judgmentcriterion.Id)" ForeignKeyValue="@nameof(Judgmentcriterion.Name)"/>
         <GridForeignColumn TValue="Division" Field="@nameof(Challengejuzmentcriterion.Divisionid)" HeaderText="Division" Width="150"
-                           ForeignDataSource="@_lstDivisions" ForeignKeyField="@nameof(Division.Id)" ForeignKeyValue="@nameof(Division.Name)"/>
+                           ForeignDataSource="@_lstDivisions" ForeignKeyField="@nameof(Division.Id)" ForeignKeyValue="@nameof(Division.NameWithCompetitionType)"/>
         <GridColumn Field="@nameof(Challengejuzmentcriterion.Rounds)" HeaderText="Round" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
         <GridColumn Field="@nameof(Challengejuzmentcriterion.Hands)" HeaderText="Hands" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
         <GridColumn Field="@nameof(Challengejuzmentcriterion.Slotcant)" HeaderText="Slot Cant" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" EditorSettings="@Helper.DFNumericEditCell" Format="N0" Width="150"/>
@@ -97,8 +99,9 @@
         };
         db.Challengejuzmentcriteria.Add(dbItem);
       }
+
       dbItem.Criteriaid = item.Criteriaid;
-      dbItem.Divisionid = item.Divisionid;
+      dbItem.Divisionid = (item.Divisionid == -1) ? null : item.Divisionid;
       dbItem.Maxscore = item.Maxscore;
       dbItem.Hands = item.Hands;
       dbItem.Rounds = item.Rounds;
@@ -123,7 +126,8 @@
   {
     ChallengeName = _db.Challengetypes.FirstOrDefault(x => x.Id == cid)?.Name!;
     _lstCriterias = _db.Judgmentcriteria.OrderBy(x=>x.Name).ToList();
-    _lstDivisions = _db.Divisions.ToList();
+    _lstDivisions = _db.Divisions.Include(x=>x.Competitiontype).ToList();
+    _lstDivisions.Insert(0,new Division { Id = -1, Name = "All" });
     _lstData = _db.Challengejuzmentcriteria.Where(x => x.Challengeid == cid).ToList();
   }
 

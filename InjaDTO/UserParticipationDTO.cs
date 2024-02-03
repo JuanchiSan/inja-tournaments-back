@@ -87,8 +87,14 @@ public class UserEventChallengeDivisionDTO
 
 public class UserEventChallengeCriteriasDTO
 {
+  public UserEventChallengeCriteriasDTO()
+  {
+    CriteriaNames = new CriteriaNamesDTO();
+  }
+  
   public int CriteriaId { get; set; }
   public string CriteriaName { get; set; } = string.Empty;
+  public CriteriaNamesDTO CriteriaNames { get; set; }
   public decimal? UserPoints { get; set; }
   public decimal MaxPoints { get; set; }
   public int CantSlots { get; set; }

@@ -91,9 +91,10 @@ public class UserController : ControllerBase
       System.Reflection.MethodBase.GetCurrentMethod()?.Name,
       contenderId, eventId, challengeid, divisionId,
       Helper.GetRemoteIpAddress(HttpContext));
-
+    
     try
     {
+      var dicCriteriaNames = await _context.Judgmentcriteria.ToDictionaryAsync(x=>x.Id);
       var lst = await _context.VUserpoints
         .Where(x => x.Eventid == eventId && x.Challengeid == challengeid && x.Divisionid == divisionId &&
                     x.Contenderid == contenderId)
@@ -122,6 +123,7 @@ public class UserController : ControllerBase
           JudgeName = x.Judgename ?? string.Empty,
           CriteriaId = Convert.ToInt32(x.Criteriaid),
           CriteriaName = x.Criterianame ?? string.Empty,
+          CriteriaNames = Helper.GetCriteriaNames(Convert.ToInt32(x.Criteriaid), dicCriteriaNames),
           ChallengeId = Convert.ToInt32(x.Challengeid),
           ChallengeName = x.Eventchallengename ?? string.Empty,
           EventJugdeChallengeDivisionId = Convert.ToInt32(x.Eventjudgechallengedivisionid),
@@ -136,7 +138,7 @@ public class UserController : ControllerBase
           CompetitinoName = x.Competitiontypename ?? string.Empty,
           PhotoURL = photoURL?.PhotoUrl ?? string.Empty,
           Hands = Convert.ToInt32(x.Hands),
-          SlotStep = Convert.ToInt32(x.Slotstep)
+          SlotStep = Convert.ToDecimal(x.Slotstep)
         };
 
         for (var i = 1; i <= result.SlotCant; i++)
@@ -174,7 +176,8 @@ public class UserController : ControllerBase
       await _context.VWinnersByChallengeDivisions.Where(x => x.Contenderid == contenderId).ToListAsync();
     var dbDataNailArt = await _context.VCupNailArts.Where(x => x.Contenderid == contenderId).ToListAsync();
     var dbDataGroupCup = await _context.VInjagroupPointsPlanas.Where(x => x.Contenderid == contenderId).ToListAsync();
-
+    var dbDicCriteriaNames = await _context.Judgmentcriteria.ToDictionaryAsync(x => x.Id);
+    
     if (!dbData.Any())
     {
       Serilog.Log.Logger.Information("No Data Found");
@@ -311,6 +314,7 @@ public class UserController : ControllerBase
                   CriteriaId = (int)s.Criteriaid!,
                   CantSlots = (int)s.Slotcant!,
                   CriteriaName = s.Criterianame ?? string.Empty,
+                  CriteriaNames = Helper.GetCriteriaNames(Convert.ToInt32(s.Criteriaid), dbDicCriteriaNames),
                   JudgeId = s.Judgeid,
                   JudgeName = s.Judgename,
                   UserPoints = s.Totalpoints,
@@ -357,7 +361,7 @@ public class UserController : ControllerBase
   }
 
   [AllowAnonymous]
-  [HttpPost("ChangeUserLanguage")]
+  [HttpPut("ChangeUserLanguage")]
   [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string)),
    ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string)),
    ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]

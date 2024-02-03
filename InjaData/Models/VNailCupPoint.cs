@@ -22,6 +22,6 @@ public partial class VNailCupPoint
     public int? Criteriaid { get; set; }
 
     public string? Criterianame { get; set; }
-
+    
     public decimal? Totalpoints { get; set; }
 }

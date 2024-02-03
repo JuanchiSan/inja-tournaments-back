@@ -11,4 +11,9 @@ public class EventChallengeDivisionAdaptor : DataAdaptor
   {
     return Helper.ReadDM<VEventchallengedivision>(_db.VEventchallengedivisions.ToList(), dataManagerRequest, additionalParam);
   }
+
+  public override object Remove(DataManager dataManager, object primaryColumnValue, string primaryColumnName, string additionalParam)
+  {
+    return base.Remove(dataManager, primaryColumnValue, primaryColumnName, additionalParam);
+  }
 }

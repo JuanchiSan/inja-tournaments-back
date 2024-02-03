@@ -22,6 +22,19 @@ public static class Helper
   public static string MailAddressFrom { get; set; } = string.Empty;
 
   public static string[] Languages => new[] { "En", "Es", "It", "Fr", "Pr" };
+
+  public static CriteriaNamesDTO GetCriteriaNames(int criteriaId, Dictionary<int, Judgmentcriterion> dicCriterias)
+  {
+    var result = new CriteriaNamesDTO();
+    if (!dicCriterias.TryGetValue(criteriaId, out var value)) return result;
+
+    result.en = value.Name;
+    result.es = value.Namees ?? string.Empty;
+    result.fr = value.Namefr ?? string.Empty;
+    result.it = value.Nameit ?? string.Empty;
+    result.pt = value.Namepr ?? string.Empty;
+    return result;
+  }
   
   public static string GetRemoteIpAddress(HttpContext httpContext)
   {

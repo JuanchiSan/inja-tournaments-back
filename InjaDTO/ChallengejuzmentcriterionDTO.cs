@@ -2,11 +2,26 @@
 
 public partial class ChallengejuzmentcriterionDTO
 {
+    public ChallengejuzmentcriterionDTO()
+    {
+        CriteriaNames = new CriteriaNamesDTO();
+    }
+    
+    public int Id { get; set; }
+    
     public int Challengeid { get; set; }
 
     public int Criteriaid { get; set; }
+    
+    public string? CriteriaName { get; set; }
+    
+    public CriteriaNamesDTO CriteriaNames { get; set; }
 
     public int Divisionid { get; set; }
+    
+    public string? DivisionName { get; set; }
+
+    public int Rounds { get; set; } = 1;
 
     public decimal Maxscore { get; set; }
 

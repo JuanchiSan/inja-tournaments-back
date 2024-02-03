@@ -1,10 +1,12 @@
 ﻿@page "/EventConfig"
 @using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.EntityFrameworkCore
 
 @attribute [Authorize(Roles = "4,5")]
 
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject NavigationManager navManager
+@inject SfDialogService dialogService
 
 <h3>Event Config</h3>
 
@@ -38,7 +40,7 @@
     <SfGrid @ref="@EventChallengeDivisionGrid" TValue="VEventchallengedivision" ID="@nameof(EventChallengeDivisionGrid)"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" 
             AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
-            Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
+            Toolbar="@(new List<string> { "Delete", "ExcelExport", "PdfExport", "CsvExport", "Search" })"
             Query="@GetChallengeDivisionQuery()">
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
       <SfDataManager AdaptorInstance="@typeof(EventChallengeDivisionAdaptor)" Adaptor="Adaptors.CustomAdaptor"/>
@@ -49,9 +51,10 @@
           <GridSortColumn Field="@nameof(VEventchallengedivision.Challengename)"/>
         </GridSortColumns>
       </GridSortSettings>
+      <GridEditSettings AllowDeleting="true"/>
       <GridEvents OnToolbarClick="@OnEventChallengeGridToolBarClick" CommandClicked="@OnGridCommandClicked" OnActionBegin="@OnGridActionBegin" TValue="VEventchallengedivision"/>
       <GridColumns>
-        <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengeid)" HeaderText="Event Challenge Id" Width="100"/>
+        <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengeid)" HeaderText="Event Challenge Id" Width="100" IsPrimaryKey="true"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengename)" HeaderText="Event Challenge" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengestartdate)" HeaderText="Star Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
         <GridColumn Field="@nameof(VEventchallengedivision.Eventchallengeenddate)" HeaderText="End Date" Format="dd/MM/yyyy HH:mm" Width="150"/>
@@ -72,7 +75,7 @@
 
 
 @code {
-  private readonly dbContext _db = new();
+  private dbContext _db = new();
   
   #region MyRegion
 
@@ -106,14 +109,31 @@
     }
   }
   
-  // private async Task OnGridRowDoubleClick(RecordDoubleClickEventArgs<VEventchallengedivision> obj)
-  // {
-  //   await sessionStorage.SetItemAsync(Helper.paramChellengeName, Tuple.Create(obj.RowData.Eventchallengeid, obj.RowData.Eventchallengename));
-  //   navManager.NavigateTo("/ChallengeCriteriaJudgeConfig");
-  // }
-
-  private void OnGridActionBegin(ActionEventArgs<VEventchallengedivision> obj)
+  private async Task OnGridActionBegin(ActionEventArgs<VEventchallengedivision> obj)
   {
+    if (obj.Action == "Delete")
+    {
+      var result = await dialogService.ConfirmAsync($"Are you sure you want to delete the challenge {obj.RowData.Challengename}?","Confirm Delete Challenge?" );
+      if (result)
+      {
+        var dbItem = await _db.Eventchallenges.FirstOrDefaultAsync(x => x.Id == obj.RowData.Eventchallengeid);
+        if (dbItem != null)
+        {
+          _db.Eventchallenges.Remove(dbItem);
+          try
+          {
+            await _db.SaveChangesAsync();
+          }
+          catch (Exception e)
+          {
+            await dialogService.AlertAsync($"Error Deleting Challenge, the Error is:{e}", "Error Deleting Challenge");
+            _db = new dbContext();
+          }
+
+          await EventChallengeDivisionGrid?.Refresh()!;
+        }
+      }
+    }
   }
   
   private async Task OnEventChallengeGridToolBarClick(ClickEventArgs args)

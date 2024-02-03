@@ -1,5 +1,6 @@
 {
-	"DB": "Host=inja-admin.guadcore.ar; Database=Naily; Username=postgres; Password=Qwert.789",
+	"DB": "Host=10.10.12.11; Database=Naily; Username=postgres; Password=Qwert.789",
+	"DB2": "Host=inja-admin.guadcore.ar; Database=Naily; Username=postgres; Password=Qwert.789",
 	"DB1": "Host=66.165.248.187; Database=Naily; Username=postgres; Password=Qwert.789",
 	"QR_URL": "https://app.beautycomp.com/qr-handler?",
 	"Environment" : "Dev"

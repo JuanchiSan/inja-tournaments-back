@@ -65,10 +65,10 @@
         <div>
           <table>
             <tr>
-              <td style="width: 150px">
+              <td style="width: 120px">
                 Group Name:
               </td>
-              <td style="width: 200px">
+              <td style="width: 350px">
                 <SfTextBox @bind-Value="@_groupName"/>
               </td>
             </tr>
@@ -261,18 +261,16 @@
       if (dbGroup == null) return;
       dbGroup.Name = _groupName;
     }
-    
-    foreach (var participant in _lstParticipants!.Where(x=>x.Groupid== null))
+
+    foreach (var participant in _lstParticipants!.Where(x=>!db.Persongroups.Any(z=>z.Userid == (int)x.Contenderid! &&  z.Groupid == dbGroup.Id)))
     {
-      if (participant.Groupid == null) // es nuevo
+      db.Persongroups.Add(new Persongroup
       {
-        db.Persongroups.Add(new Persongroup
-        {
-          Group = dbGroup,
-          Userid = (int)participant.Contenderid!
-        });
-      }
+        Groupid = dbGroup.Id,
+        Userid = (int)participant.Contenderid!
+      });
     }
+
     foreach (var participant in LstDeletedParticipants!.Where(x=>x.Groupid!= null))
     {
       db.Persongroups.Remove(db.Persongroups.Single(x => participant.Groupid == x.Groupid && participant.Contenderid == x.Userid));

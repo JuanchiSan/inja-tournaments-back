@@ -61,6 +61,11 @@ public class PhotoUserChallengeCriteriaDTO
 
 public class UserChallengeCriteriaDTO
 {
+  public UserChallengeCriteriaDTO()
+  {
+    JugdementCriteriaNames = new CriteriaNamesDTO();
+  }
+  
   public int? eventId { get; set; }
 
   public int? challengeId { get; set; }
@@ -84,6 +89,8 @@ public class UserChallengeCriteriaDTO
   public int? Criteriaid { get; set; }
 
   public string? Judgementcriterianame { get; set; }
+  
+  public CriteriaNamesDTO JugdementCriteriaNames { get; set; }
 
   public int? Divisionid { get; set; }
   

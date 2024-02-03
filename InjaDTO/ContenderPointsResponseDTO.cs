@@ -2,12 +2,18 @@
 
 public class ContenderPointsResponseDTO
 {
+  public ContenderPointsResponseDTO()
+  {
+    CriteriaNames = new CriteriaNamesDTO();
+  }
+  
   public int JudgeId { get; set; }
   public string JudgeName { get; set; } = string.Empty;
   public int ContenderId { get; set; }
   public string ContenderName { get; set; } = string.Empty;
   public int CriteriaId { get; set; }
   public string CriteriaName { get; set; } = string.Empty;
+  public CriteriaNamesDTO CriteriaNames { get; set; }
 
   public int ChallengeId { get; set; }
   public string ChallengeName { get; set; } = string.Empty;
@@ -30,6 +36,6 @@ public class ContenderPointsResponseDTO
   public string PhotoURL { get; set; } = string.Empty;
   
   public int Hands { get; set; }
-  public int SlotStep { get; set; }
+  public decimal SlotStep { get; set; }
 }
 

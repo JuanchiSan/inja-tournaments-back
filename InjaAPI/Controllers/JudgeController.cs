@@ -89,9 +89,15 @@ public class JudgeController : ControllerBase
 				.Where(x => x.Eventid == eventId && x.Challengeid == challengeId && x.Judgeid == judgeId && x.Contenderid == contenderId)
 				.ToListAsync();
 
+			var dicCriteriaNames = await _context.Judgmentcriteria.ToDictionaryAsync(x=>x.Id);
+			
 			if (!dbResult.Any()) return NotFound("No Data with those parameters");
 			
 			var dtoResult = _mapper.Map<List<UserChallengeCriteriaDTO>>(dbResult);
+			foreach (var dto in dtoResult)
+			{
+				dto.JugdementCriteriaNames = Helper.GetCriteriaNames(Convert.ToInt32(dto.Criteriaid), dicCriteriaNames);
+			}
 
 			foreach (var dto in dtoResult) {
 			 	var dbPoint = _context.Points.FirstOrDefault(x => x.Userid == contenderId && x.Eventjudgechallengeid == dto.eventJudgeChallengeDivisionId);
