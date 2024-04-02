@@ -37,9 +37,11 @@ public class UserEventDTO : IEqualityComparer<UserEventDTO>
 
 public class UserPointGroupDTO
 {
-  public string GroupName { get; set; }
+  public string GroupName { get; set; } = string.Empty;
   //public string Participants { get; set; }
   public decimal TotalPoints { get; set; }
+
+  public string EventChallengeName { get; set; } = string.Empty;
   public int GroupPosition { get; set; }
 }
 
@@ -66,7 +68,8 @@ public class UserEventChallengesDTO
   public int ChallengeId { get; set; }
   public int EventChallengeId { get; set; }
   public string EventChallengeName { get; set; } = string.Empty;
-  
+
+  public int MaxRoundCant { get; set; } = 0;
   public List<UserEventChallengeDivisionDTO>? Division { get; set; } = new();
 }
 
@@ -81,8 +84,8 @@ public class UserEventChallengeDivisionDTO
   public int? UserPosition { get; set; }
   public string? PhotoUrl { get; set; }
   
-  public List<UserEventChallengeCriteriasDTO>? Points { get; set; } = new();
-  public List<UserPointsDeductionsDTO>? Deductions { get; set; } = new();
+  public List<UserEventChallengeCriteriasDTO> Points { get; set; } = new();
+  public List<UserPointsDeductionsDTO> Deductions { get; set; } = new();
 }
 
 public class UserEventChallengeCriteriasDTO
@@ -95,6 +98,9 @@ public class UserEventChallengeCriteriasDTO
   public int CriteriaId { get; set; }
   public string CriteriaName { get; set; } = string.Empty;
   public CriteriaNamesDTO CriteriaNames { get; set; }
+
+  public short? Round { get; set; } = 1;
+
   public decimal? UserPoints { get; set; }
   public decimal MaxPoints { get; set; }
   public int CantSlots { get; set; }

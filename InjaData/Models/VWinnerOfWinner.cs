@@ -22,4 +22,6 @@ public partial class VWinnerOfWinner
     public string? Contendernumber { get; set; }
 
     public decimal? Finalpoints { get; set; }
+
+    public long? Rank { get; set; }
 }

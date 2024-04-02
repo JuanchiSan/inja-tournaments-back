@@ -171,12 +171,18 @@ public class UserController : ControllerBase
       contenderId,
       Helper.GetRemoteIpAddress(HttpContext));
 
-    var dbData = await _context.VUserpoints.Where(x => x.Contenderid == contenderId).ToListAsync();
-    var dbDataWinCD =
-      await _context.VWinnersByChallengeDivisions.Where(x => x.Contenderid == contenderId).ToListAsync();
-    var dbDataNailArt = await _context.VCupNailArts.Where(x => x.Contenderid == contenderId).ToListAsync();
-    var dbDataGroupCup = await _context.VInjagroupPointsPlanas.Where(x => x.Contenderid == contenderId).ToListAsync();
     var dbDicCriteriaNames = await _context.Judgmentcriteria.ToDictionaryAsync(x => x.Id);
+    var dbData = await _context.VUserpoints.Where(x => x.Contenderid == contenderId).OrderByDescending(x=>x.Eventid).ThenBy(y=>y.Rounds).ToListAsync();
+    var dbDeductions = await _context.VDeductions.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbDataWinCD = await _context.VWinnersByChallengeDivisions.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbPhotos = await _context.Photos.Where(x => x.Contenderid == contenderId).ToListAsync();
+    
+    #region Cups
+    var dbDataNailArt = await _context.VCupNailArts.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbWinofWin = await _context.VWinnerOfWinners.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbGrandChampion = await _context.VGrandChampions.Where(x => x.Contenderid == contenderId).ToListAsync();
+    var dbDataGroupCup = await _context.VInjagroupPointsPlanas.Where(x => x.Contenderid == contenderId).ToListAsync();
+    #endregion
     
     if (!dbData.Any())
     {
@@ -191,21 +197,119 @@ public class UserController : ControllerBase
       {
         ContenderId = contenderId,
         ContenderNumber = Convert.ToInt32(dbData.First().Contendernumber),
-        Name = dbData.First().Contendername!
+        Name = dbData.First().Contendername!,
+        Events = new List<UserEventDTO>()
       };
 
-      var dbPhotos = await _context.Photos.Where(x => x.Contenderid == contenderId).ToListAsync();
-
-      userPart.Events?.AddRange(dbData
-        .Select(x => new UserEventDTO
+      foreach (var dbItem in dbData)
+      {
+        // nuevo evento
+        var eventItem = userPart.Events.FirstOrDefault(x => x.EventId == dbItem.Eventid);
+        if (eventItem == null)
         {
-          EventId = (int)x.Eventid!,
-          EventName = x.Eventname!,
-          PointsPublished = Convert.ToBoolean(x.PointPublished),
-          PointsPublishedDate = x.PointPublishedDate,
-          PointsPublishedUserAuth = x.PointPublishedUser,
-          NotPublishedPointsMessage = x.PointPublishedMessage
-        }).DistinctBy(y => y.EventId));
+          eventItem = new UserEventDTO
+          {
+            EventId = (int)dbItem.Eventid!,
+            EventName = dbItem.Eventname!,
+            PointsPublished = Convert.ToBoolean(dbItem.PointPublished),
+            PointsPublishedDate = dbItem.PointPublishedDate,
+            PointsPublishedUserAuth = dbItem.PointPublishedUser,
+            NotPublishedPointsMessage = dbItem.PointPublishedMessage
+          };
+          userPart.Events.Add(eventItem);
+        }
+        // Competition Type
+        var compTypeItem = eventItem.UserCompetitions?.FirstOrDefault(x => x.CompetitionId == dbItem.Competitiontypeid);
+        if (compTypeItem == null) // Nuevo tipo de competencia
+        {
+          compTypeItem = new UserCompetitionsDTO
+          {
+            CompetitionId = (int)dbItem.Competitiontypeid!,
+            CompetitionName = dbItem.Competitiontypename!
+          };
+          eventItem.UserCompetitions?.Add(compTypeItem);
+        }
+        //Challenge
+        var challengeItem = compTypeItem.Challenges?.FirstOrDefault(x => x.EventChallengeId == dbItem.Eventchallengeid);
+        if (challengeItem == null) // Nuevo Challenge
+        {
+          challengeItem = new UserEventChallengesDTO
+          {
+            ChallengeId = (int)dbItem.Challengeid!,
+            EventChallengeId = (int)dbItem.Eventchallengeid!,
+            EventChallengeName = dbItem.Eventchallengename ?? string.Empty,
+            MaxRoundCant =
+              Convert.ToInt32(dbData.Where(x => x.Eventchallengeid == dbItem.Eventchallengeid).Max(y => y.Rounds))
+          };
+          compTypeItem.Challenges?.Add(challengeItem);
+        }
+        // Division
+        var divisionItem = challengeItem.Division?.FirstOrDefault(x => x.DivisionId == dbItem.Divisionid);
+        if (divisionItem == null) // Nueva División
+        {
+          divisionItem = new UserEventChallengeDivisionDTO
+          {
+            DivisionId = (int)dbItem.Divisionid!,
+            DivisionName = dbItem.Divisionname!,
+            MaxPoints = Convert.ToDecimal(dbData.Where(x=>x.Eventid == dbItem.Eventid && x.Divisionid == dbItem.Divisionid && x.Eventchallengeid == dbItem.Eventchallengeid).Sum(y=>y.Maxscore)),
+            UserPoints = Convert.ToDecimal(dbData.Where(x=>x.Eventid == dbItem.Eventid && x.Divisionid == dbItem.Divisionid && x.Eventchallengeid == dbItem.Eventchallengeid).Sum(y=>y.Totalpoints)),
+            UserPosition = Convert.ToInt32(
+              dbDataWinCD.FirstOrDefault(ucd =>
+                ucd.Contenderid == contenderId && ucd.Divisionid == (int)dbItem.Divisionid &&
+                ucd.Eventid == dbItem.Eventid && ucd.Eventchallengeid == dbItem.Eventchallengeid)?.Rank),
+            PhotoUrl = dbPhotos
+              .Where(ph =>
+                ph.Divisionid == dbItem.Divisionid && ph.Contenderid == contenderId && ph.Eventid == dbItem.Eventid &&
+                ph.Challengeid == dbItem.Challengeid).MaxBy(ph1 => ph1.Created)?.PhotoUrl ?? string.Empty
+          };
+          challengeItem.Division?.Add(divisionItem);
+          
+          #region Deducciones
+
+          divisionItem.Deductions?.AddRange(dbDeductions
+            .Where(dbd => dbd.Contenderid == contenderId && dbd.Eventid == dbItem.Eventid &&
+                          dbd.Challengeid == dbItem.Challengeid)
+            .Select(s => new UserPointsDeductionsDTO
+            {
+              DeductionId = (int)s.Deductionnumber!,
+              JudgeId = (int)s.Judgeid!,
+              JudgeName = s.Judgename!,
+              Comment = s.Comment ?? string.Empty,
+              Points = (decimal)s.Score!
+            })
+            .ToList());
+
+          #endregion
+        }
+
+        var ueCriteriaItem = divisionItem.Points.FirstOrDefault(x => x.CriteriaId == dbItem.Criteriaid && x.Round == dbItem.Rounds);
+        if (ueCriteriaItem == null) // Nuevo criterio
+        {
+          ueCriteriaItem = new UserEventChallengeCriteriasDTO
+          {
+            CriteriaId = (int)dbItem.Criteriaid!,
+            CantSlots = (int)dbItem.Slotcant!,
+            CriteriaName = dbItem.Criterianame ?? string.Empty,
+            CriteriaNames = Helper.GetCriteriaNames(Convert.ToInt32(dbItem.Criteriaid), dbDicCriteriaNames),
+            Round = dbItem.Rounds,
+            JudgeId = dbItem.Judgeid,
+            JudgeName = dbItem.Judgename,
+            UserPoints = dbItem.Totalpoints,
+            MaxPoints = (int)dbItem.Maxscore!
+          };
+          for (var i = 1; i <= dbItem.Slotcant; i++)
+          {
+            var value = dbItem.GetType().GetProperty($"Slot{i}")?.GetValue(dbItem);
+            ueCriteriaItem.Points?.Add(new UserPointsDTO
+            {
+              SlotId = i,
+              Points = (decimal?)value
+            });
+          }
+          
+          divisionItem.Points.Add(ueCriteriaItem);
+        }
+      }
 
       userPart.Events?.ForEach(ue =>
       {
@@ -222,6 +326,28 @@ public class UserController : ControllerBase
           });
         }
 
+        var dbCupWinofWinCup = dbWinofWin.Where(x => x.Eventid == ue.EventId).ToList();
+        foreach (var dbItem in dbCupWinofWinCup)
+        {
+          ue.UserCups.Add(new UserCupsDTO
+          {
+            CupName = "Winner of Winners",
+            TotalPoints = Convert.ToDecimal(dbItem.Finalpoints),
+            Position = Convert.ToInt32(dbItem.Rank)
+          });
+        }
+        
+        var dbGrandChampionCup = dbGrandChampion.Where(x => x.Eventid == ue.EventId).ToList();
+        foreach (var dbItem in dbGrandChampionCup)
+        {
+          ue.UserCups.Add(new UserCupsDTO
+          {
+            CupName = "Grand Champion",
+            TotalPoints = Convert.ToDecimal(dbItem.Finalpoints),
+            Position = Convert.ToInt32(dbItem.Rank)
+          });
+        }
+        
         #endregion
 
         #region Los Grupos
@@ -230,6 +356,7 @@ public class UserController : ControllerBase
         {
           ue.UserGroups.Add(new UserPointGroupDTO
           {
+            EventChallengeName = dbItem.Eventchallengename ?? string.Empty,
             GroupName = dbItem.Groupname!,
             GroupPosition = Convert.ToInt32(dbItem.GroupPosition),
             TotalPoints = Convert.ToDecimal(dbItem.GroupPoints)
@@ -237,112 +364,6 @@ public class UserController : ControllerBase
         }
 
         #endregion
-
-        ue.UserCompetitions?
-          .AddRange(dbData
-            .Where(y => y.Eventid == ue.EventId)
-            .Select(z => new UserCompetitionsDTO
-            {
-              CompetitionId = (int)z.Competitiontypeid!,
-              CompetitionName = z.Competitiontypename!
-            })
-            .DistinctBy(d => d.CompetitionId)
-          );
-        foreach (var userCompetitionsDto in ue.UserCompetitions!)
-        {
-          userCompetitionsDto.Challenges?.AddRange(dbData
-            .Where(c => c.Eventid == ue.EventId && c.Competitiontypeid == userCompetitionsDto.CompetitionId)
-            .Select(c => new UserEventChallengesDTO
-            {
-              ChallengeId = (int)c.Challengeid!,
-              EventChallengeId = (int)c.Eventchallengeid!,
-              EventChallengeName = c.Eventchallengename ?? string.Empty
-            })
-            .DistinctBy(d => d.EventChallengeId)
-          );
-          foreach (var challengesDto in userCompetitionsDto.Challenges!)
-          {
-            challengesDto.Division?.AddRange(dbData
-              .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId &&
-                          d.Eventchallengeid == challengesDto.EventChallengeId)
-              .Select(c => new UserEventChallengeDivisionDTO
-              {
-                DivisionId = (int)c.Divisionid!,
-                DivisionName = c.Divisionname!,
-                MaxPoints = (decimal)c.Maxscore!,
-                UserPoints = c.Totalpoints,
-                UserPosition = Convert.ToInt32(
-                  dbDataWinCD.FirstOrDefault(ucd =>
-                    ucd.Contenderid == contenderId && ucd.Divisionid == (int)c.Divisionid &&
-                    ucd.Eventid == ue.EventId && ucd.Eventchallengeid == challengesDto.EventChallengeId)?.Rank),
-                PhotoUrl = dbPhotos
-                  .Where(ph =>
-                    ph.Divisionid == c.Divisionid && ph.Contenderid == contenderId && ph.Eventid == ue.EventId &&
-                    ph.Challengeid == challengesDto.ChallengeId).MaxBy(ph1 => ph1.Created)?.PhotoUrl ?? string.Empty
-              })
-              .DistinctBy(d => d.DivisionId));
-
-            foreach (var divisionDto in challengesDto.Division!)
-            {
-              #region Deducciones
-
-              divisionDto.Deductions?.AddRange(
-                _context
-                  .VDeductions
-                  .Where(dbd =>
-                    dbd.Contenderid == contenderId && dbd.Eventid == ue.EventId &&
-                    dbd.Challengeid == challengesDto.ChallengeId)
-                  .Select(s => new UserPointsDeductionsDTO
-                  {
-                    DeductionId = (int)s.Deductionnumber!,
-                    JudgeId = (int)s.Judgeid!,
-                    JudgeName = s.Judgename!,
-                    Comment = s.Comment ?? string.Empty,
-                    Points = (decimal)s.Score!
-                  }).ToList());
-
-              #endregion
-
-              #region Criterios
-
-              divisionDto.Points?.AddRange(dbData
-                .Where(d => d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId &&
-                            d.Eventchallengeid == challengesDto.EventChallengeId &&
-                            d.Divisionid == divisionDto.DivisionId)
-                .Select(s => new UserEventChallengeCriteriasDTO
-                {
-                  CriteriaId = (int)s.Criteriaid!,
-                  CantSlots = (int)s.Slotcant!,
-                  CriteriaName = s.Criterianame ?? string.Empty,
-                  CriteriaNames = Helper.GetCriteriaNames(Convert.ToInt32(s.Criteriaid), dbDicCriteriaNames),
-                  JudgeId = s.Judgeid,
-                  JudgeName = s.Judgename,
-                  UserPoints = s.Totalpoints,
-                  MaxPoints = (int)s.Maxscore!
-                }).ToList());
-              foreach (var dtoPoint in divisionDto.Points!)
-              {
-                var dbFinalPoint = dbData
-                  .FirstOrDefault(d =>
-                    d.Eventid == ue.EventId && d.Competitiontypeid == userCompetitionsDto.CompetitionId
-                                            && d.Eventchallengeid == challengesDto.EventChallengeId &&
-                                            d.Divisionid == divisionDto.DivisionId &&
-                                            d.Criteriaid == dtoPoint.CriteriaId);
-                for (var i = 1; i <= dtoPoint.CantSlots; i++)
-                {
-                  var value = dbFinalPoint?.GetType().GetProperty($"Slot{i}")?.GetValue(dbFinalPoint);
-                  dtoPoint.Points?.Add(new UserPointsDTO
-                  {
-                    SlotId = i,
-                    Points = (decimal?)value
-                  });
-                }
-              }
-
-              #endregion
-            }
-          }
-        }
       });
 
       Serilog.Log.Logger.Information("Returning Data");

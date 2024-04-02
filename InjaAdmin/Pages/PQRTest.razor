@@ -1,0 +1,235 @@
+﻿@page "/QRTest"
+
+@using Syncfusion.Blazor.BarcodeGenerator;
+@using Syncfusion.Drawing;
+@using Syncfusion.Pdf;
+@using Syncfusion.Pdf.Barcode;
+@using Syncfusion.Pdf.Interactive;
+@using Syncfusion.Blazor.SfPdfViewer;
+@using System.IO;
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navManager
+
+<h3>QRs By Chanllenges</h3>
+
+<div>
+  <table>
+    <tr>
+      <td>
+        <span>Event</span>
+      </td>
+      <td style="width: 350px">
+        <SfComboBox @bind-Value="@(_eventId)" TValue="int?" TItem="Event"
+                    Width="350" PopupWidth="350" DataSource="@(_lstEvents)">
+          <ComboBoxFieldSettings Text="@nameof(Event.Name)" Value="@nameof(Event.Id)" />
+          <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="@OnEventValueChange" />
+        </SfComboBox>
+      </td>
+      <td>
+        <span>Challenges</span>
+      </td>
+      <td style="width: 350px">
+        <SfComboBox @bind-Value="@(_challengeDivisionKey)" TValue="string?" TItem="InternalChallengeDivision"
+                    Width="350" PopupWidth="350" DataSource="@(_lstChallengeDivision)"
+                    Query="@(new Query().Where("eventid", "equals", _eventId))">
+          <ComboBoxFieldSettings Text="@nameof(InternalChallengeDivision.ChallengeDivisionName)" Value="@nameof(InternalChallengeDivision.Key)" />
+          <ComboBoxEvents TValue="string?" TItem="InternalChallengeDivision" ValueChange="@OnEventChallengeDivisionValueChange" />
+        </SfComboBox>
+      </td>
+    </tr>
+  </table>
+
+  @if (DocumentPath.Length > 0)
+  {
+    <div>
+      <SfPdfViewer2 @href="@PdfViewer" Height="100%" Width="100%" DocumentPath="@DocumentPath">
+        @* <PdfViewerEvents DocumentLoaded="documentLoad"></PdfViewerEvents> *@
+        @* <PdfViewerEvents Created="OnPdfViewerCreated"/> *@
+      </SfPdfViewer2>
+    </div>
+  }
+</div>
+
+@code {
+  private readonly dbContext _db = new();
+
+  int? _eventId { get; set; }
+  List<Event>? _lstEvents { get; set; }
+
+  List<VUserinscriptionPlana>? _lstUsersToPrint { get; set; }
+  string? _challengeDivisionKey { get; set; }
+  List<InternalChallengeDivision>? _lstChallengeDivision { get; set; }
+
+  public SfPdfViewer2? PdfViewer { get; set; }
+  private string DocumentPath { get; set; } = string.Empty;
+
+  private void FillDataSources()
+  {
+    _lstChallengeDivision = null;
+    if (_eventId == null) return;
+    _lstChallengeDivision = _db
+      .VEventchallengedivisionPlanas
+      .Where(x => x.Eventid == _eventId)
+      .Select(y => new InternalChallengeDivision
+        {
+          EventId = (int)y.Eventid!,
+          ChallengeId = (int)y.Challengeid!,
+          DivisionId = (int)y.Divisionid!,
+          EventChallengeId = (int)y.Eventchallengeid!,
+          ChallengeDivisionName = $"{y.Eventchallengename} - {y.Divisionname}"
+        })
+      .Distinct()
+      .ToList()
+      .OrderBy(z => z.ChallengeDivisionName).ToList();
+  }
+
+  protected override void OnInitialized()
+  {
+    _lstEvents = _db.Events.Where(x => x.Active == true).OrderBy(x => x.Name).ToList();
+
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  #region ComboBox
+
+  private void OnEventValueChange(ChangeEventArgs<int?, Event> args)
+  {
+    FillDataSources();
+    StateHasChanged();
+  }
+
+  private void OnEventChallengeDivisionValueChange(ChangeEventArgs<string?, InternalChallengeDivision> args)
+  {
+    _lstUsersToPrint = null;
+    if (args.ItemData != null)
+      _lstUsersToPrint = _db.VUserinscriptionPlanas
+        .Where(x => x.Eventchallengeid == args.ItemData.EventChallengeId && x.Divisionid == args.ItemData.DivisionId)
+        .OrderBy(x => x.Usernumber)
+        .ThenBy(y => y.Eventchallengeid)
+        .ToList();
+
+    // Crea una lista de objetos QR
+    List<QR> qrs = new List<QR>();
+    _lstUsersToPrint?.ForEach(x => qrs.Add(new QR() { Texto = $"{Helper.strURL}eventId={x.Eventid}&challengeId={x.Challengeid}&divisionId={x.Divisionid}&contenderId={x.Userid}&guid={Guid.NewGuid()}", Tamaño = 100 }));
+
+    var document = new PdfDocument();
+    //Add a new page to the PDF document.
+    PdfPage page = document.Pages.Add();
+
+    var posY = 10;
+
+    foreach (var qr in qrs)
+    {
+      // Crea un objeto QR
+      var qrcode = new PdfQRBarcode
+      {
+        ErrorCorrectionLevel = PdfErrorCorrectionLevel.High,
+        XDimension = 3,
+        Text = qr.Texto,
+        //Size = new SizeF(100, 100),
+        //Location = new PointF(100, posY)
+      };
+      // Agrega el objeto QR al documento PDF
+      qrcode.Draw(page, new PointF(25, posY));
+      posY += 210;
+    }
+
+    //Save the document.
+    var fpath = Path.GetFullPath(@"../../../Output.pdf");
+    using (FileStream outputFileStream = new FileStream(fpath, FileMode.Create, FileAccess.ReadWrite))
+    {
+      //Save the PDF document to file stream.
+      document.Save(outputFileStream);
+      outputFileStream.Position = 0;
+    }
+
+    var stream = new MemoryStream();
+    document.Save(stream);
+    stream.Position = 0;
+
+    //close the document
+    document.Close(true);
+    
+    DocumentPath = "data:application/pdf;base64," + Convert.ToBase64String(stream.ToArray());
+    //DocumentPath = fpath;
+    PdfViewer.DocumentPath = "data:application/pdf;base64," + Convert.ToBase64String(stream.ToArray());
+     
+    StateHasChanged();
+  }
+  
+  private async Task documentLoad(LoadEventArgs args)
+  {         
+    List<FormField> fields = await PdfViewer.RetrieveFormFieldsAsync();
+    for (int i = 0; i < fields.Count(); i++)
+    {
+      fields[i].IsReadOnly = true;
+      await PdfViewer.UpdateFormFieldsAsync(fields[i]);      
+    } 
+  }  
+  #endregion
+
+  // public async Task<File> GenerarPDF(List<QR> qrs)
+  // {
+  //   // Crea un documento PDF nuevo
+  //   PdfDocument pdf = new PdfDocument();
+
+  //   // Para cada QR en la lista, agrega un objeto QR al documento PDF
+  //   foreach (QR qr in qrs)
+  //   {
+  //     // Crea un objeto QR
+  //     PdfQRBarcode qrcode = new PdfQRBarcode();
+  //     qrcode.Text = qr.Texto;
+  //     qrcode.Size = qr.Tamaño;
+  //     qrcode.Position = qr.Posición;
+
+  //     // Agrega el objeto QR al documento PDF
+  //     pdf.Pages[0].Add(qrcode);
+  //   }
+
+  //   // Descarga el documento PDF
+  //   Stream stream = pdf.Save();
+  //   return stream;
+  //   //return File(stream, "application/pdf", "qr.pdf");
+    // }
+
+}
+
+@code {
+  public class SPoint
+  {
+    public SPoint()
+    {
+      X = 0;
+      Y = 0;
+    }
+
+    public SPoint(int x, int y)
+    {
+      X = x;
+      Y = y;
+    }
+    public int X { get; set; }
+    public int Y { get; set; }
+  }
+
+  public class QR
+  {
+    public string Texto { get; set; }
+    public int Tamaño { get; set; }
+    public SPoint Posición { get; set; }
+  }
+
+  public class InternalChallengeDivision
+  {
+    public string Key => $"{EventChallengeId}_{ChallengeId}_{DivisionId}";
+    public int EventId { get; set; }
+    public int EventChallengeId { get; set; }
+    public int ChallengeId { get; set; }
+    public int DivisionId { get; set; }
+
+    public string ChallengeDivisionName { get; set; } = string.Empty;
+  }
+
+}

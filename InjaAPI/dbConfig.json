@@ -1,8 +1,8 @@
 {
-  "DB": "Host=10.10.11.40; Database=Naily; Username=postgres; Password=Qwert.789",
+  "DB1": "Host=10.10.11.40; Database=Naily; Username=postgres; Password=Qwert.789",
   "APIDomain": "https://inja-api.guadcore.ar",
   "ChangePasswordURL": "https://inja-app.guadcore.ar/change-password",
-  "DB1": "Host=66.165.248.187; Database=Naily; Username=postgres; Password=Qwert.789",
+  "DB": "Host=66.165.248.187; Database=Naily; Username=postgres; Password=Qwert.789",
   "APIDomain1": "https://api.beautycomp.com",
   "ChangePasswordURL1": "https://app.beautycomp.com/change-password",
   "Brevo" : {

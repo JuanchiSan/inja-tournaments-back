@@ -1,4 +1,4 @@
-﻿@page "/PointView"
+﻿@page "/PointViewAll"
 
 @attribute [Authorize(Roles = "5")]
 
@@ -23,31 +23,13 @@
             <ComboBoxEvents TValue="int?" TItem="Event" ValueChange="OnComboEventValueChange"/>
           </SfComboBox>
         </td>
-        <td>Challenge</td>
-        <td style="width: 350px">
-          <SfComboBox @ref="comboChallenges" @bind-Value="@_eventChallengeId" TValue="int?" TItem="EventChallengeInternal"
-                      PopupWidth="400" DataSource="@_lstChallenges">
-            <ComboBoxFieldSettings Text="@nameof(EventChallengeInternal.EventChallengeName)" Value="@nameof(EventChallengeInternal.EventChallengeId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeInternal" ValueChange="OnComboChallengeValueChange"/>
-          </SfComboBox>
-
-        </td>
-        <td>Competition</td>
-        <td>
-          <SfComboBox @ref="comboDivisions" @bind-Value="@_divisionId" TValue="int?" TItem="EventChallengeDivisionInternal" Autofill="true"
-                      Width="550" PopupWidth="500" 
-                      DataSource="@_lstDivision">
-            <ComboBoxFieldSettings Text="@nameof(EventChallengeDivisionInternal.DivisionCompetition)" Value="@nameof(EventChallengeDivisionInternal.DivisionId)"/>
-            <ComboBoxEvents TValue="int?" TItem="EventChallengeDivisionInternal" ValueChange="OnComboDivisionValueChange"/>
-          </SfComboBox>
-        </td>
       </tr>
     </table>
   </div>
   <div>
     <SfGrid @ref="@GridPoints" TValue="VUserpointGroup" ID="@nameof(GridPoints)"
             AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowExcelExport="true"
-            AllowPdfExport="true" AllowSelection="true" AllowSorting="true"
+            AllowPdfExport="true" AllowSelection="true" AllowSorting="true" AllowGrouping="true"
             Toolbar="@(new List<string> { "ExcelExport", "PdfExport", "CsvExport", "Search" })"
             DataSource="@_lstPoints">
       <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"/>
@@ -57,8 +39,26 @@
           <GridSortColumn Field="@nameof(VUserpointGroup.FinalPoint)" Direction="SortDirection.Descending"/>
         </GridSortColumns>
       </GridSortSettings>
+       <GridAggregates>
+        <GridAggregate>
+          <GridAggregateColumns>
+            <GridAggregateColumn Field="@nameof(VUserpointGroup.Totalpoints)" Type="AggregateType.Sum" Format="N2" />
+            <GridAggregateColumn Field="@nameof(VUserpointGroup.Deductions)" Type="AggregateType.Sum" Format="N2" />
+            <GridAggregateColumn Field="@nameof(VUserpointGroup.FinalPoint)" Type="AggregateType.Sum" Format="N2" />
+          </GridAggregateColumns>
+        </GridAggregate>
+       </GridAggregates>
+      <GridGroupSettings>
+
+      </GridGroupSettings>
       <GridEvents CommandClicked="GridPointsCommandClick" OnToolbarClick="@GridToolbarClick" TValue="VUserpointGroup"/>
       <GridColumns>
+        <GridColumn Field="@nameof(VUserpointGroup.Competitiontypename)" HeaderText="Competition" Width="120"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Eventchallengeid)" HeaderText="EChallenge ID" Width="120"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Eventchallengename)" HeaderText="Challenge" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Divisionid)" HeaderText="Div id" Width="120"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Divisionname)" HeaderText="Div Name" Width="150"/>
+        <GridColumn Field="@nameof(VUserpointGroup.Contenderid)" HeaderText="Contender Id" Width="200"/>
         <GridColumn Field="@nameof(VUserpointGroup.Contendername)" HeaderText="Contender" Width="200"/>
         <GridColumn Field="@nameof(VUserpointGroup.Contendernumber)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Number" Width="200"/>
         <GridColumn Field="@nameof(VUserpointGroup.NotEval)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" HeaderText="Not Evals" Width="150"/>
@@ -67,18 +67,15 @@
         <GridColumn Field="@nameof(VUserpointGroup.Deductions)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Deductions" Width="150"/>
         <GridColumn Field="@nameof(VUserpointGroup.FinalPoint)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Final Points" Width="150"/>
         <GridColumn Field="@nameof(VUserpointGroup.Maxscore)" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Right" HeaderText="Maxscore" Width="150"/>
-        <GridColumn HeaderText="Manage Records" Width="150">
-          <GridCommandColumns>
-            <GridCommandColumn Type="CommandButtonType.None" ID="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/>
-            <GridCommandColumn Type="CommandButtonType.None" ID="Photo" ButtonOption="@(new CommandButtonOptions { Content = "Photo", CssClass = "e-photo" })"/>
-          </GridCommandColumns>
-        </GridColumn>
-      </GridColumns>
+      @*   <GridColumn HeaderText="Manage Records" Width="150"> *@
+      @*     <GridCommandColumns> *@
+      @*       <GridCommandColumn Type="CommandButtonType.None" ID="Edit" ButtonOption="@(new CommandButtonOptions { IconCss = "e-icons e-edit", CssClass = "e-flat" })"/> *@
+      @*     </GridCommandColumns> *@
+      @*   </GridColumn> *@
+       </GridColumns> 
     </SfGrid>
   </div>
 </div>
-
-<CImageViewer @ref="@PhotoDialog" ChallengeName="@_challengeName" ContenderName="@_contenderName" />
 
 <style>
     .e-removeEditcommand .e-unboundcell .e-unboundcelldiv button.e-photo {
@@ -109,44 +106,10 @@
     }
   }
 
-  private bool HasPhoto(int contenderId)
-  {
-    var fila = _db.Eventchallenges.FirstOrDefault(x => x.Id == _eventChallengeId);
-    if (fila == null) return false;
-    var dbResult = _db.Photos
-      .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == contenderId)
-      .OrderByDescending(x => x.Created)
-      .ToList();
-
-    return dbResult.Any() && dbResult.First().PhotoUrl != null;
-  }
-
   private async Task GridPointsCommandClick(CommandClickEventArgs<VUserpointGroup> obj)
   {
-    var _db = new dbContext();
-    var fila = await _db.Eventchallenges.FirstOrDefaultAsync(x => x.Id == _eventChallengeId);
-
     switch (obj.CommandColumn.ID)
     {
-      case "Photo" when fila != null:
-      {
-        var cosa = await _db.Photos
-          .Where(x => x.Eventid == _eventId && x.Challengeid == fila.Challengeid && x.Divisionid == _divisionId && x.Contenderid == obj.RowData.Contenderid)
-          .OrderByDescending(x => x.Created)
-          .ToListAsync();
-
-        // if (!cosa.Any() || cosa.First().PhotoUrl == null)
-        // {
-        //   await JsRuntime.InvokeVoidAsync("alert", "No hay foto para este registro");
-        //   return; // mostrar cartel de que no hay foto
-        // }
-
-        var PhotoURL = (!cosa.Any() || cosa.First().PhotoUrl == null) ? string.Empty : cosa.First().PhotoUrl!.Replace("DownloadPhotoFile", "GetImage");
-        _contenderName = obj.RowData.Contendername;
-        _challengeName = obj.RowData.Eventchallengename;
-        PhotoDialog?.OpenDialog(PhotoURL, (int)_eventId!, fila.Challengeid, (int)_divisionId!, (int)obj.RowData.Contenderid!);
-        break;
-      }
       case "Edit":
         await sessionStorage.SetItemAsync(Helper.paramDetailPointView, Tuple.Create(obj.RowData.Contenderid, obj.RowData.Contendername, obj.RowData.Eventid, obj.RowData.Eventchallengeid, obj.RowData.Divisionid));
         navManager.NavigateTo("/PointDetail");
@@ -177,13 +140,12 @@
 
   private async Task FillPoints()
   {
-    if (_eventChallengeId != null && _divisionId != null)
-    {
+    _lstPoints.Clear();
+    if (_eventId != null)
       _lstPoints = await _db
         .VUserpointGroups
-        .Where(x => x.Eventchallengeid == _eventChallengeId && x.Divisionid == _divisionId)
+        .Where(x => x.Eventid == _eventId)
         .ToListAsync();
-    }
   }
 
   private async Task FillDS()
@@ -195,18 +157,12 @@
   {
     var foundQueryParameter = QueryHelpers.ParseQuery(navManager.ToAbsoluteUri(navManager.Uri).Query);
 
-    if (foundQueryParameter.TryGetValue("eid", out var eid) &&
-        foundQueryParameter.TryGetValue("ecid", out var ecid) &&
-        foundQueryParameter.TryGetValue("did", out var did))
+    if (foundQueryParameter.TryGetValue("eid", out var eid))
     {
       _eventId = Convert.ToInt32(eid);
-      _eventChallengeId = Convert.ToInt32(ecid);
-      _divisionId = Convert.ToInt32(did);
     }
 
     Task.Run(async () => await FillDS()).Wait(5000);
-    Task.Run(async () => await FillLstChallenges()).Wait(5000);
-    Task.Run(async () => await FillLstDivision()).Wait(5000);
     Task.Run(async () => await FillPoints()).Wait(5000);
 
     return base.OnInitializedAsync();
@@ -233,101 +189,8 @@
 
   private async Task OnComboEventValueChange(ChangeEventArgs<int?, Event> obj)
   {
-    await FillLstChallenges();
-  }
-
-  #endregion
-
-  #region Challenges
-
-  int? _eventChallengeId;
-  List<EventChallengeInternal> _lstChallenges = new();
-  private SfComboBox<int?, EventChallengeInternal>? comboChallenges { get; set; }
-
-  private async Task FillLstChallenges()
-  {
-    if (_eventId == null) return;
-
-    _lstChallenges = await new dbContext()
-      .Eventchallenges
-      .Include(x => x.Challenge)
-      .Where(x => x.Eventid == _eventId)
-      .OrderBy(z => z.Name)
-      .Select(y => new EventChallengeInternal
-      {
-        EventChallengeId = y.Id,
-        EventChallengeName = y.Name,
-        EventId = y.Eventid
-      })
-      .ToListAsync();
-
-    if ((_eventChallengeId == null && _lstChallenges.Any()) || (_eventChallengeId != null && _lstChallenges.All(x => x.EventChallengeId != _eventChallengeId)))
-      _eventChallengeId = _lstChallenges.First().EventChallengeId;
-  }
-
-  private async Task OnComboChallengeValueChange(ChangeEventArgs<int?, EventChallengeInternal> obj)
-  {
-    await FillLstDivision();
-  }
-
-  #endregion
-
-  #region Division
-
-  int? _divisionId;
-  List<EventChallengeDivisionInternal> _lstDivision = new();
-  private SfComboBox<int?, EventChallengeDivisionInternal>? comboDivisions { get; set; }
-
-  private async Task OnComboDivisionValueChange(ChangeEventArgs<int?, EventChallengeDivisionInternal> obj)
-  {
     await FillPoints();
   }
 
-  private async Task FillLstDivision()
-  {
-    if (_eventChallengeId == null) return;
-
-    var oldDivId = _divisionId;
-    
-    _lstDivision = await new dbContext()
-      .Eventchallengedivisions
-      .Include(x => x.Division)
-      .ThenInclude(y => y.Competitiontype)
-      .Where(x => x.Eventchallengeid == _eventChallengeId)
-      .Select(q => new EventChallengeDivisionInternal
-      {
-        DivisionId = q.Divisionid,
-        DivisionCompetition = $"{q.Division.Competitiontype.Name}, {q.Division.Name}",
-        EventChallengeId = q.Eventchallengeid
-      })
-      .ToListAsync();
-
-    if ((_divisionId == null && _lstDivision.Any()) || (_divisionId != null && _lstDivision.All(x => x.DivisionId != _divisionId)))
-    {
-      _divisionId = _lstDivision.First().DivisionId;
-    }
-    if (oldDivId != null && oldDivId == _divisionId) // tengo que refrescar la lista de puntos;
-      await FillPoints();
-  }
-
   #endregion
-
-  #region Additional Classes
-
-  public class EventChallengeInternal
-  {
-    public int? EventChallengeId { get; set; }
-    public string? EventChallengeName { get; set; }
-    public int? EventId { get; set; }
-  }
-
-  public class EventChallengeDivisionInternal
-  {
-    public int? DivisionId { get; set; }
-    public string? DivisionCompetition { get; set; }
-    public int? EventChallengeId { get; set; }
-  }
-
-  #endregion
-
 }
