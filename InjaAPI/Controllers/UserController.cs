@@ -321,6 +321,7 @@ public class UserController : ControllerBase
           ue.UserCups.Add(new UserCupsDTO
           {
             CupName = "Nail Art",
+            DivisionName = dbItem.Divisionname!,
             TotalPoints = Convert.ToDecimal(dbItem.FinalPoint),
             Position = Convert.ToInt32(dbItem.Rank)
           });
@@ -332,6 +333,7 @@ public class UserController : ControllerBase
           ue.UserCups.Add(new UserCupsDTO
           {
             CupName = "Winner of Winners",
+            DivisionName = dbItem.Divisionname!,
             TotalPoints = Convert.ToDecimal(dbItem.Finalpoints),
             Position = Convert.ToInt32(dbItem.Rank)
           });

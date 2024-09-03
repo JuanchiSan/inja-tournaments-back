@@ -49,6 +49,8 @@ public class UserCupsDTO
 {
   public string CupName { get; set; }
   public int Position { get; set; }
+  
+  public string DivisionName { get; set; } = string.Empty;
   public decimal TotalPoints { get; set; }
 }
 
